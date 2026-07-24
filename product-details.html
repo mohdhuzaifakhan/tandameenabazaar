@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details - Digital Meena Bazaar</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#056839">
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="top-header">
+      <div class="container top-header-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+          <div class="logo-text">
+            <span>Digital</span>
+            <span>Meena Bazaar</span>
+          </div>
+        </a>
+
+        <div class="location-selector">
+          <i class="fa-solid fa-location-dot" style="color: var(--primary-green);"></i>
+          <span>Rampur</span>
+          <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem;"></i>
+        </div>
+
+        <div class="header-search">
+          <input type="text" placeholder="Search for products, shops, brands...">
+          <button type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+
+        <div class="header-actions">
+          <a href="saved.html" class="header-action-item">
+            <i class="fa-regular fa-heart"></i>
+            <span>Saved</span>
+            <span class="saved-counter saved-counter-val">0</span>
+          </a>
+          <a href="shops.html" class="header-action-item">
+            <i class="fa-solid fa-store"></i>
+            <span>Shops</span>
+          </a>
+          <a href="#" class="header-action-item btn btn-outline" style="padding: 6px 14px; font-size: 0.85rem;">
+            <i class="fa-regular fa-user"></i>
+            <span>Login</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <div class="container main-nav-inner">
+        <div class="category-dropdown-btn">
+          <i class="fa-solid fa-bars"></i>
+          <span>Categories</span>
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="shops.html">Shops</a></li>
+          <li><a href="saved.html">Saved</a></li>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container" id="product-details-view" style="padding-top: 10px;">
+    
+    <!-- Breadcrumbs -->
+    <div class="breadcrumb">
+      <a href="index.html">Home</a> &gt;
+      <a href="shops.html">Shops</a> &gt;
+      <a href="#" id="breadcrumb-shop">Sharma Mobile Store</a> &gt;
+      <span id="breadcrumb-product">Samsung Galaxy M16 5G</span>
+    </div>
+
+    <!-- Product Details Main Layout Card -->
+    <div class="product-details-container">
+      <div class="product-details-grid">
+        
+        <!-- Left: Image Gallery -->
+        <div>
+          <div class="gallery-main">
+            <div class="product-card-badges">
+              <span class="badge badge-discount" id="badge-discount">10% OFF</span>
+              <span class="badge badge-new" id="badge-new">New Arrival</span>
+            </div>
+            <button class="btn-icon" style="position: absolute; top: 10px; right: 10px; z-index: 5;" title="Share"><i class="fa-solid fa-share-nodes"></i></button>
+            <img id="gallery-main-img" src="" alt="Product Main Image">
+          </div>
+
+          <div class="gallery-dots">
+            <div class="gallery-dot active"></div>
+            <div class="gallery-dot"></div>
+            <div class="gallery-dot"></div>
+            <div class="gallery-dot"></div>
+            <div class="gallery-dot"></div>
+            <div class="gallery-dot"></div>
+          </div>
+
+          <div class="gallery-thumbs" id="gallery-thumbs" style="margin-top: 12px;">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Right: Specs & WhatsApp Action -->
+        <div class="product-info-col">
+          <h1 id="product-title">Samsung Galaxy M16 5G</h1>
+          <div class="brand-by">by <span id="product-brand">Samsung</span></div>
+
+          <div class="rating-sold-row">
+            <span style="color: #f59e0b; font-weight: 700;">
+              <i class="fa-solid fa-star"></i> <span id="product-rating">4.6</span> (<span id="product-reviews-count">125</span> Reviews)
+            </span>
+            <span style="color: var(--text-light);">|</span>
+            <span style="color: var(--text-muted); font-weight: 600;"><span id="product-sold-count">210</span> Sold</span>
+          </div>
+
+          <div class="price-box-large">
+            <span class="price-main" id="product-price">₹14,999</span>
+            <span style="color: var(--text-light); text-decoration: line-through; font-size: 1.1rem;" id="product-original-price">₹16,999</span>
+            <span class="badge badge-discount" id="product-discount-text">10% OFF</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: -14px; margin-bottom: 20px;">Inclusive of all taxes</div>
+
+          <!-- Available Store Box -->
+          <div class="available-store-card">
+            <div>
+              <div style="font-size: 0.85rem; color: var(--text-muted);">Available at: <a href="#" id="shop-available-name" style="font-weight: 700; color: var(--primary-green);">Sharma Mobile Store &gt;</a></div>
+              <div style="font-size: 0.8rem; color: var(--text-dark);" id="shop-available-address">Gandhi Market, Rampur</div>
+            </div>
+            <div style="background: #e8f5e9; color: var(--primary-green); padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;">
+              <i class="fa-solid fa-star" style="color: #f59e0b;"></i> <span id="shop-available-rating">4.6</span> (<span id="shop-available-reviews">125</span>)
+            </div>
+          </div>
+
+          <!-- Highlights -->
+          <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 8px;">Product Highlights</h4>
+          <ul class="product-highlights-list" id="product-highlights">
+            <!-- Rendered by JS -->
+          </ul>
+
+          <!-- Order & Save Buttons -->
+          <div class="product-action-btns">
+            <button class="btn btn-whatsapp btn-whatsapp-lg" id="btn-wa-order">
+              <i class="fa-brands fa-whatsapp" style="font-size: 1.3rem;"></i> Order on WhatsApp
+            </button>
+            <button class="btn btn-outline btn-save-lg" id="btn-save-product">
+              <i class="fa-regular fa-heart"></i> Save Product
+            </button>
+          </div>
+
+          <div class="wa-redirect-note">
+            <i class="fa-solid fa-shield-halved" style="color: var(--primary-green);"></i>
+            <span>You will be redirected to WhatsApp to chat directly with the shop</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Detail Tabs -->
+      <div style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+        <div class="shop-tabs" style="padding: 0;">
+          <div class="shop-tab-item active">Description</div>
+          <div class="shop-tab-item">Specifications</div>
+          <div class="shop-tab-item">Reviews (125)</div>
+          <div class="shop-tab-item">Shop Info</div>
+        </div>
+
+        <div style="padding: 20px 0;">
+          <p id="tab-description-text" style="color: var(--text-dark); line-height: 1.6; margin-bottom: 20px;">
+            Product detailed description text.
+          </p>
+
+          <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">Product Information</h4>
+          <table class="spec-table" id="tab-specifications-table">
+            <!-- Rendered via JS -->
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products Carousel -->
+    <section style="margin: 40px 0;">
+      <div class="section-header">
+        <h3 class="section-title">Related Products</h3>
+        <a href="shops.html" class="view-all-link">View All</a>
+      </div>
+      <div class="products-grid" id="related-products-grid">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 Digital Meena Bazaar Rampur. Built with simple fast PWA technology.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile Sticky Action Bar -->
+  <div class="mobile-sticky-actions">
+    <button class="btn btn-outline btn-save-mob" id="btn-save-product-mob">
+      <i class="fa-regular fa-heart"></i> Save
+    </button>
+    <button class="btn btn-whatsapp btn-wa-mob" id="btn-wa-order-mob">
+      <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+    </button>
+  </div>
+
+  <!-- Bottom Mobile Navigation -->
+  <div class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <a href="index.html" class="bottom-nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </a>
+      <a href="#" class="bottom-nav-item">
+        <i class="fa-solid fa-border-all"></i>
+        <span>Categories</span>
+      </a>
+      <a href="shops.html" class="bottom-nav-item">
+        <i class="fa-solid fa-store"></i>
+        <span>Shops</span>
+      </a>
+      <a href="saved.html" class="bottom-nav-item">
+        <i class="fa-regular fa-heart"></i>
+        <span>Saved</span>
+      </a>
+      <a href="#" class="bottom-nav-item">
+        <i class="fa-regular fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/product.js"></script>
+</body>
+</html>

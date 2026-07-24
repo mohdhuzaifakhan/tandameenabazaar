@@ -1,0 +1,666 @@
+// Digital Meena Bazaar - Mock Database
+
+const BAZAAR_DATA = {
+  cities: ["Rampur", "Moradabad", "Bareilly"],
+  currentCity: "Rampur",
+  
+  categories: [
+    { id: "electronics", name: "Electronics", icon: "fa-laptop", image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=300" },
+    { id: "fashion", name: "Fashion", icon: "fa-shirt", image: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=300" },
+    { id: "groceries", name: "Groceries", icon: "fa-basket-shopping", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=300" },
+    { id: "footwear", name: "Footwear", icon: "fa-shoe-prints", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300" },
+    { id: "cosmetics", name: "Cosmetics", icon: "fa-spray-can-sparkles", image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=300" },
+    { id: "furniture", name: "Furniture", icon: "fa-couch", image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300" },
+    { id: "mobile-acc", name: "Mobile Accessories", icon: "fa-mobile-screen-button", image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=300" },
+    { id: "jewellery", name: "Jewellery", icon: "fa-gem", image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300" },
+    { id: "books", name: "Books", icon: "fa-book", image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=300" },
+    { id: "more", name: "More", icon: "fa-ellipsis", image: "" }
+  ],
+
+  markets: [
+    "Gandhi Market",
+    "Nai Sadak",
+    "Civil Lines",
+    "Mandi Samiti",
+    "Bada Bazaar"
+  ],
+
+  shops: [
+    {
+      id: "sharma-mobile",
+      name: "Sharma Mobile Store",
+      slug: "sharma-mobile-store",
+      verified: true,
+      category: "mobile-acc",
+      categoryName: "Mobile & Accessories",
+      market: "Gandhi Market",
+      address: "Gandhi Market, Rampur, Uttar Pradesh - 244901",
+      phone: "+919876543210",
+      whatsapp: "919876543210",
+      hours: "10:00 AM - 9:00 PM",
+      statusText: "Open Today",
+      rating: 4.6,
+      reviewsCount: 125,
+      productsCount: 120,
+      bannerImage: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=1200",
+      logoImage: "https://images.unsplash.com/photo-1616469829941-c7200edec809?w=200",
+      description: "Your one-stop destination for all mobile phones, accessories and gadgets. Best quality products at the best prices.",
+      highlights: ["100+ Products", "Best Prices", "Genuine Products"]
+    },
+    {
+      id: "khan-footwear",
+      name: "Khan Footwear",
+      slug: "khan-footwear",
+      verified: true,
+      category: "footwear",
+      categoryName: "Footwear",
+      market: "Nai Sadak",
+      address: "Nai Sadak, Rampur, Uttar Pradesh - 244901",
+      phone: "+919876543211",
+      whatsapp: "919876543211",
+      hours: "10:30 AM - 9:30 PM",
+      statusText: "Open Today",
+      rating: 4.4,
+      reviewsCount: 98,
+      productsCount: 85,
+      bannerImage: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200",
+      logoImage: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=200",
+      description: "Latest trendy footwear, sports shoes, formal leather shoes, and comfortable sandals for men, women, and kids.",
+      highlights: ["Premium Shoes", "Trendy Designs", "All Sizes Available"]
+    },
+    {
+      id: "gupta-general",
+      name: "Gupta General Store",
+      slug: "gupta-general-store",
+      verified: true,
+      category: "groceries",
+      categoryName: "Groceries & Daily Essentials",
+      market: "Civil Lines",
+      address: "Civil Lines, Rampur, Uttar Pradesh - 244901",
+      phone: "+919876543212",
+      whatsapp: "919876543212",
+      hours: "8:00 AM - 10:00 PM",
+      statusText: "Open Today",
+      rating: 4.5,
+      reviewsCount: 110,
+      productsCount: 200,
+      bannerImage: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=1200",
+      logoImage: "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=200",
+      description: "Complete household grocery store supplying fresh items, spices, pulses, packaged goods, and personal care products.",
+      highlights: ["Fresh Stock", "Home Delivery Available", "Bulk Rates"]
+    },
+    {
+      id: "fashion-hub",
+      name: "Fashion Hub",
+      slug: "fashion-hub",
+      verified: true,
+      category: "fashion",
+      categoryName: "Fashion & Clothing",
+      market: "Mandi Samiti",
+      address: "Mandi Samiti, Rampur, Uttar Pradesh - 244901",
+      phone: "+919876543213",
+      whatsapp: "919876543213",
+      hours: "11:00 AM - 9:00 PM",
+      statusText: "Open Today",
+      rating: 4.3,
+      reviewsCount: 87,
+      productsCount: 150,
+      bannerImage: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200",
+      logoImage: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200",
+      description: "Ethnic, casual and festive clothing collection for men and women. Premium fabrics and custom fittings.",
+      highlights: ["Latest Fashion", "Festive Wear", "Custom Fitting"]
+    },
+    {
+      id: "shree-jewellers",
+      name: "Shree Jewellers",
+      slug: "shree-jewellers",
+      verified: true,
+      category: "jewellery",
+      categoryName: "Jewellery & Ornaments",
+      market: "Bada Bazaar",
+      address: "Bada Bazaar, Rampur, Uttar Pradesh - 244901",
+      phone: "+919876543214",
+      whatsapp: "919876543214",
+      hours: "11:00 AM - 8:30 PM",
+      statusText: "Open Today",
+      rating: 4.7,
+      reviewsCount: 143,
+      productsCount: 60,
+      bannerImage: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200",
+      logoImage: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=200",
+      description: "Hallmarked Gold and Silver jewelry, antique bridal sets, diamond rings, and certified gemstones.",
+      highlights: ["100% BIS Hallmarked", "Bridal Specialist", "Transparent Pricing"]
+    },
+    {
+      id: "modern-electronics",
+      name: "Modern Electronics",
+      slug: "modern-electronics",
+      verified: true,
+      category: "electronics",
+      categoryName: "Electronics & Home Appliances",
+      market: "Gandhi Market",
+      address: "Gandhi Market, Rampur, Uttar Pradesh - 244901",
+      phone: "+919876543215",
+      whatsapp: "919876543215",
+      hours: "10:00 AM - 9:00 PM",
+      statusText: "Open Today",
+      rating: 4.5,
+      reviewsCount: 101,
+      productsCount: 95,
+      bannerImage: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=1200",
+      logoImage: "https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=200",
+      description: "Smart TVs, Refrigerators, Washing Machines, Laptops, Audio systems, and Kitchen appliances.",
+      highlights: ["Official Dealer", "Warranty Included", "Easy EMI Option"]
+    },
+    {
+      id: "new-book-world",
+      name: "New Book World",
+      slug: "new-book-world",
+      verified: true,
+      category: "books",
+      categoryName: "Books & Stationery",
+      market: "Nai Sadak",
+      address: "Nai Sadak, Rampur, Uttar Pradesh - 244901",
+      phone: "+919876543216",
+      whatsapp: "919876543216",
+      hours: "9:30 AM - 8:30 PM",
+      statusText: "Open Today",
+      rating: 4.4,
+      reviewsCount: 76,
+      productsCount: 300,
+      bannerImage: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1200",
+      logoImage: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=200",
+      description: "School & college textbooks, competitive exam books, stationery supplies, novels, and art materials.",
+      highlights: ["School Textbooks", "Exam Guides", "Art Supplies"]
+    },
+    {
+      id: "beauty-point",
+      name: "Beauty Point",
+      slug: "beauty-point",
+      verified: true,
+      category: "cosmetics",
+      categoryName: "Cosmetics & Skincare",
+      market: "Civil Lines",
+      address: "Civil Lines, Rampur, Uttar Pradesh - 244901",
+      phone: "+919876543217",
+      whatsapp: "919876543217",
+      hours: "10:30 AM - 9:00 PM",
+      statusText: "Open Today",
+      rating: 4.2,
+      reviewsCount: 63,
+      productsCount: 70,
+      bannerImage: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1200",
+      logoImage: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200",
+      description: "Original cosmetic brands, skincare essentials, perfumes, hair care products, and grooming kits.",
+      highlights: ["100% Original", "Top Brands", "Beauty Advice"]
+    }
+  ],
+
+  products: [
+    {
+      id: "samsung-m16-5g",
+      name: "Samsung Galaxy M16 5G",
+      slug: "samsung-galaxy-m16-5g",
+      brand: "Samsung",
+      shopId: "sharma-mobile",
+      shopName: "Sharma Mobile Store",
+      market: "Gandhi Market",
+      price: 14999,
+      originalPrice: 16999,
+      discount: "10% OFF",
+      badge: "New Arrival",
+      isNew: true,
+      isFeatured: true,
+      rating: 4.6,
+      reviewsCount: 125,
+      soldCount: 210,
+      category: "mobile-acc",
+      categoryName: "Mobiles",
+      images: [
+        "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600",
+        "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=600",
+        "https://images.unsplash.com/photo-1574944985070-8f30c439781a?w=600",
+        "https://images.unsplash.com/photo-1580910051074-3eb694886505?w=600"
+      ],
+      highlights: [
+        "6GB RAM | 128GB Storage",
+        "50MP Triple Rear Camera | 13MP Front Camera",
+        "5000mAh Battery | 25W Fast Charging",
+        "6.7 inch FHD+ Super AMOLED Display",
+        "5G Enabled | Dual SIM"
+      ],
+      description: "Samsung Galaxy M16 5G is designed for performance and style. With a powerful processor, stunning display and massive battery, it is built to keep up with your everyday needs.",
+      specifications: {
+        "Brand": "Samsung",
+        "Model": "Galaxy M16 5G",
+        "Condition": "New",
+        "Warranty": "1 Year Manufacturer Warranty",
+        "Availability": "In Stock"
+      }
+    },
+    {
+      id: "nike-air-max",
+      name: "Nike Air Max Running Shoes",
+      slug: "nike-air-max-running-shoes",
+      brand: "Nike",
+      shopId: "khan-footwear",
+      shopName: "Sporty World",
+      market: "Nai Sadak",
+      price: 4499,
+      originalPrice: 4999,
+      discount: "10% OFF",
+      badge: "10% OFF",
+      isNew: false,
+      isFeatured: true,
+      rating: 4.5,
+      reviewsCount: 89,
+      soldCount: 140,
+      category: "footwear",
+      categoryName: "Footwear",
+      images: [
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600",
+        "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600"
+      ],
+      highlights: [
+        "Breathable Mesh Upper",
+        "Air Cushion Comfort Technology",
+        "Durable Rubber Outsole",
+        "Lightweight Athletic Design"
+      ],
+      description: "Superior comfort and bounce for your daily runs and workouts. Engineered with high-durability rubber sole and responsive cushioning.",
+      specifications: {
+        "Brand": "Nike",
+        "Size": "7, 8, 9, 10 UK",
+        "Color": "Navy Blue",
+        "Warranty": "3 Months Manufacturer Defect"
+      }
+    },
+    {
+      id: "wild-stone-perfume",
+      name: "Wild Stone Perfume",
+      slug: "wild-stone-perfume",
+      brand: "Wild Stone",
+      shopId: "beauty-point",
+      shopName: "Beauty Point",
+      market: "Civil Lines",
+      price: 599,
+      originalPrice: 799,
+      discount: "25% OFF",
+      badge: "New",
+      isNew: true,
+      isFeatured: true,
+      rating: 4.3,
+      reviewsCount: 45,
+      soldCount: 95,
+      category: "cosmetics",
+      categoryName: "Cosmetics",
+      images: [
+        "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600",
+        "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600"
+      ],
+      highlights: [
+        "Long lasting 12 Hours Fragrance",
+        "100ml Eau De Parfum",
+        "Premium Woody Notes",
+        "Skin Friendly Formula"
+      ],
+      description: "An irresistible masculine fragrance designed for all-day freshness and confidence.",
+      specifications: {
+        "Brand": "Wild Stone",
+        "Volume": "100ml",
+        "Fragrance Family": "Woody Fresh",
+        "Availability": "In Stock"
+      }
+    },
+    {
+      id: "boat-wave-call",
+      name: "boAt Wave Call Smartwatch",
+      slug: "boat-wave-call-smartwatch",
+      brand: "boAt",
+      shopId: "sharma-mobile",
+      shopName: "Digital Hub",
+      market: "Gandhi Market",
+      price: 1299,
+      originalPrice: 1599,
+      discount: "18% OFF",
+      badge: "15% OFF",
+      isNew: false,
+      isFeatured: true,
+      rating: 4.4,
+      reviewsCount: 78,
+      soldCount: 310,
+      category: "mobile-acc",
+      categoryName: "Smart Watches",
+      images: [
+        "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=600",
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600"
+      ],
+      highlights: [
+        "1.69\" HD Curved Display",
+        "Bluetooth Calling with Speaker & Mic",
+        "100+ Sports Modes & SpO2 Monitor",
+        "IP68 Dust & Water Resistant"
+      ],
+      description: "Stay connected with Bluetooth calling right on your wrist. Track your daily physical activities and wellness metrics with ease.",
+      specifications: {
+        "Brand": "boAt",
+        "Screen Size": "1.69 inch",
+        "Battery Life": "Up to 7 Days",
+        "Color": "Active Black"
+      }
+    },
+    {
+      id: "realme-buds-t310",
+      name: "Realme Buds T310",
+      slug: "realme-buds-t310",
+      brand: "Realme",
+      shopId: "sharma-mobile",
+      shopName: "Mobile Station",
+      market: "Gandhi Market",
+      price: 1399,
+      originalPrice: 1599,
+      discount: "12% OFF",
+      badge: "New",
+      isNew: true,
+      isFeatured: true,
+      rating: 4.5,
+      reviewsCount: 52,
+      soldCount: 180,
+      category: "mobile-acc",
+      categoryName: "Earphones",
+      images: [
+        "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600"
+      ],
+      highlights: [
+        "46dB Hybrid Active Noise Cancellation",
+        "40 Hours Total Playtime",
+        "12.4mm Dynamic Bass Drivers",
+        "360 Spatial Audio Effect"
+      ],
+      description: "Immerse yourself in deep bass and crystal clear audio with advanced hybrid noise cancellation.",
+      specifications: {
+        "Brand": "Realme",
+        "Noise Cancellation": "46dB ANC",
+        "Playtime": "40 Hours",
+        "Color": "Monet Gold / Black"
+      }
+    },
+    {
+      id: "poco-m6-plus-5g",
+      name: "POCO M6 Plus 5G",
+      slug: "poco-m6-plus-5g",
+      brand: "POCO",
+      shopId: "sharma-mobile",
+      shopName: "Sharma Mobile Store",
+      market: "Gandhi Market",
+      price: 12999,
+      originalPrice: 14999,
+      discount: "13% OFF",
+      badge: "New",
+      isNew: true,
+      isFeatured: false,
+      rating: 4.4,
+      reviewsCount: 64,
+      soldCount: 130,
+      category: "mobile-acc",
+      categoryName: "Mobiles",
+      images: [
+        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600"
+      ],
+      highlights: [
+        "108MP Dual Camera",
+        "Snapdragon 4 Gen 2 AE Processor",
+        "5030mAh Battery with 33W Fast Charger",
+        "6.79 inch 120Hz FHD+ Display"
+      ],
+      description: "Sleek glass back design with ultra-fast 5G connectivity and crisp 108MP clarity.",
+      specifications: {
+        "Brand": "POCO",
+        "RAM": "6GB",
+        "Storage": "128GB",
+        "Warranty": "1 Year"
+      }
+    },
+    {
+      id: "boat-airdopes-141",
+      name: "boAt Airdopes 141",
+      slug: "boat-airdopes-141",
+      brand: "boAt",
+      shopId: "sharma-mobile",
+      shopName: "Sharma Mobile Store",
+      market: "Gandhi Market",
+      price: 1499,
+      originalPrice: 1699,
+      discount: "10% OFF",
+      badge: "10% OFF",
+      isNew: false,
+      isFeatured: false,
+      rating: 4.3,
+      reviewsCount: 91,
+      soldCount: 420,
+      category: "mobile-acc",
+      categoryName: "Wireless Earbuds",
+      images: [
+        "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=600"
+      ],
+      highlights: [
+        "42 Hours Playback",
+        "ENx Technology for Clear Calls",
+        "Beast Mode Low Latency",
+        "IWP Instant Pairing"
+      ],
+      description: "Popular wireless earbuds for non-stop music playback and low latency gaming.",
+      specifications: {
+        "Brand": "boAt",
+        "Playback": "42 Hrs",
+        "Bluetooth": "v5.3"
+      }
+    },
+    {
+      id: "fire-boltt-ninja-3",
+      name: "Fire-Boltt Ninja 3 Smartwatch",
+      slug: "fire-boltt-ninja-3",
+      brand: "Fire-Boltt",
+      shopId: "sharma-mobile",
+      shopName: "Sharma Mobile Store",
+      market: "Gandhi Market",
+      price: 1699,
+      originalPrice: 1999,
+      discount: "15% OFF",
+      badge: "New",
+      isNew: true,
+      isFeatured: false,
+      rating: 4.2,
+      reviewsCount: 38,
+      soldCount: 88,
+      category: "mobile-acc",
+      categoryName: "Smart Watches",
+      images: [
+        "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600"
+      ],
+      highlights: [
+        "1.69\" HD Full Touch Display",
+        "60+ Sports Modes",
+        "SpO2 & Heart Rate Tracking",
+        "IP68 Water Resistance"
+      ],
+      description: "Smartwatch with sleek metallic build and complete fitness tracking suit.",
+      specifications: {
+        "Brand": "Fire-Boltt",
+        "Model": "Ninja 3",
+        "Color": "Black"
+      }
+    },
+    {
+      id: "realme-narzo-70x-5g",
+      name: "Realme Narzo 70x 5G",
+      slug: "realme-narzo-70x-5g",
+      brand: "Realme",
+      shopId: "sharma-mobile",
+      shopName: "Sharma Mobile Store",
+      market: "Gandhi Market",
+      price: 13499,
+      originalPrice: 15999,
+      discount: "15% OFF",
+      badge: "15% OFF",
+      isNew: false,
+      isFeatured: false,
+      rating: 4.5,
+      reviewsCount: 115,
+      soldCount: 260,
+      category: "mobile-acc",
+      categoryName: "Mobiles",
+      images: [
+        "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600"
+      ],
+      highlights: [
+        "45W SUPERVOOC Charge",
+        "5000mAh Battery",
+        "120Hz Ultra Smooth Display",
+        "Dimensity 6100+ 5G Chipset"
+      ],
+      description: "Fast charging budget 5G phone with long battery life.",
+      specifications: {
+        "Brand": "Realme",
+        "Model": "Narzo 70x 5G",
+        "RAM": "6GB"
+      }
+    },
+    {
+      id: "fast-charger-65w",
+      name: "65W Fast Charger",
+      slug: "65w-fast-charger",
+      brand: "Generic",
+      shopId: "sharma-mobile",
+      shopName: "Sharma Mobile Store",
+      market: "Gandhi Market",
+      price: 699,
+      originalPrice: 999,
+      discount: "30% OFF",
+      badge: "New",
+      isNew: true,
+      isFeatured: false,
+      rating: 4.6,
+      reviewsCount: 29,
+      soldCount: 95,
+      category: "mobile-acc",
+      categoryName: "Chargers",
+      images: [
+        "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600"
+      ],
+      highlights: [
+        "GaN Fast Charging",
+        "Type C Adapter",
+        "Overheat & Surge Protection",
+        "Multi Device Compatible"
+      ],
+      description: "Compact 65W fast charger suitable for laptops, tablets, and smartphones.",
+      specifications: {
+        "Brand": "PowerMax",
+        "Output": "65W USB-C PD"
+      }
+    },
+    {
+      id: "boat-rockerz-450",
+      name: "boAt Rockerz 450",
+      slug: "boat-rockerz-450",
+      brand: "boAt",
+      shopId: "sharma-mobile",
+      shopName: "Digital Hub",
+      market: "Gandhi Market",
+      price: 1799,
+      originalPrice: 1999,
+      discount: "10% OFF",
+      badge: "10% OFF",
+      isNew: false,
+      isFeatured: false,
+      rating: 4.4,
+      reviewsCount: 88,
+      soldCount: 200,
+      category: "mobile-acc",
+      categoryName: "Earphones",
+      images: [
+        "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600"
+      ],
+      highlights: [
+        "40mm Dynamic Drivers",
+        "15 Hours Playback",
+        "Plush Ear Cushions",
+        "Integrated Controls"
+      ],
+      description: "Comfortable wireless bluetooth on-ear headphones with deep bass output.",
+      specifications: {
+        "Brand": "boAt",
+        "Type": "On-Ear Wireless"
+      }
+    },
+    {
+      id: "ambrane-powerbank-10000",
+      name: "Ambrane Powerbank 10000mAh",
+      slug: "ambrane-powerbank-10000mah",
+      brand: "Ambrane",
+      shopId: "sharma-mobile",
+      shopName: "Mobile Station",
+      market: "Gandhi Market",
+      price: 899,
+      originalPrice: 1199,
+      discount: "25% OFF",
+      badge: "New",
+      isNew: true,
+      isFeatured: false,
+      rating: 4.3,
+      reviewsCount: 42,
+      soldCount: 110,
+      category: "mobile-acc",
+      categoryName: "Mobile Accessories",
+      images: [
+        "https://images.unsplash.com/photo-1609592424009-4081c3c97db0?w=600"
+      ],
+      highlights: [
+        "22.5W Fast Charging Output",
+        "Dual Output Ports",
+        "Metallic Slim Body",
+        "Multi-layer Chip Protection"
+      ],
+      description: "Slim and powerful 10000mAh power bank to charge smartphones multiple times.",
+      specifications: {
+        "Brand": "Ambrane",
+        "Capacity": "10000 mAh"
+      }
+    },
+    {
+      id: "wooden-office-chair",
+      name: "Wooden Office Chair",
+      slug: "wooden-office-chair",
+      brand: "Craftsman",
+      shopId: "gupta-general",
+      shopName: "Furniture House",
+      market: "Civil Lines",
+      price: 3399,
+      originalPrice: 3999,
+      discount: "15% OFF",
+      badge: "15% OFF",
+      isNew: false,
+      isFeatured: true,
+      rating: 4.6,
+      reviewsCount: 34,
+      soldCount: 40,
+      category: "furniture",
+      categoryName: "Furniture",
+      images: [
+        "https://images.unsplash.com/photo-1580481072645-022f9a6d8310?w=600"
+      ],
+      highlights: [
+        "Ergonomic Back Support",
+        "Premium Teak Wood Frame",
+        "Cushioned Seat",
+        "Heavy Duty Build"
+      ],
+      description: "Elegant wooden chair designed for modern home offices and study spaces.",
+      specifications: {
+        "Material": "Teak Wood",
+        "Color": "Brown"
+      }
+    }
+  ]
+};

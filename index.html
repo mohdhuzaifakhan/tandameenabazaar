@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Meena Bazaar - Local Shops Marketplace in Rampur</title>
+  <meta name="description" content="Discover products from local shops in Rampur and order directly via WhatsApp. Fast, simple, and local digital marketplace.">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#056839">
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="top-header">
+      <div class="container top-header-inner">
+        <!-- Logo -->
+        <a href="index.html" class="logo">
+          <div class="logo-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+          <div class="logo-text">
+            <span>Digital</span>
+            <span>Meena Bazaar</span>
+          </div>
+        </a>
+
+        <!-- Location Selector -->
+        <div class="location-selector">
+          <i class="fa-solid fa-location-dot" style="color: var(--primary-green);"></i>
+          <span>Rampur</span>
+          <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem;"></i>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="header-search">
+          <input type="text" id="global-search" placeholder="Search for products, shops, brands...">
+          <button type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+
+        <!-- Header Utilities -->
+        <div class="header-actions">
+          <a href="saved.html" class="header-action-item">
+            <i class="fa-regular fa-heart"></i>
+            <span>Saved</span>
+            <span class="saved-counter saved-counter-val">0</span>
+          </a>
+          <a href="shops.html" class="header-action-item">
+            <i class="fa-solid fa-store"></i>
+            <span>Shops</span>
+          </a>
+          <a href="#" class="header-action-item btn btn-outline" style="padding: 6px 14px; font-size: 0.85rem;">
+            <i class="fa-regular fa-user"></i>
+            <span>Login</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Bar (Desktop) -->
+    <nav class="main-nav">
+      <div class="container main-nav-inner">
+        <div class="category-dropdown-btn">
+          <i class="fa-solid fa-bars"></i>
+          <span>Categories</span>
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="shops.html">Shops</a></li>
+          <li><a href="saved.html">Saved</a></li>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Mobile Header View -->
+    <div class="mobile-header">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <i class="fa-solid fa-bars" style="font-size: 1.2rem; color: var(--text-dark);"></i>
+        <a href="index.html" class="logo">
+          <div class="logo-icon" style="width: 32px; height: 32px; font-size: 0.9rem;"><i class="fa-solid fa-bag-shopping"></i></div>
+          <div class="logo-text" style="font-size: 0.95rem;">
+            <span style="font-size: 0.65rem;">Digital</span>
+            <span>Meena Bazaar</span>
+          </div>
+        </a>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="location-selector" style="padding: 4px 8px; font-size: 0.75rem;">
+          <i class="fa-solid fa-location-dot"></i> Rampur <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <a href="saved.html" class="header-action-item">
+          <i class="fa-regular fa-heart" style="font-size: 1.3rem;"></i>
+          <span class="saved-counter saved-counter-val">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="container" style="padding-top: 16px;">
+    
+    <!-- Hero Banner Section -->
+    <section class="hero-section">
+      <div class="hero-banner">
+        <span class="shop-local-badge">SHOP LOCAL</span>
+        <div class="hero-content">
+          <h1 class="hero-title">Find Everything from Local Shops in <span>Rampur</span></h1>
+          <p class="hero-subtitle">Shop local. Support local. Grow local. Order directly via WhatsApp.</p>
+          <a href="shops.html" class="btn btn-primary" style="padding: 12px 24px; font-size: 1rem; border-radius: 25px;">
+            Explore Categories <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+        <div class="hero-image">
+          <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=500" alt="Shop Local Illustration" style="border-radius: 12px;">
+        </div>
+      </div>
+    </section>
+
+    <!-- Top Categories Section -->
+    <section style="margin-bottom: 36px;">
+      <div class="section-header">
+        <h2 class="section-title">Top Categories</h2>
+        <a href="#" class="view-all-link">View All</a>
+      </div>
+      <div class="categories-slider" id="home-categories">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section style="margin-bottom: 36px;">
+      <div class="section-header">
+        <h2 class="section-title">Featured Products</h2>
+        <a href="#" class="view-all-link">View All</a>
+      </div>
+      <div class="products-grid" id="home-featured-products">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- New Arrivals Section -->
+    <section style="margin-bottom: 36px;">
+      <div class="section-header">
+        <h2 class="section-title">New Arrivals</h2>
+        <a href="#" class="view-all-link">View All</a>
+      </div>
+      <div class="products-grid" id="home-new-arrivals">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Popular Shops Section -->
+    <section style="margin-bottom: 40px;">
+      <div class="section-header">
+        <h2 class="section-title">Popular Shops</h2>
+        <a href="shops.html" class="view-all-link">View All</a>
+      </div>
+      <div class="shops-slider" id="home-popular-shops">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="logo" style="color: #fff; margin-bottom: 12px;">
+            <div class="logo-icon" style="background: #fff; color: var(--primary-green);"><i class="fa-solid fa-bag-shopping"></i></div>
+            <div class="logo-text">
+              <span style="color: #a7f3d0;">Digital</span>
+              <span style="color: #fff;">Meena Bazaar</span>
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: #cbd5e1;">Connecting local city shop owners directly with customers via WhatsApp.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="shops.html">All Shops</a></li>
+            <li><a href="saved.html">Saved Products</a></li>
+            <li><a href="#">Shop Owner Login</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Top Categories</h4>
+          <ul>
+            <li><a href="shops.html?category=mobile-acc">Mobile Accessories</a></li>
+            <li><a href="shops.html?category=electronics">Electronics</a></li>
+            <li><a href="shops.html?category=fashion">Fashion</a></li>
+            <li><a href="shops.html?category=footwear">Footwear</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact & Help</h4>
+          <ul>
+            <li><i class="fa-brands fa-whatsapp"></i> Support on WhatsApp</li>
+            <li><i class="fa-solid fa-location-dot"></i> Rampur, Uttar Pradesh</li>
+            <li><i class="fa-regular fa-envelope"></i> help@digitalmeenabazaar.com</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Digital Meena Bazaar Rampur. Built with simple fast PWA technology.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bottom Mobile Navigation Bar -->
+  <div class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <a href="index.html" class="bottom-nav-item active">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </a>
+      <a href="#" class="bottom-nav-item">
+        <i class="fa-solid fa-border-all"></i>
+        <span>Categories</span>
+      </a>
+      <a href="shops.html" class="bottom-nav-item">
+        <i class="fa-solid fa-store"></i>
+        <span>Shops</span>
+      </a>
+      <a href="saved.html" class="bottom-nav-item">
+        <i class="fa-regular fa-heart"></i>
+        <span>Saved</span>
+      </a>
+      <a href="#" class="bottom-nav-item">
+        <i class="fa-regular fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Render Home Categories
+      const catWrap = document.getElementById("home-categories");
+      if (catWrap) {
+        catWrap.innerHTML = BAZAAR_DATA.categories.map(cat => `
+          <a href="shops.html?category=${cat.id}" class="category-card">
+            <div class="category-icon-wrapper">
+              <i class="fa-solid ${cat.icon}"></i>
+            </div>
+            <span class="category-name">${cat.name}</span>
+          </a>
+        `).join("");
+      }
+
+      // Render Featured Products
+      const featuredWrap = document.getElementById("home-featured-products");
+      if (featuredWrap) {
+        const featured = BAZAAR_DATA.products.filter(p => p.isFeatured).slice(0, 6);
+        featuredWrap.innerHTML = featured.map(p => renderProductCardHTML(p)).join("");
+      }
+
+      // Render New Arrivals
+      const newWrap = document.getElementById("home-new-arrivals");
+      if (newWrap) {
+        const newItems = BAZAAR_DATA.products.filter(p => p.isNew).slice(0, 5);
+        newWrap.innerHTML = newItems.map(p => renderProductCardHTML(p)).join("");
+      }
+
+      // Render Popular Shops Slider
+      const shopsWrap = document.getElementById("home-popular-shops");
+      if (shopsWrap) {
+        shopsWrap.innerHTML = BAZAAR_DATA.shops.slice(0, 5).map(s => `
+          <div class="shop-card-mini" onclick="window.location.href='shop-details.html?id=${s.id}'">
+            <img src="${s.logoImage}" alt="${s.name}" class="shop-mini-logo">
+            <div class="shop-mini-info">
+              <h4>${s.name}</h4>
+              <p><i class="fa-solid fa-location-dot"></i> ${s.market}</p>
+              <p style="font-weight: 700; color: var(--primary-green); mt-1">${s.productsCount}+ Products</p>
+            </div>
+          </div>
+        `).join("");
+      }
+    });
+
+    function renderProductCardHTML(p) {
+      const isSaved = MeenaBazaarApp.isProductSaved(p.id);
+      return `
+        <div class="product-card">
+          <div class="product-card-badges">
+            <span class="badge ${p.badge.includes('%') ? 'badge-discount' : 'badge-new'}">${p.badge}</span>
+          </div>
+          <a href="product-details.html?id=${p.id}" class="product-image-wrap">
+            <img src="${p.images[0]}" alt="${p.name}">
+          </a>
+          <div class="product-details-content">
+            <a href="product-details.html?id=${p.id}" class="product-title">${p.name}</a>
+            <div class="product-shop-name">${p.shopName}</div>
+            <div class="product-price-row">
+              <span class="product-price">₹${p.price.toLocaleString('en-IN')}</span>
+              ${p.originalPrice ? `<span class="product-original-price">₹${p.originalPrice.toLocaleString('en-IN')}</span>` : ''}
+            </div>
+            <div class="product-card-actions">
+              <button class="btn btn-whatsapp" onclick="MeenaBazaarApp.openWhatsApp('${p.id}')">
+                <i class="fa-brands fa-whatsapp"></i> Order
+              </button>
+              <button class="btn-icon ${isSaved ? 'active' : ''}" onclick="toggleCardSave('${p.id}', this)">
+                <i class="fa-${isSaved ? 'solid' : 'regular'} fa-heart"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleCardSave(productId, btn) {
+      const isSaved = MeenaBazaarApp.toggleSaveProduct(productId);
+      if (isSaved) {
+        btn.classList.add("active");
+        btn.innerHTML = `<i class="fa-solid fa-heart"></i>`;
+      } else {
+        btn.classList.remove("active");
+        btn.innerHTML = `<i class="fa-regular fa-heart"></i>`;
+      }
+    }
+  </script>
+</body>
+</html>

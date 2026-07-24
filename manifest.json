@@ -1,0 +1,22 @@
+{
+  "short_name": "MeenaBazaar",
+  "name": "Digital Meena Bazaar Rampur",
+  "description": "Digital marketplace connecting local city shops with customers via WhatsApp.",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/color/192/shopping-bag--v1.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://img.icons8.com/color/512/shopping-bag--v1.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#ffffff",
+  "theme_color": "#056839",
+  "display": "standalone",
+  "orientation": "portrait"
+}

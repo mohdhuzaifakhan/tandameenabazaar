@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Products - Digital Meena Bazaar</title>
+  <meta name="description" content="View all your saved products. Quickly order them on WhatsApp whenever you are ready.">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#056839">
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="top-header">
+      <div class="container top-header-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+          <div class="logo-text">
+            <span>Digital</span>
+            <span>Meena Bazaar</span>
+          </div>
+        </a>
+
+        <div class="location-selector">
+          <i class="fa-solid fa-location-dot" style="color: var(--primary-green);"></i>
+          <span>Rampur</span>
+          <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem;"></i>
+        </div>
+
+        <div class="header-search">
+          <input type="text" placeholder="Search for products, shops, brands...">
+          <button type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+
+        <div class="header-actions">
+          <a href="saved.html" class="header-action-item" style="color: var(--primary-green);">
+            <i class="fa-solid fa-heart" style="color: var(--accent-red);"></i>
+            <span>Saved</span>
+            <span class="saved-counter saved-counter-val">0</span>
+          </a>
+          <a href="shops.html" class="header-action-item">
+            <i class="fa-solid fa-store"></i>
+            <span>Shops</span>
+          </a>
+          <a href="#" class="header-action-item btn btn-outline" style="padding: 6px 14px; font-size: 0.85rem;">
+            <i class="fa-regular fa-user"></i>
+            <span>Login</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <div class="container main-nav-inner">
+        <div class="category-dropdown-btn">
+          <i class="fa-solid fa-bars"></i>
+          <span>Categories</span>
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="shops.html">Shops</a></li>
+          <li><a href="saved.html" class="active">Saved</a></li>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <i class="fa-solid fa-bars" style="font-size: 1.2rem;"></i>
+        <a href="index.html" class="logo">
+          <div class="logo-icon" style="width: 32px; height: 32px; font-size: 0.9rem;"><i class="fa-solid fa-bag-shopping"></i></div>
+          <div class="logo-text" style="font-size: 0.95rem;">
+            <span style="font-size: 0.65rem;">Digital</span>
+            <span>Meena Bazaar</span>
+          </div>
+        </a>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="location-selector" style="padding: 4px 8px; font-size: 0.75rem;">
+          <i class="fa-solid fa-location-dot"></i> Rampur <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <a href="saved.html" class="header-action-item">
+          <i class="fa-solid fa-heart" style="font-size: 1.3rem; color: var(--accent-red);"></i>
+          <span class="saved-counter saved-counter-val">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 16px;">
+    
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="index.html">Home</a> &gt;
+      <span>Saved Products</span>
+    </div>
+
+    <!-- Saved Header Bar -->
+    <div class="saved-header">
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+          <i class="fa-solid fa-heart" style="color: var(--primary-green);"></i>
+          <span>Saved Products (<span id="saved-items-total-count">0</span>)</span>
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Products you have saved for later</p>
+      </div>
+
+      <button class="btn btn-outline" id="btn-clear-all" onclick="clearAllSaved()">
+        <i class="fa-regular fa-trash-can"></i> Clear All
+      </button>
+    </div>
+
+    <!-- Filter & Search Inside Saved -->
+    <div class="saved-search-sort">
+      <div class="shops-filter-search" style="flex: 1;">
+        <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+        <input type="text" id="saved-search-input" placeholder="Search saved products...">
+      </div>
+
+      <select class="filter-select" id="saved-sort-select">
+        <option value="recent">Sort By: Recently Saved</option>
+        <option value="low-high">Price: Low to High</option>
+        <option value="high-low">Price: High to Low</option>
+      </select>
+    </div>
+
+    <!-- Saved Items Grid -->
+    <div class="products-grid" id="saved-products-container">
+      <!-- Rendered dynamically via JS -->
+    </div>
+
+    <!-- Info Banner at Bottom -->
+    <div class="saved-info-banner">
+      <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--primary-green); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+        <i class="fa-regular fa-heart"></i>
+      </div>
+      <div>
+        <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-dark);">Save your favorite products</h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">You can save products and come back later to order on WhatsApp. Saved in browser storage.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 Digital Meena Bazaar Rampur. Built with simple fast PWA technology.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bottom Mobile Navigation -->
+  <div class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <a href="index.html" class="bottom-nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </a>
+      <a href="#" class="bottom-nav-item">
+        <i class="fa-solid fa-border-all"></i>
+        <span>Categories</span>
+      </a>
+      <a href="shops.html" class="bottom-nav-item">
+        <i class="fa-solid fa-store"></i>
+        <span>Shops</span>
+      </a>
+      <a href="saved.html" class="bottom-nav-item active">
+        <i class="fa-solid fa-heart" style="color: var(--primary-green);"></i>
+        <span>Saved</span>
+      </a>
+      <a href="#" class="bottom-nav-item">
+        <i class="fa-regular fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      renderSavedProductsPage();
+
+      document.getElementById("saved-search-input")?.addEventListener("input", renderSavedProductsPage);
+      document.getElementById("saved-sort-select")?.addEventListener("change", renderSavedProductsPage);
+    });
+
+    function renderSavedProductsPage() {
+      const container = document.getElementById("saved-products-container");
+      if (!container) return;
+
+      const savedIds = MeenaBazaarApp.getSavedProductIds();
+      document.getElementById("saved-items-total-count").textContent = savedIds.length;
+
+      if (savedIds.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0;">
+            <i class="fa-regular fa-heart" style="font-size: 3.5rem; color: #cbd5e1; margin-bottom: 16px;"></i>
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;">No Saved Products Yet</h3>
+            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Click the heart icon on any product to save it here for later.</p>
+            <a href="index.html" class="btn btn-primary">Browse Marketplace</a>
+          </div>
+        `;
+        return;
+      }
+
+      let savedProducts = BAZAAR_DATA.products.filter(p => savedIds.includes(p.id));
+
+      // Apply Search
+      const searchVal = (document.getElementById("saved-search-input")?.value || "").toLowerCase().trim();
+      if (searchVal) {
+        savedProducts = savedProducts.filter(p => p.name.toLowerCase().includes(searchVal) || p.shopName.toLowerCase().includes(searchVal));
+      }
+
+      // Apply Sort
+      const sortVal = document.getElementById("saved-sort-select")?.value || "recent";
+      if (sortVal === "low-high") {
+        savedProducts.sort((a, b) => a.price - b.price);
+      } else if (sortVal === "high-low") {
+        savedProducts.sort((a, b) => b.price - a.price);
+      }
+
+      container.innerHTML = savedProducts.map((p, idx) => `
+        <div class="product-card saved-product-card">
+          <button class="saved-card-remove" onclick="removeSavedItem('${p.id}')" title="Remove">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <div class="product-card-badges">
+            <span class="badge ${p.badge.includes('%') ? 'badge-discount' : 'badge-new'}">${p.badge}</span>
+          </div>
+          <a href="product-details.html?id=${p.id}" class="product-image-wrap">
+            <img src="${p.images[0]}" alt="${p.name}">
+          </a>
+          <div class="product-details-content">
+            <a href="product-details.html?id=${p.id}" class="product-title">${p.name}</a>
+            <div class="product-shop-name">${p.shopName}</div>
+            <div class="product-price-row">
+              <span class="product-price">₹${p.price.toLocaleString('en-IN')}</span>
+              ${p.originalPrice ? `<span class="product-original-price">₹${p.originalPrice.toLocaleString('en-IN')}</span>` : ''}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px;">
+              <i class="fa-regular fa-clock"></i> Saved ${idx === 0 ? 'today' : (idx + 1) + ' days ago'}
+            </div>
+            <div class="product-card-actions">
+              <button class="btn btn-whatsapp" style="width: 100%;" onclick="MeenaBazaarApp.openWhatsApp('${p.id}')">
+                <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function removeSavedItem(productId) {
+      MeenaBazaarApp.toggleSaveProduct(productId);
+      renderSavedProductsPage();
+    }
+
+    function clearAllSaved() {
+      if (confirm("Are you sure you want to clear all saved products?")) {
+        MeenaBazaarApp.clearSavedProducts();
+        renderSavedProductsPage();
+      }
+    }
+  </script>
+</body>
+</html>

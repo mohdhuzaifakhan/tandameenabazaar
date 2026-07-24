@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Details - Digital Meena Bazaar</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#056839">
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="top-header">
+      <div class="container top-header-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+          <div class="logo-text">
+            <span>Digital</span>
+            <span>Meena Bazaar</span>
+          </div>
+        </a>
+
+        <div class="location-selector">
+          <i class="fa-solid fa-location-dot" style="color: var(--primary-green);"></i>
+          <span>Rampur</span>
+          <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem;"></i>
+        </div>
+
+        <div class="header-search">
+          <input type="text" placeholder="Search for products, shops, brands...">
+          <button type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+
+        <div class="header-actions">
+          <a href="saved.html" class="header-action-item">
+            <i class="fa-regular fa-heart"></i>
+            <span>Saved</span>
+            <span class="saved-counter saved-counter-val">0</span>
+          </a>
+          <a href="shops.html" class="header-action-item">
+            <i class="fa-solid fa-store"></i>
+            <span>Shops</span>
+          </a>
+          <a href="#" class="header-action-item btn btn-outline" style="padding: 6px 14px; font-size: 0.85rem;">
+            <i class="fa-regular fa-user"></i>
+            <span>Login</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <div class="container main-nav-inner">
+        <div class="category-dropdown-btn">
+          <i class="fa-solid fa-bars"></i>
+          <span>Categories</span>
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="shops.html" class="active">Shops</a></li>
+          <li><a href="saved.html">Saved</a></li>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container" id="shop-details-view" style="padding-top: 10px;">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="index.html">Home</a> &gt;
+      <a href="shops.html">Shops</a> &gt;
+      <span id="breadcrumb-shop-name">Sharma Mobile Store</span>
+    </div>
+
+    <!-- Shop Details Header Card -->
+    <div class="shop-details-header">
+      <img id="shop-cover-img" src="" alt="Shop Banner" class="shop-cover-img">
+      <div class="shop-profile-bar">
+        <img id="shop-logo-img" src="" alt="Shop Logo" class="shop-logo-large">
+        <div class="shop-main-info">
+          <div class="shop-title-row">
+            <h1 id="shop-name">Sharma Mobile Store</h1>
+            <i class="fa-solid fa-circle-check badge-verified" style="font-size: 1.2rem;" title="Verified Business"></i>
+          </div>
+          <div style="font-size: 0.9rem; color: #f59e0b; font-weight: 700; margin-bottom: 8px;">
+            <i class="fa-solid fa-star"></i> <span id="shop-rating">4.6 (125 Reviews)</span>
+          </div>
+
+          <div class="shop-meta-row">
+            <div class="shop-meta-item">
+              <i class="fa-solid fa-location-dot"></i>
+              <span id="shop-address">Gandhi Market, Rampur, UP</span>
+            </div>
+            <div class="shop-meta-item">
+              <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i>
+              <a href="#" id="shop-phone">+91 98765 43210</a>
+            </div>
+            <div class="shop-meta-item">
+              <i class="fa-regular fa-clock"></i>
+              <span id="shop-hours">10:00 AM - 9:00 PM</span>
+              <span id="shop-status" class="status-badge-open">(Open Today)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="shop-header-actions">
+          <button class="btn btn-whatsapp" id="btn-shop-wa" style="padding: 10px 18px;">
+            <i class="fa-brands fa-whatsapp"></i> Contact Shop
+          </button>
+          <button class="btn btn-outline" style="padding: 10px 16px;">
+            <i class="fa-solid fa-share-nodes"></i> Share Shop
+          </button>
+        </div>
+      </div>
+
+      <!-- Shop Tabs Navigation -->
+      <div class="shop-tabs">
+        <div class="shop-tab-item active" data-tab="overview"><i class="fa-solid fa-table-cells"></i> Overview</div>
+        <div class="shop-tab-item" data-tab="products"><i class="fa-solid fa-boxes-stacked"></i> Products</div>
+        <div class="shop-tab-item" data-tab="about"><i class="fa-solid fa-circle-info"></i> About</div>
+        <div class="shop-tab-item" data-tab="reviews"><i class="fa-regular fa-star"></i> Reviews (125)</div>
+      </div>
+    </div>
+
+    <!-- Tab Content: Overview -->
+    <div class="shop-tab-content active" id="tab-content-overview">
+      <div class="shop-overview-grid">
+        <!-- Main Overview Content -->
+        <div>
+          <!-- About Box -->
+          <div class="card-box">
+            <h3>About This Shop</h3>
+            <p id="shop-desc-text" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 16px;">
+              Your one-stop destination for all mobile phones, accessories and gadgets. Best quality products at the best prices.
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <span style="background: #e8f5e9; color: var(--primary-green); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;"><i class="fa-solid fa-box"></i> 100+ Products</span>
+              <span style="background: #e8f5e9; color: var(--primary-green); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;"><i class="fa-solid fa-tag"></i> Best Prices</span>
+              <span style="background: #e8f5e9; color: var(--primary-green); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> Genuine Products</span>
+            </div>
+          </div>
+
+          <!-- In-Shop Product Search & Category Pills -->
+          <div class="shops-filter-search shop-in-search">
+            <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+            <input type="text" placeholder="Search products in this shop...">
+          </div>
+
+          <div class="category-pills">
+            <div class="pill-item active">All Products</div>
+            <div class="pill-item">Mobiles</div>
+            <div class="pill-item">Accessories</div>
+            <div class="pill-item">Chargers</div>
+            <div class="pill-item">Earphones</div>
+            <div class="pill-item">Smart Watches</div>
+            <div class="pill-item">More v</div>
+          </div>
+
+          <!-- All Products Grid -->
+          <div class="section-header">
+            <h3 style="font-size: 1.2rem; font-weight: 700;">All Products <span style="color: var(--primary-green); font-size: 0.9rem;">(120+)</span></h3>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Sort By: Newest First</span>
+          </div>
+
+          <div class="products-grid" id="shop-products-grid">
+            <!-- Rendered by js/shop.js -->
+          </div>
+        </div>
+
+        <!-- Sidebar: Location & Map -->
+        <div>
+          <div class="card-box">
+            <h3>Shop Location</h3>
+            <div style="width: 100%; height: 160px; background: #e2e8f0; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; position: relative;">
+              <i class="fa-solid fa-map-location-dot" style="font-size: 2.5rem; color: var(--primary-green);"></i>
+              <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-dark);">Gandhi Market, Rampur</span>
+            </div>
+            <button class="btn btn-outline" style="width: 100%; font-size: 0.85rem;">View on Google Maps <i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- You May Also Like Shops Section -->
+    <section style="margin: 40px 0;">
+      <div class="section-header">
+        <h3 class="section-title">You May Also Like</h3>
+        <a href="shops.html" class="view-all-link">View All</a>
+      </div>
+      <div class="shops-slider" id="recommended-shops-container">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 Digital Meena Bazaar Rampur. Built with simple fast PWA technology.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bottom Mobile Navigation -->
+  <div class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <a href="index.html" class="bottom-nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </a>
+      <a href="#" class="bottom-nav-item">
+        <i class="fa-solid fa-border-all"></i>
+        <span>Categories</span>
+      </a>
+      <a href="shops.html" class="bottom-nav-item active">
+        <i class="fa-solid fa-store"></i>
+        <span>Shops</span>
+      </a>
+      <a href="saved.html" class="bottom-nav-item">
+        <i class="fa-regular fa-heart"></i>
+        <span>Saved</span>
+      </a>
+      <a href="#" class="bottom-nav-item">
+        <i class="fa-regular fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/shop.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const recWrap = document.getElementById("recommended-shops-container");
+      if (recWrap) {
+        recWrap.innerHTML = BAZAAR_DATA.shops.slice(1, 5).map(s => `
+          <div class="shop-card-mini" onclick="window.location.href='shop-details.html?id=${s.id}'">
+            <img src="${s.logoImage}" alt="${s.name}" class="shop-mini-logo">
+            <div class="shop-mini-info">
+              <h4>${s.name}</h4>
+              <p><i class="fa-solid fa-location-dot"></i> ${s.market}</p>
+              <p style="font-size: 0.8rem; font-weight: 700; color: #f59e0b;"><i class="fa-solid fa-star"></i> ${s.rating} (${s.reviewsCount})</p>
+            </div>
+          </div>
+        `).join("");
+      }
+    });
+  </script>
+</body>
+</html>
