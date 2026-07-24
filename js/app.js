@@ -76,16 +76,87 @@ const MeenaBazaarApp = {
     }
   },
 
-  // Mobile Navigation Bottom Bar Active State
+  // Mobile Navigation Bottom Bar & Drawer Manager
   initMobileNav() {
     const currentPath = window.location.pathname.split("/").pop() || "index.html";
-    const navItems = document.querySelectorAll(".bottom-nav-item");
+    
+    // 1. Highlight bottom nav items
+    const navItems = document.querySelectorAll(".bottom-nav-item, .mobile-bottom-nav .mobile-nav-item");
     navItems.forEach(item => {
       const href = item.getAttribute("href");
       if (href && href.includes(currentPath)) {
         item.classList.add("active");
       }
     });
+
+    // 2. Inject Drawer Markup Dynamically
+    if (!document.getElementById("mobile-drawer")) {
+      const overlay = document.createElement("div");
+      overlay.className = "mobile-drawer-overlay";
+      overlay.id = "mobile-drawer-overlay";
+      
+      const drawer = document.createElement("div");
+      drawer.className = "mobile-drawer";
+      drawer.id = "mobile-drawer";
+      drawer.innerHTML = `
+        <div class="mobile-drawer-header">
+          <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 8px;">
+            <div class="logo-icon" style="width: 32px; height: 32px; font-size: 0.9rem; background: var(--primary-green); color: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-bag-shopping"></i></div>
+            <div class="logo-text" style="display: flex; flex-direction: column; line-height: 1.1;">
+              <span style="font-size: 0.65rem; font-weight: 600; color: var(--text-muted);">Digital</span>
+              <span style="font-size: 0.95rem; font-weight: 800; color: var(--primary-green);">Meena Bazaar</span>
+            </div>
+          </a>
+          <button class="mobile-drawer-close" id="mobile-drawer-close-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="mobile-drawer-body">
+          <nav class="mobile-drawer-nav">
+            <a href="index.html" class="mobile-drawer-link ${currentPath === 'index.html' ? 'active' : ''}"><i class="fa-solid fa-house"></i><span>Home</span></a>
+            <a href="shops.html" class="mobile-drawer-link ${currentPath === 'shops.html' ? 'active' : ''}"><i class="fa-solid fa-store"></i><span>Shops</span></a>
+            <a href="saved.html" class="mobile-drawer-link ${currentPath === 'saved.html' ? 'active' : ''}"><i class="fa-solid fa-heart"></i><span>Saved Products</span></a>
+            <a href="about.html" class="mobile-drawer-link ${currentPath === 'about.html' ? 'active' : ''}"><i class="fa-solid fa-circle-info"></i><span>About Us</span></a>
+            <a href="contact.html" class="mobile-drawer-link ${currentPath === 'contact.html' ? 'active' : ''}"><i class="fa-solid fa-phone"></i><span>Contact Us</span></a>
+          </nav>
+          <div class="mobile-drawer-divider"></div>
+          <div class="mobile-drawer-nav">
+            <a href="login.html" class="mobile-drawer-link"><i class="fa-regular fa-user"></i><span>Shop Owner Portal</span></a>
+            <a href="login.html" class="mobile-drawer-link"><i class="fa-solid fa-user-shield"></i><span>Admin Dashboard</span></a>
+          </div>
+        </div>
+        <div class="mobile-drawer-footer">
+          <p style="font-size: 0.72rem; color: var(--text-muted); text-align: center; line-height: 1.4;">
+            &copy; 2026 Digital Meena Bazaar<br>
+            Powered by <strong>UnifiedStack</strong>
+          </p>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+      document.body.appendChild(drawer);
+
+      // 3. Bind Hamburger Events
+      const openDrawer = () => {
+        overlay.classList.add("active");
+        drawer.classList.add("active");
+        document.body.style.overflow = "hidden"; // Prevent background scroll
+      };
+
+      const closeDrawer = () => {
+        overlay.classList.remove("active");
+        drawer.classList.remove("active");
+        document.body.style.overflow = "";
+      };
+
+      // Query all possible hamburger triggers on mobile header
+      const hamburgers = document.querySelectorAll(".mobile-header-bar .fa-bars, .mobile-header .fa-bars, .mobile-header-top .fa-bars");
+      hamburgers.forEach(h => {
+        h.addEventListener("click", openDrawer);
+      });
+
+      // Bind close events
+      document.getElementById("mobile-drawer-close-btn")?.addEventListener("click", closeDrawer);
+      overlay.addEventListener("click", closeDrawer);
+    }
   },
 
   // Global Search Redirect

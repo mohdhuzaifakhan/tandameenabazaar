@@ -7,17 +7,627 @@
   <meta name="description" content="View all your saved products. Quickly order them on WhatsApp whenever you are ready.">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#056839">
-  <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+
+    /* ===== Saved Products Page Styles ===== */
+
+    .breadcrumb {
+      padding: 10px 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .breadcrumb a { color: var(--text-muted); }
+    .breadcrumb a:hover { color: var(--primary-green); }
+    .breadcrumb i { font-size: 0.65rem; }
+
+    /* Page Header */
+    .saved-page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .saved-page-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .saved-page-title i { color: var(--primary-green); }
+
+    .saved-page-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .saved-header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .items-saved-label {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .btn-clear-all {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+
+    .btn-clear-all:hover { border-color: #ef4444; color: #ef4444; }
+
+    /* Search + Sort bar */
+    .saved-search-sort {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .saved-search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 9px 14px;
+      flex: 1;
+      max-width: 420px;
+    }
+
+    .saved-search-wrap i { color: var(--text-muted); font-size: 0.88rem; }
+
+    .saved-search-wrap input {
+      border: none;
+      outline: none;
+      font-size: 0.85rem;
+      font-family: inherit;
+      background: transparent;
+      flex: 1;
+      color: var(--text-dark);
+    }
+
+    .saved-search-wrap input::placeholder { color: var(--text-light); }
+
+    .saved-sort-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .saved-sort-wrap select {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      outline: none;
+      font-family: inherit;
+      color: var(--text-dark);
+      cursor: pointer;
+      background: #fff;
+    }
+
+    /* ===== Desktop 4-column saved grid ===== */
+    .saved-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .saved-card {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .saved-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+
+    .saved-card-remove {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 24px;
+      height: 24px;
+      background: #f1f5f9;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      z-index: 5;
+      transition: var(--transition);
+    }
+
+    .saved-card-remove:hover { background: #fee2e2; color: #ef4444; }
+
+    .saved-card-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      z-index: 5;
+    }
+
+    .saved-card-badge.new { background: var(--primary-green); color: #fff; }
+    .saved-card-badge.off { background: var(--accent-orange); color: #fff; }
+
+    .saved-card-img {
+      width: 100%;
+      height: 130px;
+      background: #f8fafc;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .saved-card-img img {
+      max-height: 115px;
+      object-fit: contain;
+    }
+
+    .saved-card-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.25;
+      height: 34px;
+      overflow: hidden;
+      text-decoration: none;
+      display: block;
+    }
+
+    .saved-card-name:hover { color: var(--primary-green); }
+
+    .saved-card-shop {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .saved-card-price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .saved-price-main { font-size: 0.95rem; font-weight: 800; color: var(--primary-green); }
+    .saved-price-old { font-size: 0.75rem; color: var(--text-light); text-decoration: line-through; }
+
+    .saved-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-wa-saved {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--primary-green);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 7px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+
+    .btn-wa-saved:hover { background: var(--primary-green-dark); }
+    .btn-wa-saved i { font-size: 0.85rem; }
+
+    .btn-heart-saved {
+      width: 32px;
+      height: 32px;
+      border: 1px solid #fca5a5;
+      background: #fef2f2;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #ef4444;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .btn-heart-saved:hover { background: #fee2e2; }
+
+    .saved-card-timestamp {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      color: var(--text-light);
+    }
+
+    .saved-card-timestamp i { font-size: 0.65rem; }
+
+    /* Empty State */
+    .empty-saved-state {
+      grid-column: 1/-1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 70px 20px;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .empty-saved-state i { font-size: 3.5rem; color: #cbd5e1; }
+    .empty-saved-state h3 { font-size: 1.2rem; font-weight: 700; color: var(--text-dark); }
+    .empty-saved-state p { font-size: 0.88rem; color: var(--text-muted); }
+
+    .btn-browse {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 6px;
+      transition: var(--transition);
+    }
+
+    .btn-browse:hover { background: var(--primary-green-dark); }
+
+    /* Info Banner at bottom */
+    .saved-info-banner {
+      background: linear-gradient(135deg, #eef6ee, #e3f2e4);
+      border: 1px solid #dcfce7;
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .saved-info-banner-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--primary-green);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .saved-info-banner h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .saved-info-banner p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .banner-bg-icon {
+      position: absolute;
+      right: 24px;
+      bottom: -8px;
+      font-size: 5rem;
+      color: var(--primary-green);
+      opacity: 0.08;
+    }
+
+    /* ===== Mobile List View ===== */
+    .saved-list-mobile {
+      display: none;
+      flex-direction: column;
+    }
+
+    /* Mobile header bar for saved page */
+    .saved-mobile-header {
+      padding: 12px 16px 8px;
+      background: #fff;
+      border-bottom: 1px solid #f1f5f9;
+      display: none;
+    }
+
+    .saved-mobile-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .saved-mobile-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .saved-mobile-title i { color: var(--primary-green); }
+
+    .saved-mobile-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+
+    .saved-mobile-search i { color: var(--text-muted); font-size: 0.85rem; }
+
+    .saved-mobile-search input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 0.82rem;
+      font-family: inherit;
+      flex: 1;
+    }
+
+    .saved-mobile-sort {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+
+    .saved-mobile-sort span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .saved-mobile-sort .sort-select-mob {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+    }
+
+    /* Mobile saved list item */
+    .saved-list-item {
+      background: #fff;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      position: relative;
+    }
+
+    .saved-list-img {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .saved-list-img img {
+      max-width: 100%;
+      max-height: 72px;
+      object-fit: contain;
+    }
+
+    .saved-list-img-badge {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.55rem;
+      font-weight: 800;
+    }
+
+    .saved-list-info { flex: 1; }
+
+    .saved-list-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 1px;
+      line-height: 1.2;
+    }
+
+    .saved-list-shop {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .saved-list-price {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      margin-bottom: 4px;
+    }
+
+    .saved-list-price .main { font-size: 0.92rem; font-weight: 800; color: var(--primary-green); }
+    .saved-list-price .old { font-size: 0.72rem; color: var(--text-light); text-decoration: line-through; }
+
+    .saved-list-timestamp {
+      font-size: 0.68rem;
+      color: var(--text-light);
+      margin-bottom: 6px;
+    }
+
+    .saved-list-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .saved-list-actions .btn-wa-list {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: var(--primary-green);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: var(--transition);
+    }
+
+    .saved-list-actions .btn-heart-list {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      color: #ef4444;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.82rem;
+    }
+
+    .saved-list-remove {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 0.8rem;
+      color: var(--text-light);
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    .saved-list-remove:hover { color: #ef4444; }
+
+    /* Load More Mobile */
+    .load-more-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: calc(100% - 32px);
+      margin: 12px 16px;
+      padding: 12px;
+      background: #fff;
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+
+    .load-more-btn:hover { border-color: var(--primary-green); color: var(--primary-green); }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .saved-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 992px) {
+      .saved-grid { display: none; }
+      .saved-search-sort { display: none; }
+      .saved-page-header { display: none; }
+      .saved-page-subtitle { display: none; }
+      .saved-list-mobile { display: flex; }
+      .saved-mobile-header { display: block; }
+      .saved-info-banner { margin: 16px; border-radius: 10px; }
+    }
+
+    @media (max-width: 576px) {
+      .saved-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
 </head>
 <body>
 
   <!-- Site Header -->
   <header class="site-header">
+    <!-- Desktop Top Header -->
     <div class="top-header">
       <div class="container top-header-inner">
         <a href="index.html" class="logo">
@@ -27,29 +637,26 @@
             <span>Meena Bazaar</span>
           </div>
         </a>
-
         <div class="location-selector">
           <i class="fa-solid fa-location-dot" style="color: var(--primary-green);"></i>
           <span>Rampur</span>
-          <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem;"></i>
+          <i class="fa-solid fa-chevron-down" style="font-size: 0.72rem; color: #64748b;"></i>
         </div>
-
         <div class="header-search">
           <input type="text" placeholder="Search for products, shops, brands...">
           <button type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
-
         <div class="header-actions">
           <a href="saved.html" class="header-action-item" style="color: var(--primary-green);">
-            <i class="fa-solid fa-heart" style="color: var(--accent-red);"></i>
+            <i class="fa-solid fa-heart" style="color: var(--primary-green);"></i>
             <span>Saved</span>
-            <span class="saved-counter saved-counter-val">0</span>
+            <span class="saved-counter-val">8</span>
           </a>
           <a href="shops.html" class="header-action-item">
             <i class="fa-solid fa-store"></i>
             <span>Shops</span>
           </a>
-          <a href="#" class="header-action-item btn btn-outline" style="padding: 6px 14px; font-size: 0.85rem;">
+          <a href="login.html" class="header-action-item">
             <i class="fa-regular fa-user"></i>
             <span>Login</span>
           </a>
@@ -57,6 +664,7 @@
       </div>
     </div>
 
+    <!-- Desktop Category Nav -->
     <nav class="main-nav">
       <div class="container main-nav-inner">
         <div class="category-dropdown-btn">
@@ -67,87 +675,385 @@
           <li><a href="index.html">Home</a></li>
           <li><a href="shops.html">Shops</a></li>
           <li><a href="saved.html" class="active">Saved</a></li>
-          <li><a href="#">About Us</a></li>
-          <li><a href="#">Contact Us</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
         </ul>
       </div>
     </nav>
 
-    <!-- Mobile Header -->
-    <div class="mobile-header">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <i class="fa-solid fa-bars" style="font-size: 1.2rem;"></i>
-        <a href="index.html" class="logo">
-          <div class="logo-icon" style="width: 32px; height: 32px; font-size: 0.9rem;"><i class="fa-solid fa-bag-shopping"></i></div>
-          <div class="logo-text" style="font-size: 0.95rem;">
-            <span style="font-size: 0.65rem;">Digital</span>
-            <span>Meena Bazaar</span>
-          </div>
-        </a>
-      </div>
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <div class="location-selector" style="padding: 4px 8px; font-size: 0.75rem;">
-          <i class="fa-solid fa-location-dot"></i> Rampur <i class="fa-solid fa-chevron-down"></i>
+    <!-- Mobile Header Bar -->
+    <div class="mobile-header-bar">
+      <div class="mobile-header-top">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <i class="fa-solid fa-bars" style="font-size: 1.2rem; color: #0f172a; cursor: pointer;"></i>
+          <a href="index.html" class="logo">
+            <div class="logo-icon" style="width: 32px; height: 32px; font-size: 0.9rem;"><i class="fa-solid fa-bag-shopping"></i></div>
+            <div class="logo-text">
+              <span style="font-size: 0.65rem;">Digital</span>
+              <span style="font-size: 0.95rem;">Meena Bazaar</span>
+            </div>
+          </a>
         </div>
-        <a href="saved.html" class="header-action-item">
-          <i class="fa-solid fa-heart" style="font-size: 1.3rem; color: var(--accent-red);"></i>
-          <span class="saved-counter saved-counter-val">0</span>
-        </a>
+        <div class="location-selector" style="padding: 4px 10px; font-size: 0.78rem;">
+          <i class="fa-solid fa-location-dot" style="color: var(--primary-green);"></i> Rampur
+          <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem;"></i>
+        </div>
       </div>
     </div>
   </header>
 
-  <main class="container" style="padding-top: 16px;">
-    
-    <!-- Breadcrumb -->
+  <main class="container" style="padding-top: 0; padding-bottom: 20px;">
+
+    <!-- Breadcrumb (Desktop only) -->
     <div class="breadcrumb">
-      <a href="index.html">Home</a> &gt;
-      <span>Saved Products</span>
+      <a href="index.html">Home</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span style="color: var(--text-dark); font-weight: 600;">Saved Products</span>
     </div>
 
-    <!-- Saved Header Bar -->
-    <div class="saved-header">
+    <!-- Page Header (Desktop) -->
+    <div class="saved-page-header">
       <div>
-        <h1 style="font-size: 1.8rem; font-weight: 800; display: flex; align-items: center; gap: 10px;">
-          <i class="fa-solid fa-heart" style="color: var(--primary-green);"></i>
-          <span>Saved Products (<span id="saved-items-total-count">0</span>)</span>
-        </h1>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Products you have saved for later</p>
+        <div class="saved-page-title">
+          <i class="fa-solid fa-heart"></i>
+          <span>Saved Products</span>
+        </div>
+        <p class="saved-page-subtitle">Products you have saved for later</p>
+      </div>
+      <div class="saved-header-right">
+        <span class="items-saved-label" id="items-saved-label">8 Items Saved</span>
+        <button class="btn-clear-all" onclick="clearAllSaved()">
+          <i class="fa-regular fa-trash-can"></i> Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Search & Sort bar (Desktop) -->
+    <div class="saved-search-sort">
+      <div class="saved-search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="saved-search-input" placeholder="Search saved products...">
+      </div>
+      <div class="saved-sort-wrap">
+        <span>Sort By:</span>
+        <select id="saved-sort-select">
+          <option value="recent">Recently Saved</option>
+          <option value="low-high">Price: Low to High</option>
+          <option value="high-low">Price: High to Low</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ===== DESKTOP 4-column Saved Grid ===== -->
+    <div class="saved-grid" id="saved-grid-desktop">
+
+      <!-- Samsung Galaxy M16 5G -->
+      <div class="saved-card">
+        <button class="saved-card-remove" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+        <span class="saved-card-badge new">New</span>
+        <div class="saved-card-img">
+          <img src="https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&q=80" alt="Samsung Galaxy M16 5G">
+        </div>
+        <a href="product-details.html" class="saved-card-name">Samsung Galaxy M16 5G</a>
+        <div class="saved-card-shop">Sharma Mobile Store</div>
+        <div class="saved-card-price">
+          <span class="saved-price-main">₹14,999</span>
+          <span class="saved-price-old">₹16,999</span>
+        </div>
+        <div class="saved-card-actions">
+          <button class="btn-wa-saved" onclick="window.open('https://wa.me/919876543210?text=I want to order Samsung Galaxy M16 5G', '_blank')">
+            <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+          </button>
+          <button class="btn-heart-saved"><i class="fa-solid fa-heart"></i></button>
+        </div>
+        <div class="saved-card-timestamp"><i class="fa-regular fa-clock"></i> Saved today</div>
       </div>
 
-      <button class="btn btn-outline" id="btn-clear-all" onclick="clearAllSaved()">
-        <i class="fa-regular fa-trash-can"></i> Clear All
+      <!-- Nike Air Max Running Shoes -->
+      <div class="saved-card">
+        <button class="saved-card-remove" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+        <span class="saved-card-badge off">10% OFF</span>
+        <div class="saved-card-img">
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80" alt="Nike Air Max Running Shoes">
+        </div>
+        <a href="product-details.html" class="saved-card-name">Nike Air Max Running Shoes</a>
+        <div class="saved-card-shop">Sporty World</div>
+        <div class="saved-card-price">
+          <span class="saved-price-main">₹4,499</span>
+          <span class="saved-price-old">₹4,999</span>
+        </div>
+        <div class="saved-card-actions">
+          <button class="btn-wa-saved" onclick="window.open('https://wa.me/919876543211?text=I want to order Nike Air Max Running Shoes', '_blank')">
+            <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+          </button>
+          <button class="btn-heart-saved"><i class="fa-solid fa-heart"></i></button>
+        </div>
+        <div class="saved-card-timestamp"><i class="fa-regular fa-clock"></i> Saved 2 days ago</div>
+      </div>
+
+      <!-- Wild Stone Perfume -->
+      <div class="saved-card">
+        <button class="saved-card-remove" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+        <span class="saved-card-badge new">New</span>
+        <div class="saved-card-img">
+          <img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?w=400&q=80" alt="Wild Stone Perfume">
+        </div>
+        <a href="product-details.html" class="saved-card-name">Wild Stone Perfume</a>
+        <div class="saved-card-shop">Beauty Point</div>
+        <div class="saved-card-price">
+          <span class="saved-price-main">₹599</span>
+          <span class="saved-price-old">₹799</span>
+        </div>
+        <div class="saved-card-actions">
+          <button class="btn-wa-saved" onclick="window.open('https://wa.me/919876543217?text=I want to order Wild Stone Perfume', '_blank')">
+            <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+          </button>
+          <button class="btn-heart-saved"><i class="fa-solid fa-heart"></i></button>
+        </div>
+        <div class="saved-card-timestamp"><i class="fa-regular fa-clock"></i> Saved 3 days ago</div>
+      </div>
+
+      <!-- boAt Wave Call Smartwatch -->
+      <div class="saved-card">
+        <button class="saved-card-remove" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+        <span class="saved-card-badge off">15% OFF</span>
+        <div class="saved-card-img">
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80" alt="boAt Wave Call Smartwatch">
+        </div>
+        <a href="product-details.html" class="saved-card-name">boAt Wave Call Smartwatch</a>
+        <div class="saved-card-shop">Digital Hub</div>
+        <div class="saved-card-price">
+          <span class="saved-price-main">₹1,299</span>
+          <span class="saved-price-old">₹1,599</span>
+        </div>
+        <div class="saved-card-actions">
+          <button class="btn-wa-saved" onclick="window.open('https://wa.me/919876543210?text=I want to order boAt Wave Call Smartwatch', '_blank')">
+            <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+          </button>
+          <button class="btn-heart-saved"><i class="fa-solid fa-heart"></i></button>
+        </div>
+        <div class="saved-card-timestamp"><i class="fa-regular fa-clock"></i> Saved 5 days ago</div>
+      </div>
+
+      <!-- Realme Buds T310 -->
+      <div class="saved-card">
+        <button class="saved-card-remove" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+        <span class="saved-card-badge new">New</span>
+        <div class="saved-card-img">
+          <img src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80" alt="Realme Buds T310">
+        </div>
+        <a href="product-details.html" class="saved-card-name">Realme Buds T310</a>
+        <div class="saved-card-shop">Mobile Station</div>
+        <div class="saved-card-price">
+          <span class="saved-price-main">₹1,399</span>
+          <span class="saved-price-old">₹1,599</span>
+        </div>
+        <div class="saved-card-actions">
+          <button class="btn-wa-saved" onclick="window.open('https://wa.me/919876543210?text=I want to order Realme Buds T310', '_blank')">
+            <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+          </button>
+          <button class="btn-heart-saved"><i class="fa-solid fa-heart"></i></button>
+        </div>
+        <div class="saved-card-timestamp"><i class="fa-regular fa-clock"></i> Saved 6 days ago</div>
+      </div>
+
+      <!-- POCO M6 Plus 5G -->
+      <div class="saved-card">
+        <button class="saved-card-remove" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+        <span class="saved-card-badge new">New</span>
+        <div class="saved-card-img">
+          <img src="https://images.unsplash.com/photo-1574944985070-8f30c439781a?w=400&q=80" alt="POCO M6 Plus 5G">
+        </div>
+        <a href="product-details.html" class="saved-card-name">POCO M6 Plus 5G</a>
+        <div class="saved-card-shop">Sharma Mobile Store</div>
+        <div class="saved-card-price">
+          <span class="saved-price-main">₹12,999</span>
+          <span class="saved-price-old">₹14,999</span>
+        </div>
+        <div class="saved-card-actions">
+          <button class="btn-wa-saved" onclick="window.open('https://wa.me/919876543210?text=I want to order POCO M6 Plus 5G', '_blank')">
+            <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+          </button>
+          <button class="btn-heart-saved"><i class="fa-solid fa-heart"></i></button>
+        </div>
+        <div class="saved-card-timestamp"><i class="fa-regular fa-clock"></i> Saved 1 week ago</div>
+      </div>
+
+      <!-- boAt Rockerz 450 -->
+      <div class="saved-card">
+        <button class="saved-card-remove" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+        <span class="saved-card-badge off">10% OFF</span>
+        <div class="saved-card-img">
+          <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80" alt="boAt Rockerz 450">
+        </div>
+        <a href="product-details.html" class="saved-card-name">boAt Rockerz 450</a>
+        <div class="saved-card-shop">Digital Hub</div>
+        <div class="saved-card-price">
+          <span class="saved-price-main">₹1,799</span>
+          <span class="saved-price-old">₹1,999</span>
+        </div>
+        <div class="saved-card-actions">
+          <button class="btn-wa-saved" onclick="window.open('https://wa.me/919876543210?text=I want to order boAt Rockerz 450', '_blank')">
+            <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+          </button>
+          <button class="btn-heart-saved"><i class="fa-solid fa-heart"></i></button>
+        </div>
+        <div class="saved-card-timestamp"><i class="fa-regular fa-clock"></i> Saved 1 week ago</div>
+      </div>
+
+      <!-- Ambrane Powerbank 10000mAh -->
+      <div class="saved-card">
+        <button class="saved-card-remove" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+        <span class="saved-card-badge new">New</span>
+        <div class="saved-card-img">
+          <img src="https://images.unsplash.com/photo-1609592424009-4081c3c97db0?w=400&q=80" alt="Ambrane Powerbank 10000mAh">
+        </div>
+        <a href="product-details.html" class="saved-card-name">Ambrane Powerbank 10000mAh</a>
+        <div class="saved-card-shop">Mobile Station</div>
+        <div class="saved-card-price">
+          <span class="saved-price-main">₹899</span>
+          <span class="saved-price-old">₹1,199</span>
+        </div>
+        <div class="saved-card-actions">
+          <button class="btn-wa-saved" onclick="window.open('https://wa.me/919876543210?text=I want to order Ambrane Powerbank 10000mAh', '_blank')">
+            <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+          </button>
+          <button class="btn-heart-saved"><i class="fa-solid fa-heart"></i></button>
+        </div>
+        <div class="saved-card-timestamp"><i class="fa-regular fa-clock"></i> Saved 1 week ago</div>
+      </div>
+
+    </div>
+
+    <!-- ===== MOBILE List View ===== -->
+    <div class="saved-list-mobile" id="saved-list-mobile">
+
+      <!-- Mobile Saved Header -->
+      <div class="saved-mobile-header" id="saved-mobile-header">
+        <div class="saved-mobile-header-top">
+          <div class="saved-mobile-title">
+            <i class="fa-solid fa-heart"></i> Saved Products (8)
+          </div>
+          <button class="btn-clear-all" style="font-size: 0.72rem; padding: 5px 10px;" onclick="clearAllSaved()">
+            <i class="fa-regular fa-trash-can"></i> Clear All
+          </button>
+        </div>
+
+        <div class="saved-mobile-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Search saved products...">
+          <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+        </div>
+
+        <div class="saved-mobile-sort">
+          <div class="sort-select-mob">
+            Sort By: Recently Saved <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem;"></i>
+          </div>
+          <i class="fa-solid fa-sliders" style="color: var(--text-muted); font-size: 0.9rem;"></i>
+        </div>
+      </div>
+
+      <!-- Mobile List Items -->
+      <div class="saved-list-item">
+        <div class="saved-list-img">
+          <span class="saved-list-img-badge new" style="background: #056839; color: #fff;">New</span>
+          <img src="https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=200&q=80" alt="Samsung Galaxy M16 5G">
+        </div>
+        <div class="saved-list-info">
+          <div class="saved-list-name">Samsung Galaxy M16 5G</div>
+          <div class="saved-list-shop">Sharma Mobile Store</div>
+          <div class="saved-list-price">
+            <span class="main">₹14,999</span>
+            <span class="old">₹16,999</span>
+          </div>
+          <div class="saved-list-timestamp">Saved today</div>
+          <div class="saved-list-actions">
+            <button class="btn-wa-list" onclick="window.open('https://wa.me/919876543210', '_blank')"><i class="fa-brands fa-whatsapp"></i></button>
+            <button class="btn-heart-list"><i class="fa-solid fa-heart"></i></button>
+          </div>
+        </div>
+        <div class="saved-list-remove"><i class="fa-solid fa-xmark"></i></div>
+      </div>
+
+      <div class="saved-list-item">
+        <div class="saved-list-img">
+          <span class="saved-list-img-badge off" style="background: #ea580c; color: #fff;">10%</span>
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&q=80" alt="Nike Air Max">
+        </div>
+        <div class="saved-list-info">
+          <div class="saved-list-name">Nike Air Max Running Shoes</div>
+          <div class="saved-list-shop">Sporty World</div>
+          <div class="saved-list-price">
+            <span class="main">₹4,499</span>
+            <span class="old">₹4,999</span>
+          </div>
+          <div class="saved-list-timestamp">Saved 2 days ago</div>
+          <div class="saved-list-actions">
+            <button class="btn-wa-list" onclick="window.open('https://wa.me/919876543211', '_blank')"><i class="fa-brands fa-whatsapp"></i></button>
+            <button class="btn-heart-list"><i class="fa-solid fa-heart"></i></button>
+          </div>
+        </div>
+        <div class="saved-list-remove"><i class="fa-solid fa-xmark"></i></div>
+      </div>
+
+      <div class="saved-list-item">
+        <div class="saved-list-img">
+          <span class="saved-list-img-badge new" style="background: #056839; color: #fff;">New</span>
+          <img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?w=200&q=80" alt="Wild Stone Perfume">
+        </div>
+        <div class="saved-list-info">
+          <div class="saved-list-name">Wild Stone Perfume</div>
+          <div class="saved-list-shop">Beauty Point</div>
+          <div class="saved-list-price">
+            <span class="main">₹599</span>
+            <span class="old">₹799</span>
+          </div>
+          <div class="saved-list-timestamp">Saved 3 days ago</div>
+          <div class="saved-list-actions">
+            <button class="btn-wa-list" onclick="window.open('https://wa.me/919876543217', '_blank')"><i class="fa-brands fa-whatsapp"></i></button>
+            <button class="btn-heart-list"><i class="fa-solid fa-heart"></i></button>
+          </div>
+        </div>
+        <div class="saved-list-remove"><i class="fa-solid fa-xmark"></i></div>
+      </div>
+
+      <div class="saved-list-item">
+        <div class="saved-list-img">
+          <span class="saved-list-img-badge off" style="background: #ea580c; color: #fff;">15%</span>
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&q=80" alt="boAt Wave Call Smartwatch">
+        </div>
+        <div class="saved-list-info">
+          <div class="saved-list-name">boAt Wave Call Smartwatch</div>
+          <div class="saved-list-shop">Digital Hub</div>
+          <div class="saved-list-price">
+            <span class="main">₹1,299</span>
+            <span class="old">₹1,599</span>
+          </div>
+          <div class="saved-list-timestamp">Saved 5 days ago</div>
+          <div class="saved-list-actions">
+            <button class="btn-wa-list" onclick="window.open('https://wa.me/919876543210', '_blank')"><i class="fa-brands fa-whatsapp"></i></button>
+            <button class="btn-heart-list"><i class="fa-solid fa-heart"></i></button>
+          </div>
+        </div>
+        <div class="saved-list-remove"><i class="fa-solid fa-xmark"></i></div>
+      </div>
+
+      <!-- Load More Button (Mobile) -->
+      <button class="load-more-btn">
+        Load More Products <i class="fa-solid fa-chevron-down"></i>
       </button>
     </div>
 
-    <!-- Filter & Search Inside Saved -->
-    <div class="saved-search-sort">
-      <div class="shops-filter-search" style="flex: 1;">
-        <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
-        <input type="text" id="saved-search-input" placeholder="Search saved products...">
-      </div>
-
-      <select class="filter-select" id="saved-sort-select">
-        <option value="recent">Sort By: Recently Saved</option>
-        <option value="low-high">Price: Low to High</option>
-        <option value="high-low">Price: High to Low</option>
-      </select>
-    </div>
-
-    <!-- Saved Items Grid -->
-    <div class="products-grid" id="saved-products-container">
-      <!-- Rendered dynamically via JS -->
-    </div>
-
-    <!-- Info Banner at Bottom -->
+    <!-- Info Banner (both views) -->
     <div class="saved-info-banner">
-      <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--primary-green); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-        <i class="fa-regular fa-heart"></i>
+      <div class="saved-info-banner-icon">
+        <i class="fa-solid fa-heart"></i>
       </div>
       <div>
-        <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-dark);">Save your favorite products</h4>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">You can save products and come back later to order on WhatsApp. Saved in browser storage.</p>
+        <h4>Save your favorite products</h4>
+        <p>You can save products and come back later to order on WhatsApp.</p>
       </div>
+      <i class="fa-solid fa-bag-shopping banner-bg-icon"></i>
     </div>
 
   </main>
@@ -155,123 +1061,84 @@
   <!-- Footer -->
   <footer class="site-footer">
     <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="logo" style="margin-bottom: 12px;">
+            <div class="logo-icon" style="background: #fff; color: var(--primary-green);"><i class="fa-solid fa-bag-shopping"></i></div>
+            <div class="logo-text">
+              <span style="color: #a7f3d0;">Digital</span>
+              <span style="color: #fff;">Meena Bazaar</span>
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">Connecting local shop owners with customers via WhatsApp.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="shops.html">All Shops</a></li>
+            <li><a href="saved.html">Saved Products</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Top Categories</h4>
+          <ul>
+            <li><a href="#">Electronics</a></li>
+            <li><a href="#">Fashion</a></li>
+            <li><a href="#">Groceries</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul>
+            <li><i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp Support</li>
+            <li><i class="fa-solid fa-location-dot" style="color: #4ade80;"></i> Rampur, U.P.</li>
+          </ul>
+        </div>
+      </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 Digital Meena Bazaar Rampur. Built with simple fast PWA technology.</p>
+        <p>&copy; 2026 Digital Meena Bazaar Rampur. All rights reserved.</p>
       </div>
     </div>
   </footer>
 
-  <!-- Bottom Mobile Navigation -->
-  <div class="bottom-nav">
-    <div class="bottom-nav-inner">
-      <a href="index.html" class="bottom-nav-item">
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-      </a>
-      <a href="#" class="bottom-nav-item">
-        <i class="fa-solid fa-border-all"></i>
-        <span>Categories</span>
-      </a>
-      <a href="shops.html" class="bottom-nav-item">
-        <i class="fa-solid fa-store"></i>
-        <span>Shops</span>
-      </a>
-      <a href="saved.html" class="bottom-nav-item active">
-        <i class="fa-solid fa-heart" style="color: var(--primary-green);"></i>
-        <span>Saved</span>
-      </a>
-      <a href="#" class="bottom-nav-item">
-        <i class="fa-regular fa-user"></i>
-        <span>Profile</span>
-      </a>
-    </div>
+  <!-- Mobile Bottom Sticky Navigation -->
+  <div class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <a href="#" class="mobile-nav-item"><i class="fa-solid fa-border-all"></i><span>Categories</span></a>
+    <a href="shops.html" class="mobile-nav-item"><i class="fa-solid fa-store"></i><span>Shops</span></a>
+    <a href="saved.html" class="mobile-nav-item active"><i class="fa-solid fa-heart"></i><span>Saved</span></a>
+    <a href="#" class="mobile-nav-item"><i class="fa-regular fa-user"></i><span>Profile</span></a>
   </div>
 
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      renderSavedProductsPage();
-
-      document.getElementById("saved-search-input")?.addEventListener("input", renderSavedProductsPage);
-      document.getElementById("saved-sort-select")?.addEventListener("change", renderSavedProductsPage);
+    // Remove card on × click
+    document.querySelectorAll('.saved-card-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const card = btn.closest('.saved-card');
+        if (card) {
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.95)';
+          card.style.transition = 'all 0.2s ease';
+          setTimeout(() => card.remove(), 200);
+        }
+      });
     });
 
-    function renderSavedProductsPage() {
-      const container = document.getElementById("saved-products-container");
-      if (!container) return;
+    document.querySelectorAll('.saved-list-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.saved-list-item');
+        if (item) item.remove();
+      });
+    });
 
-      const savedIds = MeenaBazaarApp.getSavedProductIds();
-      document.getElementById("saved-items-total-count").textContent = savedIds.length;
-
-      if (savedIds.length === 0) {
-        container.innerHTML = `
-          <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0;">
-            <i class="fa-regular fa-heart" style="font-size: 3.5rem; color: #cbd5e1; margin-bottom: 16px;"></i>
-            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;">No Saved Products Yet</h3>
-            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Click the heart icon on any product to save it here for later.</p>
-            <a href="index.html" class="btn btn-primary">Browse Marketplace</a>
-          </div>
-        `;
-        return;
-      }
-
-      let savedProducts = BAZAAR_DATA.products.filter(p => savedIds.includes(p.id));
-
-      // Apply Search
-      const searchVal = (document.getElementById("saved-search-input")?.value || "").toLowerCase().trim();
-      if (searchVal) {
-        savedProducts = savedProducts.filter(p => p.name.toLowerCase().includes(searchVal) || p.shopName.toLowerCase().includes(searchVal));
-      }
-
-      // Apply Sort
-      const sortVal = document.getElementById("saved-sort-select")?.value || "recent";
-      if (sortVal === "low-high") {
-        savedProducts.sort((a, b) => a.price - b.price);
-      } else if (sortVal === "high-low") {
-        savedProducts.sort((a, b) => b.price - a.price);
-      }
-
-      container.innerHTML = savedProducts.map((p, idx) => `
-        <div class="product-card saved-product-card">
-          <button class="saved-card-remove" onclick="removeSavedItem('${p.id}')" title="Remove">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-          <div class="product-card-badges">
-            <span class="badge ${p.badge.includes('%') ? 'badge-discount' : 'badge-new'}">${p.badge}</span>
-          </div>
-          <a href="product-details.html?id=${p.id}" class="product-image-wrap">
-            <img src="${p.images[0]}" alt="${p.name}">
-          </a>
-          <div class="product-details-content">
-            <a href="product-details.html?id=${p.id}" class="product-title">${p.name}</a>
-            <div class="product-shop-name">${p.shopName}</div>
-            <div class="product-price-row">
-              <span class="product-price">₹${p.price.toLocaleString('en-IN')}</span>
-              ${p.originalPrice ? `<span class="product-original-price">₹${p.originalPrice.toLocaleString('en-IN')}</span>` : ''}
-            </div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px;">
-              <i class="fa-regular fa-clock"></i> Saved ${idx === 0 ? 'today' : (idx + 1) + ' days ago'}
-            </div>
-            <div class="product-card-actions">
-              <button class="btn btn-whatsapp" style="width: 100%;" onclick="MeenaBazaarApp.openWhatsApp('${p.id}')">
-                <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
-              </button>
-            </div>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function removeSavedItem(productId) {
-      MeenaBazaarApp.toggleSaveProduct(productId);
-      renderSavedProductsPage();
-    }
-
+    // Clear all
     function clearAllSaved() {
-      if (confirm("Are you sure you want to clear all saved products?")) {
-        MeenaBazaarApp.clearSavedProducts();
-        renderSavedProductsPage();
+      if (confirm('Clear all saved products?')) {
+        document.querySelectorAll('.saved-card').forEach(c => c.remove());
+        document.querySelectorAll('.saved-list-item').forEach(c => c.remove());
       }
     }
   </script>

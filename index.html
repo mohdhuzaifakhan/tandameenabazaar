@@ -18,6 +18,7 @@
 
   <!-- Site Header -->
   <header class="site-header">
+    <!-- Desktop Top Utility Header -->
     <div class="top-header">
       <div class="container top-header-inner">
         <!-- Logo -->
@@ -33,27 +34,25 @@
         <div class="location-selector">
           <i class="fa-solid fa-location-dot" style="color: var(--primary-green);"></i>
           <span>Rampur</span>
-          <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem;"></i>
+          <i class="fa-solid fa-chevron-down" style="font-size: 0.72rem; color: #64748b;"></i>
         </div>
 
-        <!-- Search Bar -->
+        <!-- Header Search Bar -->
         <div class="header-search">
           <input type="text" id="global-search" placeholder="Search for products, shops, brands...">
           <button type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
 
-        <!-- Header Utilities -->
+        <!-- Header Utility Links -->
         <div class="header-actions">
           <a href="saved.html" class="header-action-item">
             <i class="fa-regular fa-heart"></i>
-            <span>Saved</span>
-            <span class="saved-counter saved-counter-val">0</span>
+            <span class="saved-counter-val">0</span>
           </a>
           <a href="shops.html" class="header-action-item">
             <i class="fa-solid fa-store"></i>
-            <span>Shops</span>
           </a>
-          <a href="#" class="header-action-item btn btn-outline" style="padding: 6px 14px; font-size: 0.85rem;">
+          <a href="login.html" class="header-action-item">
             <i class="fa-regular fa-user"></i>
             <span>Login</span>
           </a>
@@ -61,7 +60,7 @@
       </div>
     </div>
 
-    <!-- Category Bar (Desktop) -->
+    <!-- Desktop Main Category Nav Bar -->
     <nav class="main-nav">
       <div class="container main-nav-inner">
         <div class="category-dropdown-btn">
@@ -72,100 +71,367 @@
           <li><a href="index.html" class="active">Home</a></li>
           <li><a href="shops.html">Shops</a></li>
           <li><a href="saved.html">Saved</a></li>
-          <li><a href="#">About Us</a></li>
-          <li><a href="#">Contact Us</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
         </ul>
       </div>
     </nav>
 
-    <!-- Mobile Header View -->
-    <div class="mobile-header">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <i class="fa-solid fa-bars" style="font-size: 1.2rem; color: var(--text-dark);"></i>
-        <a href="index.html" class="logo">
-          <div class="logo-icon" style="width: 32px; height: 32px; font-size: 0.9rem;"><i class="fa-solid fa-bag-shopping"></i></div>
-          <div class="logo-text" style="font-size: 0.95rem;">
-            <span style="font-size: 0.65rem;">Digital</span>
-            <span>Meena Bazaar</span>
-          </div>
-        </a>
-      </div>
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <div class="location-selector" style="padding: 4px 8px; font-size: 0.75rem;">
-          <i class="fa-solid fa-location-dot"></i> Rampur <i class="fa-solid fa-chevron-down"></i>
+    <!-- Mobile Header Bar (Visible on mobile/tablet screens) -->
+    <div class="mobile-header-bar">
+      <div class="mobile-header-top">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <i class="fa-solid fa-bars" style="font-size: 1.2rem; color: #0f172a; cursor: pointer;"></i>
+          <a href="index.html" class="logo">
+            <div class="logo-icon" style="width: 32px; height: 32px; font-size: 0.9rem;"><i class="fa-solid fa-bag-shopping"></i></div>
+            <div class="logo-text">
+              <span style="font-size: 0.65rem;">Digital</span>
+              <span style="font-size: 0.95rem;">Meena Bazaar</span>
+            </div>
+          </a>
         </div>
-        <a href="saved.html" class="header-action-item">
-          <i class="fa-regular fa-heart" style="font-size: 1.3rem;"></i>
-          <span class="saved-counter saved-counter-val">0</span>
-        </a>
+        <div class="location-selector" style="padding: 4px 10px; font-size: 0.78rem;">
+          <i class="fa-solid fa-location-dot" style="color: var(--primary-green);"></i> Rampur <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem;"></i>
+        </div>
+      </div>
+
+      <div class="mobile-header-search">
+        <input type="text" placeholder="Search products, shops...">
+        <button type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
       </div>
     </div>
   </header>
 
   <!-- Main Content Area -->
-  <main class="container" style="padding-top: 16px;">
+  <main class="container">
     
     <!-- Hero Banner Section -->
-    <section class="hero-section">
-      <div class="hero-banner">
-        <span class="shop-local-badge">SHOP LOCAL</span>
-        <div class="hero-content">
-          <h1 class="hero-title">Find Everything from Local Shops in <span>Rampur</span></h1>
-          <p class="hero-subtitle">Shop local. Support local. Grow local. Order directly via WhatsApp.</p>
-          <a href="shops.html" class="btn btn-primary" style="padding: 12px 24px; font-size: 1rem; border-radius: 25px;">
-            Explore Categories <i class="fa-solid fa-arrow-right"></i>
-          </a>
-        </div>
-        <div class="hero-image">
-          <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=500" alt="Shop Local Illustration" style="border-radius: 12px;">
-        </div>
+    <section class="hero-banner-card">
+      <span class="shop-local-badge">SHOP LOCAL</span>
+      <div class="hero-content">
+        <h1>Find Everything<br><span>from Local Shops</span><br>in Rampur</h1>
+        <p class="hero-subtitle">Shop local. Support local. Grow local.</p>
+        <a href="shops.html" class="btn-hero-cta">
+          Explore Categories <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+      <div class="hero-illustration">
+        <!-- Vector Storefront & Shopping Cart Illustration -->
+        <svg viewBox="0 0 450 300" style="width: 100%; max-width: 420px;">
+          <rect x="180" y="50" width="220" height="200" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="3"/>
+          <path d="M 170 50 L 410 50 L 420 90 L 160 90 Z" fill="#056839" />
+          <path d="M 195 50 L 225 50 L 220 90 L 190 90 Z" fill="#fef08a" />
+          <path d="M 255 50 L 285 50 L 280 90 L 250 90 Z" fill="#fef08a" />
+          <path d="M 315 50 L 345 50 L 340 90 L 310 90 Z" fill="#fef08a" />
+          <path d="M 375 50 L 405 50 L 400 90 L 370 90 Z" fill="#fef08a" />
+          <rect x="230" y="25" width="120" height="26" rx="4" fill="#034b28"/>
+          <text x="290" y="42" font-weight="800" font-size="11" fill="#ffffff" text-anchor="middle" letter-spacing="1">SHOP LOCAL</text>
+          <rect x="260" y="140" width="60" height="110" rx="4" fill="#056839" opacity="0.15" stroke="#056839" stroke-width="2"/>
+          <rect x="200" y="110" width="45" height="55" rx="4" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/>
+          <rect x="335" y="110" width="45" height="55" rx="4" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/>
+
+          <g transform="translate(40, 70)">
+            <path d="M 30 50 L 50 140 L 180 140 L 200 50 Z" fill="none" stroke="#003822" stroke-width="6" stroke-linejoin="round"/>
+            <path d="M 45 75 L 190 75 M 50 105 L 185 105" stroke="#056839" stroke-width="3"/>
+            <path d="M 75 50 L 75 140 M 115 50 L 115 140 M 155 50 L 155 140" stroke="#056839" stroke-width="3"/>
+            <path d="M 200 50 L 225 30 L 240 30" fill="none" stroke="#003822" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="70" cy="165" r="16" fill="#003822"/>
+            <circle cx="70" cy="165" r="6" fill="#ffffff"/>
+            <circle cx="160" cy="165" r="16" fill="#003822"/>
+            <circle cx="160" cy="165" r="6" fill="#ffffff"/>
+            <rect x="60" y="10" width="35" height="42" rx="6" fill="#ea580c"/>
+            <path d="M 105 45 Q 115 10 135 25 Q 155 40 145 45 Z" fill="#ef4444"/>
+            <rect x="140" y="20" width="40" height="32" rx="4" fill="#2563eb"/>
+          </g>
+        </svg>
       </div>
     </section>
 
     <!-- Top Categories Section -->
-    <section style="margin-bottom: 36px;">
+    <section>
       <div class="section-header">
         <h2 class="section-title">Top Categories</h2>
-        <a href="#" class="view-all-link">View All</a>
+        <a href="shops.html" class="view-all-link">View All</a>
       </div>
-      <div class="categories-slider" id="home-categories">
-        <!-- Rendered by JS -->
+      <div class="top-categories-grid">
+        <a href="shops.html?category=electronics" class="category-card-item">
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=160&q=80" alt="Electronics">
+          </div>
+          <span class="category-name-text">Electronics</span>
+        </a>
+
+        <a href="shops.html?category=fashion" class="category-card-item">
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?w=160&q=80" alt="Fashion">
+          </div>
+          <span class="category-name-text">Fashion</span>
+        </a>
+
+        <a href="shops.html?category=groceries" class="category-card-item">
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=160&q=80" alt="Groceries">
+          </div>
+          <span class="category-name-text">Groceries</span>
+        </a>
+
+        <a href="shops.html?category=footwear" class="category-card-item">
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=160&q=80" alt="Footwear">
+          </div>
+          <span class="category-name-text">Footwear</span>
+        </a>
+
+        <a href="shops.html?category=cosmetics" class="category-card-item">
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=160&q=80" alt="Cosmetics">
+          </div>
+          <span class="category-name-text">Cosmetics</span>
+        </a>
+
+        <a href="shops.html?category=furniture" class="category-card-item">
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=160&q=80" alt="Furniture">
+          </div>
+          <span class="category-name-text">Furniture</span>
+        </a>
+
+        <a href="shops.html?category=mobile-acc" class="category-card-item">
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=160&q=80" alt="Mobile Accessories">
+          </div>
+          <span class="category-name-text">Mobile Accessories</span>
+        </a>
+
+        <a href="shops.html?category=jewellery" class="category-card-item">
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=160&q=80" alt="Jewellery">
+          </div>
+          <span class="category-name-text">Jewellery</span>
+        </a>
+
+        <a href="shops.html?category=books" class="category-card-item">
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=160&q=80" alt="Books">
+          </div>
+          <span class="category-name-text">Books</span>
+        </a>
+
+        <a href="shops.html" class="category-card-item">
+          <div class="category-img-box" style="background: #f1f5f9; color: #64748b; font-size: 1.2rem;">
+            <i class="fa-solid fa-ellipsis"></i>
+          </div>
+          <span class="category-name-text">More</span>
+        </a>
       </div>
     </section>
 
     <!-- Featured Products Section -->
-    <section style="margin-bottom: 36px;">
+    <section>
       <div class="section-header">
         <h2 class="section-title">Featured Products</h2>
-        <a href="#" class="view-all-link">View All</a>
+        <a href="shops.html" class="view-all-link">View All</a>
       </div>
-      <div class="products-grid" id="home-featured-products">
-        <!-- Rendered by JS -->
-      </div>
-    </section>
+      <div class="products-grid-6">
+        <!-- Prod 1 -->
+        <div class="product-card-clean">
+          <span class="product-badge-tag new">New</span>
+          <div class="product-img-holder">
+            <img src="https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&q=80" alt="Samsung Galaxy M16 5G">
+          </div>
+          <div class="product-info-group">
+            <h4>Samsung Galaxy M16 5G</h4>
+            <p class="shop-sub">Sharma Mobile Store</p>
+            <div class="product-price-box">
+              <span class="price-main">₹14,999</span>
+            </div>
+          </div>
+          <div class="product-card-bottom-actions">
+            <button class="btn-card-whatsapp" onclick="MeenaBazaarApp.openWhatsApp('samsung-m16-5g')">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="btn-card-heart" onclick="this.classList.toggle('active')">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
 
-    <!-- New Arrivals Section -->
-    <section style="margin-bottom: 36px;">
-      <div class="section-header">
-        <h2 class="section-title">New Arrivals</h2>
-        <a href="#" class="view-all-link">View All</a>
-      </div>
-      <div class="products-grid" id="home-new-arrivals">
-        <!-- Rendered by JS -->
+        <!-- Prod 2 -->
+        <div class="product-card-clean">
+          <span class="product-badge-tag discount">10% OFF</span>
+          <div class="product-img-holder">
+            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80" alt="Nike Air Max Running Shoes">
+          </div>
+          <div class="product-info-group">
+            <h4>Nike Air Max Running Shoes</h4>
+            <p class="shop-sub">Sporty World</p>
+            <div class="product-price-box">
+              <span class="price-main">₹4,499</span>
+              <span class="price-old">₹4,999</span>
+            </div>
+          </div>
+          <div class="product-card-bottom-actions">
+            <button class="btn-card-whatsapp" onclick="MeenaBazaarApp.openWhatsApp('nike-air-max')">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="btn-card-heart" onclick="this.classList.toggle('active')">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Prod 3 -->
+        <div class="product-card-clean">
+          <span class="product-badge-tag new">New</span>
+          <div class="product-img-holder">
+            <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80" alt="Wild Stone Perfume">
+          </div>
+          <div class="product-info-group">
+            <h4>Wild Stone Perfume</h4>
+            <p class="shop-sub">Beauty Point</p>
+            <div class="product-price-box">
+              <span class="price-main">₹599</span>
+            </div>
+          </div>
+          <div class="product-card-bottom-actions">
+            <button class="btn-card-whatsapp" onclick="MeenaBazaarApp.openWhatsApp('wild-stone-perfume')">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="btn-card-heart" onclick="this.classList.toggle('active')">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Prod 4 -->
+        <div class="product-card-clean">
+          <span class="product-badge-tag discount">15% OFF</span>
+          <div class="product-img-holder">
+            <img src="https://images.unsplash.com/photo-1580481072645-022f9a6d8310?w=400&q=80" alt="Wooden Office Chair">
+          </div>
+          <div class="product-info-group">
+            <h4>Wooden Office Chair</h4>
+            <p class="shop-sub">Furniture House</p>
+            <div class="product-price-box">
+              <span class="price-main">₹3,399</span>
+              <span class="price-old">₹3,999</span>
+            </div>
+          </div>
+          <div class="product-card-bottom-actions">
+            <button class="btn-card-whatsapp" onclick="MeenaBazaarApp.openWhatsApp('wooden-office-chair')">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="btn-card-heart" onclick="this.classList.toggle('active')">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Prod 5 -->
+        <div class="product-card-clean">
+          <span class="product-badge-tag new">New</span>
+          <div class="product-img-holder">
+            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80" alt="boAt Wave Call Smartwatch">
+          </div>
+          <div class="product-info-group">
+            <h4>boAt Wave Call Smartwatch</h4>
+            <p class="shop-sub">Digital Hub</p>
+            <div class="product-price-box">
+              <span class="price-main">₹1,299</span>
+            </div>
+          </div>
+          <div class="product-card-bottom-actions">
+            <button class="btn-card-whatsapp" onclick="MeenaBazaarApp.openWhatsApp('boat-wave-call')">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="btn-card-heart" onclick="this.classList.toggle('active')">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Prod 6 -->
+        <div class="product-card-clean">
+          <span class="product-badge-tag discount">12% OFF</span>
+          <div class="product-img-holder">
+            <img src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80" alt="Realme Buds T310">
+          </div>
+          <div class="product-info-group">
+            <h4>Realme Buds T310</h4>
+            <p class="shop-sub">Mobile Station</p>
+            <div class="product-price-box">
+              <span class="price-main">₹1,399</span>
+              <span class="price-old">₹1,599</span>
+            </div>
+          </div>
+          <div class="product-card-bottom-actions">
+            <button class="btn-card-whatsapp" onclick="MeenaBazaarApp.openWhatsApp('realme-buds-t310')">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="btn-card-heart" onclick="this.classList.toggle('active')">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- Popular Shops Section -->
-    <section style="margin-bottom: 40px;">
+    <section>
       <div class="section-header">
         <h2 class="section-title">Popular Shops</h2>
         <a href="shops.html" class="view-all-link">View All</a>
       </div>
-      <div class="shops-slider" id="home-popular-shops">
-        <!-- Rendered by JS -->
+      <div class="popular-shops-grid">
+        <a href="shop-details.html?id=sharma-mobile" class="shop-card-clean">
+          <div class="shop-card-left">
+            <img src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=160&q=80" alt="Sharma Mobile Store" class="shop-logo-thumb">
+            <div class="shop-card-meta">
+              <h4>Sharma Mobile Store</h4>
+              <p class="address">Gandhi Market, Rampur</p>
+              <p class="products-badge">120+ Products</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right" style="color: #94a3b8;"></i>
+        </a>
+
+        <a href="shop-details.html?id=khan-footwear" class="shop-card-clean">
+          <div class="shop-card-left">
+            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=160&q=80" alt="Khan Footwear" class="shop-logo-thumb">
+            <div class="shop-card-meta">
+              <h4>Khan Footwear</h4>
+              <p class="address">Nai Sadak, Rampur</p>
+              <p class="products-badge">85+ Products</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right" style="color: #94a3b8;"></i>
+        </a>
+
+        <a href="shop-details.html?id=gupta-general" class="shop-card-clean">
+          <div class="shop-card-left">
+            <img src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=160&q=80" alt="Gupta General Store" class="shop-logo-thumb">
+            <div class="shop-card-meta">
+              <h4>Gupta General Store</h4>
+              <p class="address">Civil Lines, Rampur</p>
+              <p class="products-badge">200+ Products</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right" style="color: #94a3b8;"></i>
+        </a>
+
+        <a href="shop-details.html?id=fashion-hub" class="shop-card-clean">
+          <div class="shop-card-left">
+            <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=160&q=80" alt="Fashion Hub" class="shop-logo-thumb">
+            <div class="shop-card-meta">
+              <h4>Fashion Hub</h4>
+              <p class="address">Mandi Samiti, Rampur</p>
+              <p class="products-badge">150+ Products</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right" style="color: #94a3b8;"></i>
+        </a>
       </div>
     </section>
-
   </main>
 
   <!-- Footer -->
@@ -180,7 +446,7 @@
               <span style="color: #fff;">Meena Bazaar</span>
             </div>
           </div>
-          <p style="font-size: 0.85rem; color: #cbd5e1;">Connecting local city shop owners directly with customers via WhatsApp.</p>
+          <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">Connecting local city shop owners directly with customers via WhatsApp.</p>
         </div>
         <div class="footer-col">
           <h4>Quick Links</h4>
@@ -188,147 +454,45 @@
             <li><a href="index.html">Home</a></li>
             <li><a href="shops.html">All Shops</a></li>
             <li><a href="saved.html">Saved Products</a></li>
-            <li><a href="#">Shop Owner Login</a></li>
+            <li><a href="login.html">Shop Owner Portal</a></li>
+            <li><a href="login.html">Admin Portal</a></li>
           </ul>
         </div>
         <div class="footer-col">
           <h4>Top Categories</h4>
           <ul>
-            <li><a href="shops.html?category=mobile-acc">Mobile Accessories</a></li>
             <li><a href="shops.html?category=electronics">Electronics</a></li>
             <li><a href="shops.html?category=fashion">Fashion</a></li>
+            <li><a href="shops.html?category=groceries">Groceries</a></li>
             <li><a href="shops.html?category=footwear">Footwear</a></li>
           </ul>
         </div>
         <div class="footer-col">
-          <h4>Contact & Help</h4>
+          <h4>Contact & Support</h4>
           <ul>
-            <li><i class="fa-brands fa-whatsapp"></i> Support on WhatsApp</li>
-            <li><i class="fa-solid fa-location-dot"></i> Rampur, Uttar Pradesh</li>
+            <li><i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> Support via WhatsApp</li>
+            <li><i class="fa-solid fa-location-dot" style="color: #4ade80;"></i> Rampur, Uttar Pradesh</li>
             <li><i class="fa-regular fa-envelope"></i> help@digitalmeenabazaar.com</li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 Digital Meena Bazaar Rampur. Built with simple fast PWA technology.</p>
+        <p>&copy; 2026 Digital Meena Bazaar Rampur. All rights reserved. Fast PWA Marketplace.</p>
       </div>
     </div>
   </footer>
 
-  <!-- Bottom Mobile Navigation Bar -->
-  <div class="bottom-nav">
-    <div class="bottom-nav-inner">
-      <a href="index.html" class="bottom-nav-item active">
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-      </a>
-      <a href="#" class="bottom-nav-item">
-        <i class="fa-solid fa-border-all"></i>
-        <span>Categories</span>
-      </a>
-      <a href="shops.html" class="bottom-nav-item">
-        <i class="fa-solid fa-store"></i>
-        <span>Shops</span>
-      </a>
-      <a href="saved.html" class="bottom-nav-item">
-        <i class="fa-regular fa-heart"></i>
-        <span>Saved</span>
-      </a>
-      <a href="#" class="bottom-nav-item">
-        <i class="fa-regular fa-user"></i>
-        <span>Profile</span>
-      </a>
-    </div>
+  <!-- Mobile Bottom Sticky Navigation Bar -->
+  <div class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-item active"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <a href="#" class="mobile-nav-item"><i class="fa-solid fa-border-all"></i><span>Categories</span></a>
+    <a href="shops.html" class="mobile-nav-item"><i class="fa-solid fa-store"></i><span>Shops</span></a>
+    <a href="saved.html" class="mobile-nav-item"><i class="fa-regular fa-heart"></i><span>Saved</span></a>
+    <a href="#" class="mobile-nav-item"><i class="fa-regular fa-user"></i><span>Profile</span></a>
   </div>
 
-  <!-- Scripts -->
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // Render Home Categories
-      const catWrap = document.getElementById("home-categories");
-      if (catWrap) {
-        catWrap.innerHTML = BAZAAR_DATA.categories.map(cat => `
-          <a href="shops.html?category=${cat.id}" class="category-card">
-            <div class="category-icon-wrapper">
-              <i class="fa-solid ${cat.icon}"></i>
-            </div>
-            <span class="category-name">${cat.name}</span>
-          </a>
-        `).join("");
-      }
-
-      // Render Featured Products
-      const featuredWrap = document.getElementById("home-featured-products");
-      if (featuredWrap) {
-        const featured = BAZAAR_DATA.products.filter(p => p.isFeatured).slice(0, 6);
-        featuredWrap.innerHTML = featured.map(p => renderProductCardHTML(p)).join("");
-      }
-
-      // Render New Arrivals
-      const newWrap = document.getElementById("home-new-arrivals");
-      if (newWrap) {
-        const newItems = BAZAAR_DATA.products.filter(p => p.isNew).slice(0, 5);
-        newWrap.innerHTML = newItems.map(p => renderProductCardHTML(p)).join("");
-      }
-
-      // Render Popular Shops Slider
-      const shopsWrap = document.getElementById("home-popular-shops");
-      if (shopsWrap) {
-        shopsWrap.innerHTML = BAZAAR_DATA.shops.slice(0, 5).map(s => `
-          <div class="shop-card-mini" onclick="window.location.href='shop-details.html?id=${s.id}'">
-            <img src="${s.logoImage}" alt="${s.name}" class="shop-mini-logo">
-            <div class="shop-mini-info">
-              <h4>${s.name}</h4>
-              <p><i class="fa-solid fa-location-dot"></i> ${s.market}</p>
-              <p style="font-weight: 700; color: var(--primary-green); mt-1">${s.productsCount}+ Products</p>
-            </div>
-          </div>
-        `).join("");
-      }
-    });
-
-    function renderProductCardHTML(p) {
-      const isSaved = MeenaBazaarApp.isProductSaved(p.id);
-      return `
-        <div class="product-card">
-          <div class="product-card-badges">
-            <span class="badge ${p.badge.includes('%') ? 'badge-discount' : 'badge-new'}">${p.badge}</span>
-          </div>
-          <a href="product-details.html?id=${p.id}" class="product-image-wrap">
-            <img src="${p.images[0]}" alt="${p.name}">
-          </a>
-          <div class="product-details-content">
-            <a href="product-details.html?id=${p.id}" class="product-title">${p.name}</a>
-            <div class="product-shop-name">${p.shopName}</div>
-            <div class="product-price-row">
-              <span class="product-price">₹${p.price.toLocaleString('en-IN')}</span>
-              ${p.originalPrice ? `<span class="product-original-price">₹${p.originalPrice.toLocaleString('en-IN')}</span>` : ''}
-            </div>
-            <div class="product-card-actions">
-              <button class="btn btn-whatsapp" onclick="MeenaBazaarApp.openWhatsApp('${p.id}')">
-                <i class="fa-brands fa-whatsapp"></i> Order
-              </button>
-              <button class="btn-icon ${isSaved ? 'active' : ''}" onclick="toggleCardSave('${p.id}', this)">
-                <i class="fa-${isSaved ? 'solid' : 'regular'} fa-heart"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function toggleCardSave(productId, btn) {
-      const isSaved = MeenaBazaarApp.toggleSaveProduct(productId);
-      if (isSaved) {
-        btn.classList.add("active");
-        btn.innerHTML = `<i class="fa-solid fa-heart"></i>`;
-      } else {
-        btn.classList.remove("active");
-        btn.innerHTML = `<i class="fa-regular fa-heart"></i>`;
-      }
-    }
-  </script>
+  <script src="js/dashboard.js"></script>
 </body>
 </html>

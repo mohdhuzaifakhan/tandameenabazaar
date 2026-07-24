@@ -3,20 +3,609 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Details - Digital Meena Bazaar</title>
+  <title>Samsung Galaxy M16 5G - Digital Meena Bazaar</title>
+  <meta name="description" content="Buy Samsung Galaxy M16 5G from Sharma Mobile Store in Rampur. Order via WhatsApp instantly.">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#056839">
-  <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+
+    /* ===== Product Details Styles ===== */
+
+    .breadcrumb {
+      padding: 10px 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .breadcrumb a { color: var(--text-muted); }
+    .breadcrumb a:hover { color: var(--primary-green); }
+    .breadcrumb i { font-size: 0.65rem; }
+
+    /* Product Main Grid */
+    .product-layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 32px;
+      margin-bottom: 40px;
+      align-items: start;
+    }
+
+    /* ---- Gallery Column ---- */
+    .gallery-col { position: relative; }
+
+    .gallery-main {
+      position: relative;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      overflow: hidden;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gallery-main img {
+      max-height: 290px;
+      max-width: 100%;
+      object-fit: contain;
+      transition: opacity 0.2s;
+    }
+
+    .gallery-badge-discount {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--accent-orange);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 4px;
+      z-index: 5;
+    }
+
+    .gallery-badge-new {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--primary-green);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 4px;
+      z-index: 5;
+    }
+
+    /* Prev/Next arrows */
+    .gallery-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      z-index: 10;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: var(--transition);
+    }
+    .gallery-arrow:hover { border-color: var(--primary-green); color: var(--primary-green); }
+    .gallery-arrow.prev { left: 10px; }
+    .gallery-arrow.next { right: 10px; }
+
+    /* Thumbnail row */
+    .gallery-thumbs {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .gallery-thumb {
+      width: 66px;
+      height: 66px;
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+
+    .gallery-thumb img { max-height: 56px; object-fit: contain; }
+
+    .gallery-thumb.active { border-color: var(--primary-green); }
+    .gallery-thumb:hover { border-color: var(--primary-green); }
+
+    /* ---- Info Column ---- */
+    .info-col {}
+
+    .info-col h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+
+    .brand-row {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .brand-row span { font-weight: 700; color: var(--text-dark); }
+
+    .rating-sold-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      margin-bottom: 14px;
+    }
+
+    .rating-sold-row .stars { color: #f59e0b; font-weight: 700; }
+    .rating-sold-row .divider { color: var(--border-color); }
+    .rating-sold-row .sold { color: var(--text-muted); font-weight: 600; }
+
+    /* Price row */
+    .price-box-large {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .price-main-lg {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .price-old-lg {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      text-decoration: line-through;
+      font-weight: 500;
+    }
+
+    .price-off-badge {
+      background: #fef3c7;
+      color: var(--accent-orange);
+      border: 1px solid #fcd34d;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .tax-note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    /* Available at store card */
+    .available-store-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      gap: 12px;
+    }
+
+    .available-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .available-shop-name {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--primary-green);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .available-address {
+      font-size: 0.78rem;
+      color: var(--text-dark);
+      margin-top: 1px;
+    }
+
+    .shop-rating-chip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #eef6ee;
+      color: var(--primary-green);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .shop-rating-chip i { color: #f59e0b; }
+
+    /* Highlights */
+    .highlights-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .highlights-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .highlights-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      color: var(--text-dark);
+    }
+
+    .highlights-list li i {
+      color: var(--primary-green);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    /* Action Buttons */
+    .product-action-btns {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .btn-order-wa {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--primary-green);
+      color: #fff;
+      border: none;
+      padding: 13px 20px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+
+    .btn-order-wa:hover { background: var(--primary-green-dark); }
+    .btn-order-wa i { font-size: 1.2rem; }
+
+    .btn-save-product {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #fff;
+      color: var(--text-dark);
+      border: 1.5px solid var(--border-color);
+      padding: 13px 22px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .btn-save-product:hover { border-color: #ef4444; color: #ef4444; }
+    .btn-save-product.saved { background: #fef2f2; border-color: #fca5a5; color: #ef4444; }
+
+    .wa-redirect-note {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .wa-redirect-note i { color: var(--primary-green); }
+
+    /* Description/Specs Tab section */
+    .product-tabs-section {
+      border-top: 1px solid var(--border-color);
+      padding-top: 20px;
+      margin-bottom: 36px;
+    }
+
+    .product-tabs-nav {
+      display: flex;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+
+    .product-tab-btn {
+      padding: 10px 18px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: var(--transition);
+      font-family: inherit;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+
+    .product-tab-btn:hover { color: var(--primary-green); }
+    .product-tab-btn.active { color: var(--primary-green); border-bottom-color: var(--primary-green); font-weight: 700; }
+
+    /* Description + Specs 2-column layout */
+    .desc-specs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+
+    .desc-text {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .read-more-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--primary-green);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+    }
+
+    .product-info-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .spec-table tr { border-bottom: 1px solid #f1f5f9; }
+    .spec-table td:first-child { color: var(--text-muted); padding: 8px 0; width: 40%; }
+    .spec-table td:last-child { font-weight: 600; color: var(--text-dark); padding: 8px 0; }
+    .spec-table .in-stock { color: var(--primary-green); font-weight: 700; }
+
+    /* Related Products */
+    .related-products-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+
+    .rel-prod-card {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px;
+      position: relative;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .rel-prod-card:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+    }
+
+    .rel-prod-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.6rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .rel-prod-badge.new { background: var(--primary-green); color: #fff; }
+    .rel-prod-badge.off { background: var(--accent-orange); color: #fff; }
+
+    .rel-prod-img {
+      width: 100%;
+      height: 100px;
+      background: #f8fafc;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+
+    .rel-prod-img img { max-height: 88px; object-fit: contain; }
+
+    .rel-prod-name { font-size: 0.78rem; font-weight: 700; color: var(--text-dark); line-height: 1.2; height: 30px; overflow: hidden; }
+
+    .rel-prod-price {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+
+    .rel-prod-price .main { font-size: 0.9rem; font-weight: 800; color: var(--primary-green); }
+    .rel-prod-price .old { font-size: 0.7rem; color: var(--text-light); text-decoration: line-through; }
+
+    .rel-prod-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .btn-rel-wa {
+      flex: 1;
+      background: var(--primary-green);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 5px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .btn-rel-wa:hover { background: var(--primary-green-dark); }
+
+    .btn-rel-heart {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border-color);
+      background: #fff;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .btn-rel-heart:hover, .btn-rel-heart.active { color: #ef4444; border-color: #fca5a5; }
+
+    /* Mobile sticky bottom action bar */
+    .mobile-action-bar {
+      display: none;
+      position: fixed;
+      bottom: 60px;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid var(--border-color);
+      padding: 10px 16px;
+      gap: 10px;
+      z-index: 900;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+    }
+
+    .mobile-action-bar .btn-save-mob {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #fff;
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text-dark);
+      white-space: nowrap;
+    }
+
+    .mobile-action-bar .btn-order-mob {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--primary-green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* === Responsive === */
+    @media (max-width: 1100px) {
+      .product-layout { grid-template-columns: 360px 1fr; gap: 24px; }
+    }
+
+    @media (max-width: 992px) {
+      .product-layout { grid-template-columns: 1fr; }
+      .gallery-main { height: 260px; }
+      .desc-specs-grid { grid-template-columns: 1fr; }
+      .related-products-grid { grid-template-columns: repeat(3, 1fr); }
+      .product-action-btns { display: none; }
+      .wa-redirect-note { display: none; }
+      .mobile-action-bar { display: flex; }
+      body { padding-bottom: 130px; }
+    }
+
+    @media (max-width: 576px) {
+      .related-products-grid { grid-template-columns: repeat(2, 1fr); }
+      .info-col h1 { font-size: 1.25rem; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Site Header -->
   <header class="site-header">
+    <!-- Desktop Top Header -->
     <div class="top-header">
       <div class="container top-header-inner">
         <a href="index.html" class="logo">
@@ -26,29 +615,26 @@
             <span>Meena Bazaar</span>
           </div>
         </a>
-
         <div class="location-selector">
           <i class="fa-solid fa-location-dot" style="color: var(--primary-green);"></i>
           <span>Rampur</span>
-          <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem;"></i>
+          <i class="fa-solid fa-chevron-down" style="font-size: 0.72rem; color: #64748b;"></i>
         </div>
-
         <div class="header-search">
           <input type="text" placeholder="Search for products, shops, brands...">
           <button type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
-
         <div class="header-actions">
           <a href="saved.html" class="header-action-item">
             <i class="fa-regular fa-heart"></i>
             <span>Saved</span>
-            <span class="saved-counter saved-counter-val">0</span>
+            <span class="saved-counter-val">0</span>
           </a>
           <a href="shops.html" class="header-action-item">
             <i class="fa-solid fa-store"></i>
             <span>Shops</span>
           </a>
-          <a href="#" class="header-action-item btn btn-outline" style="padding: 6px 14px; font-size: 0.85rem;">
+          <a href="login.html" class="header-action-item">
             <i class="fa-regular fa-user"></i>
             <span>Login</span>
           </a>
@@ -56,6 +642,7 @@
       </div>
     </div>
 
+    <!-- Desktop Category Nav -->
     <nav class="main-nav">
       <div class="container main-nav-inner">
         <div class="category-dropdown-btn">
@@ -64,191 +651,432 @@
         </div>
         <ul class="nav-links">
           <li><a href="index.html">Home</a></li>
-          <li><a href="shops.html">Shops</a></li>
+          <li><a href="shops.html" class="active">Shops</a></li>
           <li><a href="saved.html">Saved</a></li>
-          <li><a href="#">About Us</a></li>
-          <li><a href="#">Contact Us</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
         </ul>
       </div>
     </nav>
-  </header>
 
-  <main class="container" id="product-details-view" style="padding-top: 10px;">
-    
-    <!-- Breadcrumbs -->
-    <div class="breadcrumb">
-      <a href="index.html">Home</a> &gt;
-      <a href="shops.html">Shops</a> &gt;
-      <a href="#" id="breadcrumb-shop">Sharma Mobile Store</a> &gt;
-      <span id="breadcrumb-product">Samsung Galaxy M16 5G</span>
-    </div>
-
-    <!-- Product Details Main Layout Card -->
-    <div class="product-details-container">
-      <div class="product-details-grid">
-        
-        <!-- Left: Image Gallery -->
-        <div>
-          <div class="gallery-main">
-            <div class="product-card-badges">
-              <span class="badge badge-discount" id="badge-discount">10% OFF</span>
-              <span class="badge badge-new" id="badge-new">New Arrival</span>
+    <!-- Mobile Header Bar -->
+    <div class="mobile-header-bar">
+      <div class="mobile-header-top">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <i class="fa-solid fa-bars" style="font-size: 1.2rem; color: #0f172a; cursor: pointer;"></i>
+          <a href="index.html" class="logo">
+            <div class="logo-icon" style="width: 32px; height: 32px; font-size: 0.9rem;"><i class="fa-solid fa-bag-shopping"></i></div>
+            <div class="logo-text">
+              <span style="font-size: 0.65rem;">Digital</span>
+              <span style="font-size: 0.95rem;">Meena Bazaar</span>
             </div>
-            <button class="btn-icon" style="position: absolute; top: 10px; right: 10px; z-index: 5;" title="Share"><i class="fa-solid fa-share-nodes"></i></button>
-            <img id="gallery-main-img" src="" alt="Product Main Image">
+          </a>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="location-selector" style="padding: 4px 10px; font-size: 0.78rem;">
+            <i class="fa-solid fa-location-dot" style="color: var(--primary-green);"></i> Rampur
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem;"></i>
           </div>
-
-          <div class="gallery-dots">
-            <div class="gallery-dot active"></div>
-            <div class="gallery-dot"></div>
-            <div class="gallery-dot"></div>
-            <div class="gallery-dot"></div>
-            <div class="gallery-dot"></div>
-            <div class="gallery-dot"></div>
-          </div>
-
-          <div class="gallery-thumbs" id="gallery-thumbs" style="margin-top: 12px;">
-            <!-- Rendered via JS -->
+          <!-- Cart icon for mobile -->
+          <div style="position: relative;">
+            <i class="fa-solid fa-cart-shopping" style="font-size: 1.2rem; color: #334155;"></i>
           </div>
         </div>
+      </div>
+    </div>
+  </header>
 
-        <!-- Right: Specs & WhatsApp Action -->
-        <div class="product-info-col">
-          <h1 id="product-title">Samsung Galaxy M16 5G</h1>
-          <div class="brand-by">by <span id="product-brand">Samsung</span></div>
+  <main class="container" style="padding-top: 0; padding-bottom: 20px;">
 
-          <div class="rating-sold-row">
-            <span style="color: #f59e0b; font-weight: 700;">
-              <i class="fa-solid fa-star"></i> <span id="product-rating">4.6</span> (<span id="product-reviews-count">125</span> Reviews)
-            </span>
-            <span style="color: var(--text-light);">|</span>
-            <span style="color: var(--text-muted); font-weight: 600;"><span id="product-sold-count">210</span> Sold</span>
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="index.html">Home</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="shops.html">Shops</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="shop-details.html">Sharma Mobile Store</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span style="color: var(--text-dark); font-weight: 600;">Samsung Galaxy M16 5G</span>
+    </div>
+
+    <!-- Product Main Layout -->
+    <div class="product-layout">
+
+      <!-- LEFT: Image Gallery -->
+      <div class="gallery-col">
+        <div class="gallery-main" id="gallery-main">
+          <span class="gallery-badge-discount">10% OFF</span>
+          <span class="gallery-badge-new">New Arrival</span>
+          <button class="gallery-arrow prev" onclick="changeImg(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+          <img id="gallery-main-img" src="https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=700&q=85" alt="Samsung Galaxy M16 5G">
+          <button class="gallery-arrow next" onclick="changeImg(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+        <!-- Thumbnail Strip -->
+        <div class="gallery-thumbs" id="gallery-thumbs">
+          <div class="gallery-thumb active" onclick="setImg(0, this)">
+            <img src="https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=200&q=80" alt="img1">
           </div>
-
-          <div class="price-box-large">
-            <span class="price-main" id="product-price">₹14,999</span>
-            <span style="color: var(--text-light); text-decoration: line-through; font-size: 1.1rem;" id="product-original-price">₹16,999</span>
-            <span class="badge badge-discount" id="product-discount-text">10% OFF</span>
+          <div class="gallery-thumb" onclick="setImg(1, this)">
+            <img src="https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=200&q=80" alt="img2">
           </div>
-          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: -14px; margin-bottom: 20px;">Inclusive of all taxes</div>
-
-          <!-- Available Store Box -->
-          <div class="available-store-card">
-            <div>
-              <div style="font-size: 0.85rem; color: var(--text-muted);">Available at: <a href="#" id="shop-available-name" style="font-weight: 700; color: var(--primary-green);">Sharma Mobile Store &gt;</a></div>
-              <div style="font-size: 0.8rem; color: var(--text-dark);" id="shop-available-address">Gandhi Market, Rampur</div>
-            </div>
-            <div style="background: #e8f5e9; color: var(--primary-green); padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;">
-              <i class="fa-solid fa-star" style="color: #f59e0b;"></i> <span id="shop-available-rating">4.6</span> (<span id="shop-available-reviews">125</span>)
-            </div>
+          <div class="gallery-thumb" onclick="setImg(2, this)">
+            <img src="https://images.unsplash.com/photo-1574944985070-8f30c439781a?w=200&q=80" alt="img3">
           </div>
-
-          <!-- Highlights -->
-          <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 8px;">Product Highlights</h4>
-          <ul class="product-highlights-list" id="product-highlights">
-            <!-- Rendered by JS -->
-          </ul>
-
-          <!-- Order & Save Buttons -->
-          <div class="product-action-btns">
-            <button class="btn btn-whatsapp btn-whatsapp-lg" id="btn-wa-order">
-              <i class="fa-brands fa-whatsapp" style="font-size: 1.3rem;"></i> Order on WhatsApp
-            </button>
-            <button class="btn btn-outline btn-save-lg" id="btn-save-product">
-              <i class="fa-regular fa-heart"></i> Save Product
-            </button>
+          <div class="gallery-thumb" onclick="setImg(3, this)">
+            <img src="https://images.unsplash.com/photo-1580910051074-3eb694886505?w=200&q=80" alt="img4">
           </div>
-
-          <div class="wa-redirect-note">
-            <i class="fa-solid fa-shield-halved" style="color: var(--primary-green);"></i>
-            <span>You will be redirected to WhatsApp to chat directly with the shop</span>
+          <div class="gallery-thumb" onclick="setImg(4, this)">
+            <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&q=80" alt="img5">
           </div>
-
         </div>
       </div>
 
-      <!-- Detail Tabs -->
-      <div style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-        <div class="shop-tabs" style="padding: 0;">
-          <div class="shop-tab-item active">Description</div>
-          <div class="shop-tab-item">Specifications</div>
-          <div class="shop-tab-item">Reviews (125)</div>
-          <div class="shop-tab-item">Shop Info</div>
+      <!-- RIGHT: Product Info -->
+      <div class="info-col">
+        <h1>Samsung Galaxy M16 5G</h1>
+        <div class="brand-row">by <span>Samsung</span></div>
+
+        <div class="rating-sold-row">
+          <span class="stars"><i class="fa-solid fa-star" style="color:#f59e0b;"></i> 4.6 (125 Reviews)</span>
+          <span class="divider">|</span>
+          <span class="sold">210 Sold</span>
         </div>
 
-        <div style="padding: 20px 0;">
-          <p id="tab-description-text" style="color: var(--text-dark); line-height: 1.6; margin-bottom: 20px;">
-            Product detailed description text.
-          </p>
+        <!-- Price -->
+        <div class="price-box-large">
+          <span class="price-main-lg">₹14,999</span>
+          <span class="price-old-lg">₹16,999</span>
+          <span class="price-off-badge">10% OFF</span>
+        </div>
+        <div class="tax-note">Inclusive of all taxes</div>
 
-          <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">Product Information</h4>
-          <table class="spec-table" id="tab-specifications-table">
-            <!-- Rendered via JS -->
+        <!-- Available at store -->
+        <div class="available-store-card">
+          <div>
+            <div class="available-label">Available at:</div>
+            <div class="available-shop-name">
+              <a href="shop-details.html" style="color: var(--primary-green); font-weight: 800;">Sharma Mobile Store</a>
+              <i class="fa-solid fa-chevron-right" style="font-size: 0.72rem;"></i>
+            </div>
+            <div class="available-address">Gandhi Market, Rampur</div>
+          </div>
+          <div class="shop-rating-chip">
+            <i class="fa-solid fa-star"></i> 4.6 (125 Reviews)
+          </div>
+        </div>
+
+        <!-- Product Highlights -->
+        <div class="highlights-title">Product Highlights</div>
+        <ul class="highlights-list">
+          <li><i class="fa-solid fa-circle-check"></i> 6GB RAM | 128GB Storage</li>
+          <li><i class="fa-solid fa-circle-check"></i> 50MP Triple Rear Camera | 13MP Front Camera</li>
+          <li><i class="fa-solid fa-circle-check"></i> 5000mAh Battery | 25W Fast Charging</li>
+          <li><i class="fa-solid fa-circle-check"></i> 6.7 inch FHD+ Super AMOLED Display</li>
+          <li><i class="fa-solid fa-circle-check"></i> 5G Enabled | Dual SIM</li>
+        </ul>
+
+        <!-- CTA Buttons (Desktop) -->
+        <div class="product-action-btns">
+          <button class="btn-order-wa" onclick="window.open('https://wa.me/919876543210?text=Hello, I want to order Samsung Galaxy M16 5G - ₹14,999. Is it available?', '_blank')">
+            <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+          </button>
+          <button class="btn-save-product" id="btn-save-desktop" onclick="toggleSave(this)">
+            <i class="fa-regular fa-heart"></i> Save Product
+          </button>
+        </div>
+
+        <div class="wa-redirect-note">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>You will be redirected to WhatsApp to chat with the shop</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description / Specs Tabs -->
+    <div class="product-tabs-section">
+      <div class="product-tabs-nav">
+        <button class="product-tab-btn active" onclick="switchTab(this, 'desc')">Description</button>
+        <button class="product-tab-btn" onclick="switchTab(this, 'specs')">Specifications</button>
+        <button class="product-tab-btn" onclick="switchTab(this, 'reviews')">Reviews (125)</button>
+        <button class="product-tab-btn" onclick="switchTab(this, 'shopinfo')">Shop Info</button>
+        <button class="product-tab-btn" onclick="switchTab(this, 'shipping')">Shipping &amp; Returns</button>
+      </div>
+
+      <div class="desc-specs-grid" id="tab-desc">
+        <!-- Description -->
+        <div>
+          <p class="desc-text" id="desc-short">
+            Samsung Galaxy M16 5G is designed for performance and style. With a powerful processor, stunning display and massive battery, it is built to keep up with your everyday needs.
+          </p>
+          <button class="read-more-btn" onclick="toggleReadMore()">
+            Read More <i class="fa-solid fa-chevron-down" id="read-more-icon"></i>
+          </button>
+          <p class="desc-text" id="desc-full" style="display:none; margin-top:10px;">
+            The Samsung Galaxy M16 5G features a stunning 6.7-inch FHD+ Super AMOLED display with smooth refresh rate, bringing your content to life. The 50MP triple rear camera system captures every detail with crisp clarity. Powered by a 5000mAh battery with 25W fast charging, you can stay connected all day without worry.
+          </p>
+        </div>
+
+        <!-- Specifications table -->
+        <div>
+          <div class="product-info-title">Product Information</div>
+          <table class="spec-table">
+            <tr><td>Brand</td><td>Samsung</td></tr>
+            <tr><td>Model</td><td>Galaxy M16 5G</td></tr>
+            <tr><td>Condition</td><td>New</td></tr>
+            <tr><td>Warranty</td><td>1 Year Manufacturer Warranty</td></tr>
+            <tr><td>Availability</td><td class="in-stock">In Stock</td></tr>
           </table>
         </div>
       </div>
+
+      <!-- Other tab content panels (hidden by default) -->
+      <div id="tab-specs" style="display:none; padding: 10px 0; color: var(--text-muted); font-size: 0.88rem;">Full specifications will appear here.</div>
+      <div id="tab-reviews" style="display:none; padding: 10px 0; color: var(--text-muted); font-size: 0.88rem;">Customer reviews will appear here.</div>
+      <div id="tab-shopinfo" style="display:none; padding: 10px 0; color: var(--text-muted); font-size: 0.88rem;">Shop information will appear here.</div>
+      <div id="tab-shipping" style="display:none; padding: 10px 0; color: var(--text-muted); font-size: 0.88rem;">Shipping &amp; returns information will appear here.</div>
     </div>
 
-    <!-- Related Products Carousel -->
-    <section style="margin: 40px 0;">
-      <div class="section-header">
-        <h3 class="section-title">Related Products</h3>
+    <!-- Related Products Section -->
+    <section>
+      <div class="section-header" style="margin-bottom: 14px;">
+        <h2 class="section-title">Related Products</h2>
         <a href="shops.html" class="view-all-link">View All</a>
       </div>
-      <div class="products-grid" id="related-products-grid">
-        <!-- Rendered via JS -->
+
+      <div class="related-products-grid">
+
+        <!-- Realme Narzo 70x 5G -->
+        <div class="rel-prod-card">
+          <span class="rel-prod-badge new">New</span>
+          <div class="rel-prod-img">
+            <img src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&q=80" alt="Realme Narzo 70x 5G">
+          </div>
+          <div class="rel-prod-name">Realme Narzo 70x 5G</div>
+          <div class="rel-prod-price">
+            <span class="main">₹13,499</span>
+            <span class="old">₹15,999</span>
+          </div>
+          <div class="rel-prod-bottom">
+            <button class="btn-rel-wa" onclick="window.open('https://wa.me/919876543210', '_blank')">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="btn-rel-heart" onclick="this.classList.toggle('active')">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Redmi 13C 5G -->
+        <div class="rel-prod-card">
+          <span class="rel-prod-badge off">10% OFF</span>
+          <div class="rel-prod-img">
+            <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80" alt="Redmi 13C 5G">
+          </div>
+          <div class="rel-prod-name">Redmi 13C 5G</div>
+          <div class="rel-prod-price">
+            <span class="main">₹10,499</span>
+            <span class="old">₹11,699</span>
+          </div>
+          <div class="rel-prod-bottom">
+            <button class="btn-rel-wa" onclick="window.open('https://wa.me/919876543210', '_blank')">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="btn-rel-heart" onclick="this.classList.toggle('active')">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- POCO M6 Plus 5G -->
+        <div class="rel-prod-card">
+          <span class="rel-prod-badge new">New</span>
+          <div class="rel-prod-img">
+            <img src="https://images.unsplash.com/photo-1574944985070-8f30c439781a?w=400&q=80" alt="POCO M6 Plus 5G">
+          </div>
+          <div class="rel-prod-name">POCO M6 Plus 5G</div>
+          <div class="rel-prod-price">
+            <span class="main">₹12,999</span>
+            <span class="old">₹14,999</span>
+          </div>
+          <div class="rel-prod-bottom">
+            <button class="btn-rel-wa" onclick="window.open('https://wa.me/919876543210', '_blank')">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="btn-rel-heart" onclick="this.classList.toggle('active')">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- iQOO Z9x 5G -->
+        <div class="rel-prod-card">
+          <span class="rel-prod-badge off">10% OFF</span>
+          <div class="rel-prod-img">
+            <img src="https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&q=80" alt="iQOO Z9x 5G">
+          </div>
+          <div class="rel-prod-name">iQOO Z9x 5G</div>
+          <div class="rel-prod-price">
+            <span class="main">₹15,499</span>
+            <span class="old">₹17,499</span>
+          </div>
+          <div class="rel-prod-bottom">
+            <button class="btn-rel-wa" onclick="window.open('https://wa.me/919876543210', '_blank')">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="btn-rel-heart" onclick="this.classList.toggle('active')">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Motorola G54 5G -->
+        <div class="rel-prod-card">
+          <span class="rel-prod-badge new">New</span>
+          <div class="rel-prod-img">
+            <img src="https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=400&q=80" alt="Motorola G54 5G">
+          </div>
+          <div class="rel-prod-name">Motorola G54 5G</div>
+          <div class="rel-prod-price">
+            <span class="main">₹13,999</span>
+            <span class="old">₹16,999</span>
+          </div>
+          <div class="rel-prod-bottom">
+            <button class="btn-rel-wa" onclick="window.open('https://wa.me/919876543210', '_blank')">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="btn-rel-heart" onclick="this.classList.toggle('active')">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
+
       </div>
     </section>
-
   </main>
 
   <!-- Footer -->
   <footer class="site-footer">
     <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="logo" style="margin-bottom: 12px;">
+            <div class="logo-icon" style="background: #fff; color: var(--primary-green);"><i class="fa-solid fa-bag-shopping"></i></div>
+            <div class="logo-text">
+              <span style="color: #a7f3d0;">Digital</span>
+              <span style="color: #fff;">Meena Bazaar</span>
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">Connecting local shop owners with customers via WhatsApp.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="shops.html">All Shops</a></li>
+            <li><a href="saved.html">Saved Products</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Top Categories</h4>
+          <ul>
+            <li><a href="#">Electronics</a></li>
+            <li><a href="#">Fashion</a></li>
+            <li><a href="#">Groceries</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul>
+            <li><i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp Support</li>
+            <li><i class="fa-solid fa-location-dot" style="color: #4ade80;"></i> Rampur, U.P.</li>
+          </ul>
+        </div>
+      </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 Digital Meena Bazaar Rampur. Built with simple fast PWA technology.</p>
+        <p>&copy; 2026 Digital Meena Bazaar Rampur. All rights reserved.</p>
       </div>
     </div>
   </footer>
 
-  <!-- Mobile Sticky Action Bar -->
-  <div class="mobile-sticky-actions">
-    <button class="btn btn-outline btn-save-mob" id="btn-save-product-mob">
+  <!-- Mobile Sticky Bottom Action Bar -->
+  <div class="mobile-action-bar" id="mobile-action-bar">
+    <button class="btn-save-mob" id="btn-save-mob" onclick="toggleSave(this)">
       <i class="fa-regular fa-heart"></i> Save
     </button>
-    <button class="btn btn-whatsapp btn-wa-mob" id="btn-wa-order-mob">
+    <button class="btn-order-mob" onclick="window.open('https://wa.me/919876543210?text=Hello, I want to order Samsung Galaxy M16 5G - ₹14,999', '_blank')">
       <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
     </button>
   </div>
 
-  <!-- Bottom Mobile Navigation -->
-  <div class="bottom-nav">
-    <div class="bottom-nav-inner">
-      <a href="index.html" class="bottom-nav-item">
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-      </a>
-      <a href="#" class="bottom-nav-item">
-        <i class="fa-solid fa-border-all"></i>
-        <span>Categories</span>
-      </a>
-      <a href="shops.html" class="bottom-nav-item">
-        <i class="fa-solid fa-store"></i>
-        <span>Shops</span>
-      </a>
-      <a href="saved.html" class="bottom-nav-item">
-        <i class="fa-regular fa-heart"></i>
-        <span>Saved</span>
-      </a>
-      <a href="#" class="bottom-nav-item">
-        <i class="fa-regular fa-user"></i>
-        <span>Profile</span>
-      </a>
-    </div>
+  <!-- Mobile Bottom Sticky Navigation -->
+  <div class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <a href="#" class="mobile-nav-item"><i class="fa-solid fa-border-all"></i><span>Categories</span></a>
+    <a href="shops.html" class="mobile-nav-item active"><i class="fa-solid fa-store"></i><span>Shops</span></a>
+    <a href="saved.html" class="mobile-nav-item"><i class="fa-regular fa-heart"></i><span>Saved</span></a>
+    <a href="#" class="mobile-nav-item"><i class="fa-regular fa-user"></i><span>Profile</span></a>
   </div>
 
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
-  <script src="js/product.js"></script>
+  <script>
+    // Gallery images array
+    const images = [
+      'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=700&q=85',
+      'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=700&q=85',
+      'https://images.unsplash.com/photo-1574944985070-8f30c439781a?w=700&q=85',
+      'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=700&q=85',
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=700&q=85'
+    ];
+    let currentImg = 0;
+
+    function setImg(idx, thumbEl) {
+      currentImg = idx;
+      document.getElementById('gallery-main-img').src = images[idx];
+      document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+      if (thumbEl) thumbEl.classList.add('active');
+      else document.querySelectorAll('.gallery-thumb')[idx].classList.add('active');
+    }
+
+    function changeImg(dir) {
+      let next = (currentImg + dir + images.length) % images.length;
+      setImg(next, null);
+    }
+
+    // Tab switching
+    function switchTab(btn, tabId) {
+      document.querySelectorAll('.product-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      ['desc', 'specs', 'reviews', 'shopinfo', 'shipping'].forEach(id => {
+        const el = document.getElementById('tab-' + id);
+        if (el) el.style.display = id === tabId ? (id === 'desc' ? 'grid' : 'block') : 'none';
+      });
+    }
+
+    // Read More
+    function toggleReadMore() {
+      const full = document.getElementById('desc-full');
+      const icon = document.getElementById('read-more-icon');
+      const showing = full.style.display !== 'none';
+      full.style.display = showing ? 'none' : 'block';
+      icon.className = showing ? 'fa-solid fa-chevron-down' : 'fa-solid fa-chevron-up';
+    }
+
+    // Save toggle
+    function toggleSave(btn) {
+      const saved = btn.classList.toggle('saved');
+      const icon = btn.querySelector('i');
+      if (saved) {
+        icon.className = 'fa-solid fa-heart';
+        btn.style.color = '#ef4444';
+        btn.style.borderColor = '#fca5a5';
+      } else {
+        icon.className = 'fa-regular fa-heart';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }
+    }
+  </script>
 </body>
 </html>
