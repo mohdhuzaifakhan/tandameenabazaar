@@ -598,6 +598,16 @@ button, input, select {
   overflow: hidden;
 }
 
+.product-title-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.product-title-link:hover h4 {
+  color: var(--primary-green);
+}
+
 .product-info-group p.shop-sub {
   font-size: 0.72rem;
   color: #64748b;
