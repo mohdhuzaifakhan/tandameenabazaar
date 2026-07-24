@@ -816,20 +816,20 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="dash-sidebar" id="dash-sidebar">
       <!-- Brand -->
-      <div class="sidebar-brand">
+      <a href="index.html" class="sidebar-brand">
         <div class="brand-icon"><i class="fa-solid fa-bag-shopping"></i></div>
         <div class="brand-text">
           <span class="top">Digital</span>
           <span class="bottom">Meena Bazaar</span>
         </div>
-      </div>
+      </a>
 
       <!-- Nav Links -->
       <nav class="sidebar-nav">
-        <a href="#" class="nav-item active">
+        <a href="shop-dashboard.html" class="nav-item active">
           <div class="nav-item-left"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></div>
         </a>
-        <a href="#" class="nav-item">
+        <a href="shop-details.html?id=sharma-mobile" class="nav-item">
           <div class="nav-item-left"><i class="fa-solid fa-store"></i><span>My Shop</span></div>
         </a>
         <a href="#" class="nav-item">
@@ -1184,27 +1184,27 @@
   <!-- Mobile Bottom Navigation -->
   <div class="dash-mobile-bottom">
     <div class="dash-mobile-bottom-inner">
-      <div class="dash-mob-nav-item active">
+      <a href="shop-dashboard.html" class="dash-mob-nav-item active">
         <i class="fa-solid fa-house"></i>
         <span>Dashboard</span>
-      </div>
-      <div class="dash-mob-nav-item">
+      </a>
+      <a href="#" class="dash-mob-nav-item">
         <i class="fa-solid fa-box"></i>
         <span>Products</span>
-      </div>
-      <div class="dash-mob-nav-item" style="position:relative;">
+      </a>
+      <a href="#" class="dash-mob-nav-item" style="position:relative;">
         <i class="fa-regular fa-comment-dots"></i>
         <span class="dash-mob-nav-badge">23</span>
         <span>Orders</span>
-      </div>
-      <div class="dash-mob-nav-item">
+      </a>
+      <a href="shop-details.html?id=sharma-mobile" class="dash-mob-nav-item">
         <i class="fa-solid fa-store"></i>
         <span>My Shop</span>
-      </div>
-      <div class="dash-mob-nav-item">
+      </a>
+      <a href="#" class="dash-mob-nav-item">
         <i class="fa-solid fa-ellipsis"></i>
         <span>More</span>
-      </div>
+      </a>
     </div>
   </div>
 
@@ -1298,6 +1298,10 @@
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', function(e) {
         if (this.classList.contains('logout')) return;
+        const href = this.getAttribute('href');
+        if (href && href !== '#' && !href.startsWith('javascript:')) {
+          return; // Allow normal navigation
+        }
         e.preventDefault();
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         this.classList.add('active');
@@ -1305,7 +1309,12 @@
     });
 
     document.querySelectorAll('.dash-mob-nav-item').forEach(item => {
-      item.addEventListener('click', function() {
+      item.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href && href !== '#' && !href.startsWith('javascript:')) {
+          return; // Allow normal navigation
+        }
+        e.preventDefault();
         document.querySelectorAll('.dash-mob-nav-item').forEach(n => n.classList.remove('active'));
         this.classList.add('active');
       });

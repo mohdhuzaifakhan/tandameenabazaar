@@ -547,7 +547,7 @@
 
     <!-- ===== SIDEBAR ===== -->
     <aside class="dash-sidebar" id="dash-sidebar">
-      <div class="sidebar-brand">
+      <a href="index.html" class="sidebar-brand">
         <div class="brand-row">
           <div class="brand-icon"><i class="fa-solid fa-bag-shopping"></i></div>
           <div class="brand-text">
@@ -556,13 +556,13 @@
           </div>
         </div>
         <div class="admin-badge"><i class="fa-solid fa-shield-halved"></i> ADMIN PANEL</div>
-      </div>
+      </a>
 
       <nav class="sidebar-nav">
-        <a href="#" class="nav-item active">
+        <a href="admin-dashboard.html" class="nav-item active">
           <div class="nav-left"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></div>
         </a>
-        <a href="#" class="nav-item">
+        <a href="admin-shops.html" class="nav-item">
           <div class="nav-left"><i class="fa-solid fa-store"></i><span>Shops</span></div>
         </a>
         <a href="#" class="nav-item">
@@ -574,7 +574,7 @@
         <a href="#" class="nav-item">
           <div class="nav-left"><i class="fa-solid fa-users"></i><span>Users</span></div>
         </a>
-        <a href="#" class="nav-item">
+        <a href="admin-orders.html" class="nav-item">
           <div class="nav-left"><i class="fa-regular fa-comment-dots"></i><span>Orders (Leads)</span></div>
           <span class="nav-badge">356</span>
         </a>
@@ -1043,14 +1043,14 @@
   <!-- Mobile Bottom Navigation -->
   <div class="mob-bottom-nav">
     <div class="mob-bottom-inner">
-      <div class="mob-nav-item active"><i class="fa-solid fa-house"></i><span>Dashboard</span></div>
-      <div class="mob-nav-item"><i class="fa-solid fa-store"></i><span>Shops</span></div>
-      <div class="mob-nav-item" style="position:relative;">
+      <a href="admin-dashboard.html" class="mob-nav-item active"><i class="fa-solid fa-house"></i><span>Dashboard</span></a>
+      <a href="admin-shops.html" class="mob-nav-item"><i class="fa-solid fa-store"></i><span>Shops</span></a>
+      <a href="#" class="mob-nav-item" style="position:relative;">
         <span class="mob-nav-badge">356</span>
         <i class="fa-solid fa-box"></i><span>Products</span>
-      </div>
-      <div class="mob-nav-item"><i class="fa-regular fa-comment-dots"></i><span>Orders</span></div>
-      <div class="mob-nav-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></div>
+      </a>
+      <a href="admin-orders.html" class="mob-nav-item"><i class="fa-regular fa-comment-dots"></i><span>Orders</span></a>
+      <a href="#" class="mob-nav-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
     </div>
   </div>
 
@@ -1094,6 +1094,10 @@
     // Nav active
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href && href !== '#' && !href.startsWith('javascript:')) {
+          return; // Allow normal navigation
+        }
         e.preventDefault();
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         this.classList.add('active');
@@ -1102,7 +1106,12 @@
     });
 
     document.querySelectorAll('.mob-nav-item').forEach(item => {
-      item.addEventListener('click', function() {
+      item.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href && href !== '#' && !href.startsWith('javascript:')) {
+          return; // Allow normal navigation
+        }
+        e.preventDefault();
         document.querySelectorAll('.mob-nav-item').forEach(n => n.classList.remove('active'));
         this.classList.add('active');
       });

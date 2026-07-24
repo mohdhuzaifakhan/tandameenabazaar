@@ -156,17 +156,46 @@ const MeenaBazaarApp = {
       // Bind close events
       document.getElementById("mobile-drawer-close-btn")?.addEventListener("click", closeDrawer);
       overlay.addEventListener("click", closeDrawer);
+
+      // Bind Categories button in bottom nav to open the drawer
+      const mobileCategoriesBtn = Array.from(document.querySelectorAll(".mobile-bottom-nav .mobile-nav-item")).find(item => item.textContent.includes("Categories"));
+      if (mobileCategoriesBtn) {
+        mobileCategoriesBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          openDrawer();
+        });
+      }
+    }
+
+    // Set Profile link to login.html if it's currently '#'
+    const profileBtn = Array.from(document.querySelectorAll(".mobile-bottom-nav .mobile-nav-item")).find(item => item.textContent.includes("Profile"));
+    if (profileBtn && profileBtn.getAttribute("href") === "#") {
+      profileBtn.setAttribute("href", "login.html");
     }
   },
 
   // Global Search Redirect
   initSearchInputs() {
-    const searchBtns = document.querySelectorAll(".header-search button, .shops-filter-search button");
+    const performSearch = (input) => {
+      if (input && input.value.trim()) {
+        window.location.href = `shops.html?search=${encodeURIComponent(input.value.trim())}`;
+      }
+    };
+
+    const searchBtns = document.querySelectorAll(".header-search button, .mobile-header-search button, .shops-filter-search button");
     searchBtns.forEach(btn => {
       btn.addEventListener("click", (e) => {
         const input = btn.previousElementSibling;
-        if (input && input.value.trim()) {
-          window.location.href = `shops.html?search=${encodeURIComponent(input.value.trim())}`;
+        performSearch(input);
+      });
+    });
+
+    const searchInputs = document.querySelectorAll(".header-search input, .mobile-header-search input, .shops-filter-search input");
+    searchInputs.forEach(input => {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          performSearch(input);
         }
       });
     });

@@ -1,6 +1,6 @@
 /* Digital Meena Bazaar - PWA Service Worker */
 
-const CACHE_NAME = "meena-bazaar-v1";
+const CACHE_NAME = "meena-bazaar-v3";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -8,6 +8,9 @@ const ASSETS_TO_CACHE = [
   "./shop-details.html",
   "./product-details.html",
   "./saved.html",
+  "./about.html",
+  "./contact.html",
+  "./login.html",
   "./css/style.css",
   "./js/data.js",
   "./js/app.js",
@@ -44,18 +47,31 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch Event
+// Fetch Event - Stale-While-Revalidate Caching Strategy
 self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => {
-        if (event.request.headers.get("accept").includes("text/html")) {
-          return caches.match("./index.html");
-        }
-      });
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          if (!cachedResponse && event.request.headers.get("accept")?.includes("text/html")) {
+            return caches.match("./index.html");
+          }
+        });
+
+      return cachedResponse || fetchPromise;
     })
   );
 });
