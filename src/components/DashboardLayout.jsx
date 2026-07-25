@@ -20,23 +20,26 @@ export default function DashboardLayout({ children, title, role }) {
     ? 'bg-emerald-900/40 text-white font-bold border-l-4 border-emerald-500 pl-3.5'
     : 'text-emerald-100 hover:bg-emerald-900/20 hover:text-white border-l-4 border-transparent pl-4';
 
+  const isBottomNavActive = (path) => location.pathname === path;
+
   // Find logged in merchant shop
   const userShop = shops.find(s => s.ownerUid === userProfile?.uid || s.id === userProfile?.shopId) || shops[0];
   const shopOrdersCount = orders.filter(o => o.shopId === userShop?.id).length;
   const adminOrdersCount = orders.length;
 
   return (
-    <div className="min-h-screen flex bg-slate-50/50 font-sans text-slate-800">
+    <div className="min-h-screen flex bg-[#f8fafc] font-sans text-slate-800">
 
       {/* 1. Sidebar Navigation (Left Panel) */}
-      <aside className={`fixed inset-y-0 left-0 w-64 bg-emerald-950 text-slate-200 flex flex-col justify-between z-40 transition-transform duration-300 lg:translate-x-0 lg:static lg:flex-shrink-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 w-64 bg-emerald-950 text-slate-200 flex flex-col justify-between z-50 transition-transform duration-300 lg:translate-x-0 lg:static lg:flex-shrink-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div>
           {/* Logo Brand Area */}
           <div className="p-5 border-b border-emerald-900/45 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-white text-emerald-900 flex items-center justify-center text-base font-bold">
+            <div className="w-9 h-9 rounded-xl bg-white text-[#056839] flex items-center justify-center text-base font-bold shadow-xs">
               <i className="fa-solid fa-bag-shopping"></i>
             </div>
             <div className="flex flex-col leading-none">
+              <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wide">Digital</span>
               <span className="text-sm font-black text-white mt-0.5">Meena Bazaar</span>
               {role === 'admin' && (
                 <span className="text-[7px] text-emerald-400 font-extrabold tracking-widest mt-1 uppercase">ADMIN PANEL</span>
@@ -129,7 +132,7 @@ export default function DashboardLayout({ children, title, role }) {
         <div className="p-4">
           <div className="p-4 bg-emerald-900/20 border border-emerald-900/40 rounded-2xl flex flex-col gap-2">
             <h4 className="text-white font-bold text-xs">Need Support?</h4>
-            <p className="text-[10px] text-emerald-350 leading-normal">Reach out to Unifiedstack technical support channels.</p>
+            <p className="text-[10px] text-emerald-300 leading-normal">Reach out to Unifiedstack technical support channels.</p>
             <a
               href="mailto:mohdhuzaifa8126195456@gmail.com"
               className="mt-2 w-full py-2 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg font-bold text-[10px] text-center block transition-colors"
@@ -143,85 +146,143 @@ export default function DashboardLayout({ children, title, role }) {
       {/* 2. Main Content Display Area */}
       <div className="flex-1 flex flex-col min-w-0">
 
-        {/* Sticky Header Bar */}
-        <header className="sticky top-0 z-30 h-13 bg-white border-b border-slate-100 px-4 md:px-6 flex items-center justify-between gap-3">
+        {/* Top Header Bar (Rich Deep Green Styling matching reference design) */}
+        <header className="sticky top-0 z-30 h-16 bg-[#056839] text-white px-4 md:px-6 flex items-center justify-between gap-3 shadow-md">
 
-          {/* Left: Hamburger + Title */}
+          {/* Left: Hamburger + Brand Title */}
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-600 cursor-pointer border border-slate-200 flex-shrink-0"
+              className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-colors border border-white/10 flex-shrink-0"
+              aria-label="Toggle Sidebar Navigation"
             >
-              <i className="fa-solid fa-bars text-sm"></i>
+              <i className="fa-solid fa-bars text-base"></i>
             </button>
 
-            {role === 'admin' ? (
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 text-[10px] font-black uppercase tracking-wider border border-slate-200 flex-shrink-0">Admin</span>
-                <span className="text-xs text-slate-400 font-semibold hidden md:inline truncate">Platform Administrator</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-white text-[#056839] flex items-center justify-center text-sm font-bold shadow-xs flex-shrink-0">
+                <i className="fa-solid fa-bag-shopping"></i>
               </div>
-            ) : (
-              <div className="flex items-center gap-1.5 text-xs min-w-0">
-                <strong className="text-slate-800 font-black truncate">{userProfile?.shopName || userShop?.name || 'Merchant Storefront'}</strong>
-                <i className="fa-solid fa-circle-check text-emerald-600 text-[10px] flex-shrink-0"></i>
-                <span className="text-slate-400 font-medium hidden md:inline truncate">&bull; {userShop?.market || 'Main Market'}</span>
+              <div className="flex flex-col leading-tight min-w-0">
+                <span className="text-[9px] font-extrabold text-emerald-200 uppercase tracking-wider">Digital</span>
+                <span className="text-xs sm:text-sm font-black text-white truncate">Meena Bazaar</span>
               </div>
-            )}
+            </div>
           </div>
 
-          {/* Right: Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Storefront */}
-            <Link
-              to="/"
-              className="w-8 h-8 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center transition-colors"
-              title="View Storefront"
+          {/* Right: Notification Bell + Avatar */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Notifications with counter badge */}
+            <Link 
+              to={role === 'admin' ? "/dashboard/admin/orders" : "/dashboard/shop"} 
+              className="relative w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white cursor-pointer transition-colors border border-white/10"
+              title="View Customer Leads"
             >
-              <i className="fa-solid fa-house text-xs"></i>
+              <i className="fa-regular fa-bell text-sm"></i>
+              {adminOrdersCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                  {role === 'admin' ? adminOrdersCount : shopOrdersCount}
+                </span>
+              )}
             </Link>
 
-            {/* Notifications */}
-            <div className="relative w-8 h-8 rounded-lg border border-slate-100 hover:bg-slate-50 flex items-center justify-center text-slate-600 cursor-pointer">
-              <i className="fa-regular fa-bell text-xs"></i>
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white font-black text-[8px] w-4 h-4 rounded-full flex items-center justify-center">
-                {role === 'admin' ? 5 : 3}
-              </span>
-            </div>
-
             {/* Avatar */}
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-100">
+            <div className="flex items-center gap-2">
               {userProfile?.photoURL ? (
                 <img
                   src={userProfile.photoURL}
-                  alt={userProfile.displayName}
-                  className="w-7 h-7 rounded-full object-cover border border-emerald-500 flex-shrink-0"
+                  alt={userProfile.displayName || 'User'}
+                  className="w-9 h-9 rounded-full object-cover border-2 border-emerald-400 shadow-sm flex-shrink-0"
                 />
               ) : (
-                <div className="w-7 h-7 rounded-full bg-emerald-700 text-white font-bold flex items-center justify-center text-xs">
-                  {userProfile?.displayName ? userProfile.displayName[0].toUpperCase() : 'M'}
+                <div className="w-9 h-9 rounded-full bg-emerald-800 text-white font-bold flex items-center justify-center text-xs border-2 border-emerald-400 shadow-sm flex-shrink-0">
+                  {userProfile?.displayName ? userProfile.displayName[0].toUpperCase() : 'A'}
                 </div>
               )}
-              <div className="hidden lg:flex flex-col text-[11px] leading-tight">
-                <span className="font-bold text-slate-800 truncate max-w-[120px]">{userProfile?.displayName || (role === 'admin' ? 'Admin' : 'Shop Manager')}</span>
-                <span className="text-slate-400">{role === 'admin' ? 'Administrator' : 'Merchant'}</span>
-              </div>
             </div>
           </div>
 
         </header>
 
-        {/* Display Wrapper */}
-        <main className="flex-1 p-4 md:p-6">
+        {/* Display Content Wrapper */}
+        <main className="flex-1 p-3.5 sm:p-5 md:p-6 pb-24 lg:pb-6">
           {children}
         </main>
 
       </div>
 
+      {/* 3. Mobile Bottom Navigation Bar (Matching exact design image for mobile screens) */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-2 py-1.5 flex items-center justify-around text-[10px] font-bold text-slate-500 lg:hidden shadow-lg">
+        {/* Dashboard Link */}
+        <Link 
+          to={role === 'admin' ? "/dashboard/admin" : "/dashboard/shop"} 
+          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all ${
+            isBottomNavActive(role === 'admin' ? '/dashboard/admin' : '/dashboard/shop') 
+              ? 'text-[#056839] font-black' 
+              : 'hover:text-slate-900'
+          }`}
+        >
+          <i className={`text-base ${isBottomNavActive(role === 'admin' ? '/dashboard/admin' : '/dashboard/shop') ? 'fa-solid fa-house text-[#056839]' : 'fa-solid fa-house text-slate-400'}`}></i>
+          <span>Dashboard</span>
+        </Link>
+
+        {/* Shops Link */}
+        <Link 
+          to="/dashboard/admin/shops" 
+          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all ${
+            isBottomNavActive('/dashboard/admin/shops') 
+              ? 'text-[#056839] font-black' 
+              : 'hover:text-slate-900'
+          }`}
+        >
+          <i className={`text-base ${isBottomNavActive('/dashboard/admin/shops') ? 'fa-solid fa-store text-[#056839]' : 'fa-solid fa-store text-slate-400'}`}></i>
+          <span>Shops</span>
+        </Link>
+
+        {/* Products (Storefront Link) */}
+        <Link 
+          to="/shops" 
+          className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all hover:text-slate-900"
+        >
+          <i className="fa-solid fa-box text-base text-slate-400"></i>
+          <span>Products</span>
+        </Link>
+
+        {/* Orders Link with real dynamic badge */}
+        <Link 
+          to="/dashboard/admin/orders" 
+          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all relative ${
+            isBottomNavActive('/dashboard/admin/orders') 
+              ? 'text-[#056839] font-black' 
+              : 'hover:text-slate-900'
+          }`}
+        >
+          <div className="relative">
+            <i className={`text-base ${isBottomNavActive('/dashboard/admin/orders') ? 'fa-solid fa-bag-shopping text-[#056839]' : 'fa-solid fa-bag-shopping text-slate-400'}`}></i>
+            {adminOrdersCount > 0 && (
+              <span className="absolute -top-1.5 -right-3.5 bg-[#056839] text-white font-extrabold text-[8px] px-1.5 py-0.2 rounded-full">
+                {adminOrdersCount}
+              </span>
+            )}
+          </div>
+          <span>Orders</span>
+        </Link>
+
+        {/* More Sidebar Toggle */}
+        <button 
+          onClick={() => setSidebarOpen(true)}
+          className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-slate-500 hover:text-slate-900 cursor-pointer"
+        >
+          <i className="fa-solid fa-ellipsis text-base text-slate-400"></i>
+          <span>More</span>
+        </button>
+      </nav>
+
       {/* Backdrop overlay for mobile drawer */}
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs lg:hidden z-30"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs lg:hidden z-40"
         />
       )}
 

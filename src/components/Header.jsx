@@ -10,8 +10,6 @@ export default function Header({ onOpenDrawer }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const showSearch = location.pathname === '/' || location.pathname.startsWith('/product/');
-
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -26,129 +24,125 @@ export default function Header({ onOpenDrawer }) {
 
   const isActive = (path) =>
     location.pathname === path
-      ? 'text-emerald-600 font-bold'
-      : 'text-slate-600 hover:text-emerald-600 font-semibold';
+      ? 'text-[#056839] font-bold border-b-2 border-[#056839] pb-1'
+      : 'text-slate-600 hover:text-[#056839] font-medium transition-colors pb-1';
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/95 backdrop-blur-md shadow-xs">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white">
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between gap-3">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
 
-        {/* Brand Logo */}
+        {/* Brand Logo matching reference design */}
         <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 group">
-          <div className="w-9 h-9 rounded-xl bg-emerald-950 text-white flex items-center justify-center text-sm border border-emerald-900 shadow-sm group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-[#056839] text-white flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
             <i className="fa-solid fa-bag-shopping"></i>
           </div>
-          <div className="flex flex-col justify-center">
-            <span className="text-sm font-black text-slate-900 leading-none tracking-tight">Meena Bazaar</span>
-            <span className="text-[10px] font-bold text-emerald-700 leading-none mt-1">Find shops in your city</span>
+          <div className="flex flex-col justify-center leading-none">
+            <span className="text-sm font-black text-slate-900 tracking-tight">Meena Bazaar</span>
+            <span className="text-[10px] font-semibold text-emerald-700 mt-0.5">Local shops, verified sellers</span>
           </div>
         </Link>
 
-        {/* Desktop Center: Search bar */}
-        {showSearch ? (
-          <form onSubmit={handleSearch} className="flex-1 max-w-md relative hidden md:block animate-fade-in">
-            <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        {/* Desktop Center: Search input + Location pill matching reference */}
+        <form onSubmit={handleSearch} className="flex-1 max-w-lg relative hidden md:flex items-center gap-2">
+          <div className="relative flex-1">
+            <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
             <input
               type="text"
-              placeholder="Search stores, brands, categories..."
+              placeholder="Search products, shops, categories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500 bg-slate-50/40"
+              className="w-full pl-9 pr-4 py-2 border border-slate-200/80 rounded-xl text-xs outline-none focus:border-[#056839] bg-slate-50/50 font-medium"
             />
-          </form>
-        ) : (
-          <div className="flex-1 hidden md:block" />
-        )}
+          </div>
 
-        {/* Desktop Right: Nav + Actions */}
-        <div className="hidden md:flex items-center gap-3">
+          <div className="px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-700 font-bold flex items-center gap-1.5 flex-shrink-0">
+            <i className="fa-solid fa-location-dot text-[#056839]"></i>
+            <span>Rampur, UP</span>
+            <i className="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
+          </div>
+        </form>
 
-          <nav className="hidden lg:flex items-center gap-5 mr-2 text-xs font-semibold">
+        {/* Desktop Right: Navigation links & user controls */}
+        <div className="hidden md:flex items-center gap-6">
+
+          <nav className="flex items-center gap-6 text-xs">
             <Link to="/" className={isActive('/')}>Home</Link>
             <Link to="/shops" className={isActive('/shops')}>Shops</Link>
+            <Link to="/shops" className={isActive('/categories')}>Categories</Link>
             <Link to="/saved" className={isActive('/saved')}>Saved</Link>
-            <Link to="/about" className={isActive('/about')}>About</Link>
-            <Link to="/contact" className={isActive('/contact')}>Contact</Link>
           </nav>
 
-          {/* Saved heart */}
+          {/* Saved wishlist button */}
           <Link
             to="/saved"
-            className="relative w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors border border-slate-200"
-            title="Saved Products"
+            className="relative w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-colors border border-slate-200/60"
+            title="Saved Wishlist"
           >
             <i className="fa-regular fa-heart text-sm"></i>
             {savedProductIds.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white font-black text-[8px] w-4 h-4 rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-rose-500 text-white font-black text-[8px] w-4 h-4 rounded-full flex items-center justify-center">
                 {savedProductIds.length}
               </span>
             )}
           </Link>
 
-          {/* Auth user state & Dashboard Link Button */}
+          {/* User profile avatar / Merchant Login */}
           {userProfile ? (
             <div className="flex items-center gap-2">
-
-              {/* Direct Dashboard Button */}
               <Link
                 to={userProfile.role === 'admin' ? '/dashboard/admin' : '/dashboard/shop'}
-                className="flex px-3 py-1.5 rounded-xl border border-emerald-500 bg-emerald-600 text-white hover:bg-emerald-500 transition-all font-bold text-xs items-center gap-1.5 shadow-md shadow-emerald-600/20"
+                className="flex items-center gap-2"
+                title="View Dashboard"
               >
-                <i className="fa-solid fa-store"></i>
-                <span>{userProfile.role === 'admin' ? 'Admin Panel' : 'My Shop Dashboard'}</span>
-              </Link>
-
-              {/* Logged in User Profile Pill */}
-              <div className="flex items-center gap-2 pl-1.5 pr-2 py-1 rounded-xl bg-slate-50 border border-slate-200 text-xs">
                 {userProfile.photoURL ? (
                   <img
                     src={userProfile.photoURL}
                     alt={userProfile.displayName}
-                    className="w-6 h-6 rounded-full object-cover border border-emerald-500"
+                    className="w-9 h-9 rounded-full object-cover border-2 border-[#056839]"
                   />
                 ) : (
-                  <div className="w-6 h-6 rounded-full bg-emerald-700 text-white font-bold flex items-center justify-center text-[10px]">
+                  <div className="w-9 h-9 rounded-full bg-[#056839] text-white font-bold flex items-center justify-center text-xs border-2 border-[#056839]">
                     {userProfile.displayName ? userProfile.displayName[0].toUpperCase() : 'U'}
                   </div>
                 )}
-                <span className="font-bold text-slate-800 max-w-[100px] truncate">
-                  {userProfile.displayName || userProfile.email}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="w-6 h-6 rounded-md hover:bg-rose-100 text-slate-400 hover:text-rose-600 transition-colors flex items-center justify-center text-xs ml-1 cursor-pointer"
-                  title="Logout"
-                >
-                  <i className="fa-solid fa-right-from-bracket"></i>
-                </button>
-              </div>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-xs text-slate-400 hover:text-rose-600 font-bold ml-1 cursor-pointer"
+                title="Logout"
+              >
+                <i className="fa-solid fa-right-from-bracket"></i>
+              </button>
             </div>
           ) : (
             <Link
               to="/login"
-              className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all font-bold text-xs flex items-center gap-1.5 shadow-sm shadow-emerald-600/20"
+              className="px-4 py-2 rounded-xl bg-[#056839] hover:bg-emerald-800 text-white transition-all font-bold text-xs flex items-center gap-1.5"
             >
-              <i className="fa-solid fa-right-to-bracket"></i> Merchant Login
+              <i className="fa-solid fa-right-to-bracket"></i> Login
             </Link>
           )}
         </div>
 
-        {/* Mobile Hamburger & Actions */}
+        {/* Mobile Actions */}
         <div className="flex md:hidden items-center gap-2">
-          {userProfile && (
-            <Link
-              to={userProfile.role === 'admin' ? '/dashboard/admin' : '/dashboard/shop'}
-              className="px-2.5 py-1 bg-emerald-600 text-white text-[11px] font-bold rounded-lg flex items-center gap-1"
-            >
-              <i className="fa-solid fa-store"></i> Shop
-            </Link>
-          )}
+          <Link
+            to="/saved"
+            className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-700 border border-slate-200/60 relative"
+          >
+            <i className="fa-regular fa-heart text-xs"></i>
+            {savedProductIds.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-rose-500 text-white font-bold text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center">
+                {savedProductIds.length}
+              </span>
+            )}
+          </Link>
           <button
             onClick={onOpenDrawer}
-            className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-700 border border-slate-200"
+            className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-700 border border-slate-200"
           >
-            <i className="fa-solid fa-bars text-sm"></i>
+            <i className="fa-solid fa-bars text-xs"></i>
           </button>
         </div>
 

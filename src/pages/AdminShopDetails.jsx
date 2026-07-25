@@ -52,17 +52,17 @@ export default function AdminShopDetails() {
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 p-4 rounded-2xl shadow-2xl bg-emerald-950 text-emerald-200 border border-emerald-800 text-xs font-extrabold flex items-center gap-3 animate-bounce">
-          <i className="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 z-50 p-3.5 sm:p-4 rounded-2xl shadow-2xl bg-emerald-950 text-emerald-200 border border-emerald-800 text-xs font-extrabold flex items-center gap-3 animate-bounce max-w-md mx-auto">
+          <i className="fa-solid fa-circle-check text-emerald-400 text-base flex-shrink-0"></i>
           <span>{toastMessage}</span>
         </div>
       )}
 
-      <div className="flex flex-col gap-6 md:gap-8 animate-fade-in pb-12">
+      <div className="flex flex-col gap-5 sm:gap-6 md:gap-8 animate-fade-in pb-12">
         
         {/* Store Header Banner Card */}
-        <div className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
-          <div className="h-44 bg-slate-900 relative">
+        <div className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-xs">
+          <div className="h-32 sm:h-44 bg-slate-900 relative">
             <img 
               src={shop.banner || shop.bannerImage || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1200&q=80'} 
               alt={shop.name} 
@@ -71,23 +71,23 @@ export default function AdminShopDetails() {
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
           </div>
 
-          <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 relative -mt-12 z-10">
-            <div className="flex items-center gap-4">
+          <div className="p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 relative -mt-10 sm:-mt-12 z-10">
+            <div className="flex items-center gap-3.5">
               <img 
                 src={shop.image || shop.logoImage || 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=400&q=80'} 
                 alt={shop.name} 
-                className="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-2xl bg-slate-800" 
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-4 border-white shadow-2xl bg-slate-800 flex-shrink-0" 
               />
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-xl md:text-2xl font-black text-slate-900">{shop.name}</h1>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 truncate">{shop.name}</h1>
                   <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
                     shop.verified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                   }`}>
                     {shop.verified ? 'Verified Store' : 'Pending Verification'}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 font-medium mt-1 flex items-center gap-2">
+                <p className="text-xs text-slate-500 font-medium mt-1 flex flex-wrap items-center gap-2">
                   <span><i className="fa-solid fa-location-dot text-emerald-600"></i> {shop.address || shop.market || 'Main Market'}</span>
                   <span>&bull;</span>
                   <span><i className="fa-solid fa-tag text-emerald-600"></i> {shop.category || shop.categoryName || 'General'}</span>
@@ -95,10 +95,10 @@ export default function AdminShopDetails() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
               <button 
                 onClick={handleToggleVerify}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer ${
+                className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer text-center ${
                   shop.verified 
                     ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200' 
                     : 'bg-emerald-600 hover:bg-emerald-500 text-white'
@@ -110,7 +110,7 @@ export default function AdminShopDetails() {
               <Link 
                 to={`/shop/${shop.id}`}
                 target="_blank"
-                className="px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1.5"
+                className="w-full sm:w-auto px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all inline-flex items-center justify-center gap-1.5 text-center"
               >
                 <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i> View Live Storefront
               </Link>
@@ -119,10 +119,10 @@ export default function AdminShopDetails() {
         </div>
 
         {/* Business Audit Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           
           {/* Catalog Stats Card */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-100 shadow-xs space-y-4">
             <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider border-b border-slate-100 pb-3">
               Store Catalog Metrics
             </h3>
@@ -145,7 +145,7 @@ export default function AdminShopDetails() {
           </div>
 
           {/* Business Profile Details */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-100 shadow-xs space-y-4">
             <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider border-b border-slate-100 pb-3">
               Merchant Contact & Location
             </h3>
@@ -167,13 +167,54 @@ export default function AdminShopDetails() {
 
         </div>
 
-        {/* Product Catalog Audit Table */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
+        {/* Product Catalog Audit Card */}
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-100 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">Product Inventory Audit ({shopProducts.length})</h3>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Mobile Cards View (Visible on small screens) */}
+          <div className="block md:hidden space-y-3">
+            {shopProducts.length === 0 ? (
+              <div className="text-center py-8 text-slate-400 font-medium text-xs">
+                No products listed by this store yet.
+              </div>
+            ) : (
+              shopProducts.map(prod => (
+                <div key={prod.id} className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <img 
+                      src={prod.images && prod.images.length > 0 ? prod.images[0] : 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100'} 
+                      alt={prod.name} 
+                      className="w-12 h-12 rounded-xl object-cover border border-slate-100 flex-shrink-0" 
+                    />
+                    <div className="min-w-0 flex-1">
+                      <strong className="text-slate-900 font-bold block text-sm truncate">{prod.name}</strong>
+                      <span className="text-[11px] text-slate-400 block">{prod.brand || 'Merchant Product'} &bull; {prod.categoryName || prod.category}</span>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="font-black text-slate-900 text-xs">₹{prod.price?.toLocaleString('en-IN')}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                          prod.stockStatus === 'Out of Stock' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'
+                        }`}>
+                          {prod.stockStatus || 'In Stock'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => setProductToDelete(prod)}
+                    className="w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl transition-colors cursor-pointer border border-rose-200 text-center"
+                  >
+                    <i className="fa-solid fa-trash-can mr-1"></i> Delete Item
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Desktop Table View (Visible on medium+ screens) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-50 text-slate-500 font-extrabold uppercase tracking-wider border-b border-slate-100">
