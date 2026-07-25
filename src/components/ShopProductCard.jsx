@@ -1,0 +1,114 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useBazaar } from '../context/BazaarContext';
+
+export default function ShopProductCard({ product }) {
+  const { isProductSaved, toggleSaveProduct, openWhatsApp } = useBazaar();
+  const navigate = useNavigate();
+  const saved = isProductSaved(product.id);
+  const hasDiscount = product.originalPrice && product.originalPrice > product.price;
+  const discountPercent = hasDiscount ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 105) : 0;
+
+  const handleCardClick = () => {
+    navigate(`/product/${product.id}`);
+  };
+
+  const handleSaveClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleSaveProduct(product.id);
+  };
+
+  const handleWhatsAppClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openWhatsApp(product.id);
+  };
+
+  return (
+    <div 
+      onClick={handleCardClick}
+      className="relative bg-white rounded-2xl border border-slate-100 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer p-3 flex flex-col justify-between h-full group"
+    >
+      <div>
+        
+        {/* Image Canvas with 4:3 Aspect Ratio (Full Width) */}
+        <div className="relative aspect-[4/3] bg-slate-50/50 rounded-xl overflow-hidden flex items-center justify-center">
+          
+          {/* Discount Badge */}
+          {hasDiscount && (
+            <span className="absolute top-2.5 left-2.5 bg-red-500 text-white font-extrabold text-[8px] uppercase tracking-wider px-2 py-0.5 rounded z-10">
+              {discountPercent}% OFF
+            </span>
+          )}
+
+          {/* Wishlist Button Overlay */}
+          <button 
+            onClick={handleSaveClick}
+            className={`absolute top-2.5 right-2.5 w-7.5 h-7.5 rounded-full bg-white/90 flex items-center justify-center text-[10px] hover:scale-105 hover:bg-red-50 transition-all cursor-pointer z-10 ${saved ? 'text-red-500' : 'text-slate-400'}`}
+            title="Save Product"
+          >
+            <i className={`${saved ? 'fa-solid' : 'fa-regular'} fa-heart`}></i>
+          </button>
+
+          {/* Product Image */}
+          <img 
+            src={product.images ? product.images[0] : product.image} 
+            alt={product.name} 
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+          />
+        </div>
+
+        {/* Description Info Block */}
+        <div className="mt-3.5 flex flex-col">
+          {/* Brand Name */}
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+            {product.brand || 'LOCAL BRAND'}
+          </span>
+          
+          {/* Title */}
+          <h4 className="text-xs font-bold text-slate-800 line-clamp-1 mt-1 leading-snug group-hover:text-emerald-600 transition-colors">
+            {product.name}
+          </h4>
+
+          {/* Rating */}
+          <div className="flex items-center gap-1 mt-1 text-[9px] font-semibold text-slate-400">
+            <span className="text-amber-400"><i className="fa-solid fa-star"></i></span>
+            <span className="text-slate-700">{product.rating || '4.8'}</span>
+            <span>({product.reviewsCount || '120'} Reviews)</span>
+          </div>
+          
+          {/* Store Info Label (Muted inside shop details, but keeping visual balance) */}
+          <div className="text-[9px] text-slate-400 font-semibold mt-2.5 flex items-center gap-1">
+            <i className="fa-solid fa-circle-check text-emerald-600 text-[9px]"></i>
+            <span>In Stock</span>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Pricing & CTA Footer */}
+      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+        <div className="flex flex-col">
+          <span className="text-[8px] font-extrabold text-slate-455 uppercase tracking-wider leading-none">Price</span>
+          <div className="flex items-baseline gap-1 mt-1">
+            <span className="text-sm font-black text-slate-900">₹{product.price.toLocaleString('en-IN')}</span>
+            {hasDiscount && (
+              <span className="text-[9px] text-slate-400 line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+            )}
+          </div>
+        </div>
+
+        {/* WhatsApp Direct Order Button */}
+        <button 
+          onClick={handleWhatsAppClick}
+          className="w-8 h-8 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center text-sm transition-colors cursor-pointer border-none"
+          title="Order on WhatsApp"
+        >
+          <i className="fa-brands fa-whatsapp"></i>
+        </button>
+      </div>
+
+    </div>
+  );
+}
