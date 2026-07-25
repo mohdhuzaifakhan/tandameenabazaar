@@ -1,383 +1,333 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useBazaar } from '../context/BazaarContext';
+import { useAuth } from '../context/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
 
 export default function AdminDashboard() {
-  const { shops, products, toggleShopVerification } = useBazaar();
-  const [approvalTab, setApprovalTab] = useState('shops'); // 'shops', 'products', 'banners'
+  const { userProfile } = useAuth();
+  const { shops, products, orders, toggleShopVerification, categories, markets } = useBazaar();
+  const [approvalTab, setApprovalTab] = useState('shops'); // 'shops' | 'products'
+  const [toastMessage, setToastMessage] = useState(null);
 
-  // Filter pending approvals
+  const showToast = (text, type = 'success') => {
+    setToastMessage({ text, type });
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  // Filter pending shops
   const pendingShops = shops.filter(s => !s.verified);
+  const verifiedShops = shops.filter(s => s.verified);
+
+  // Compute platform live stats
+  const totalShopsCount = shops.length;
+  const totalProductsCount = products.length;
+  const totalOrdersCount = orders.length;
+  const totalCatalogValue = products.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+
+  const handleApproveShop = (shopId, shopName) => {
+    toggleShopVerification(shopId);
+    showToast(`Store "${shopName}" verification status updated.`);
+  };
 
   return (
     <DashboardLayout title="Admin Overview" role="admin">
-      <div className="flex flex-col gap-6 md:gap-8 animate-fade-in">
+      
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-2xl shadow-2xl text-xs font-extrabold flex items-center gap-3 border animate-bounce ${
+          toastMessage.type === 'error'
+            ? 'bg-rose-950 text-rose-200 border-rose-800'
+            : 'bg-emerald-950 text-emerald-200 border-emerald-800'
+        }`}>
+          <i className={`fa-solid ${toastMessage.type === 'error' ? 'fa-circle-xmark text-rose-400' : 'fa-circle-check text-emerald-400'} text-base`}></i>
+          <span>{toastMessage.text}</span>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-6 md:gap-8 animate-fade-in pb-12">
         
         {/* Header Row */}
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
           <div>
-            <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Dashboard Overview</h1>
-            <p className="text-[11px] text-slate-500 font-semibold mt-0.5">Real-time statistics and platform action center</p>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
+                Application Owner
+              </span>
+              <span className="text-xs text-slate-400 font-mono font-medium">
+                {userProfile?.email || 'mohdhuzaifa8126195456@gmail.com'}
+              </span>
+            </div>
+            <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Platform Command Center</h1>
+            <p className="text-xs text-slate-500 mt-0.5">Real-time ecosystem statistics & merchant verification portal</p>
           </div>
           
-          <div className="flex items-center gap-2">
-            <div className="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-700 flex items-center gap-2 cursor-pointer hover:bg-slate-50 transition-colors">
-              <i className="fa-regular fa-calendar text-slate-400"></i>
-              <span>Today: 25 July 2026</span>
-              <i className="fa-solid fa-chevron-down text-[8px] text-slate-400"></i>
-            </div>
-            <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs cursor-pointer transition-colors">
-              <i className="fa-solid fa-file-export mr-1"></i> Export
-            </button>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Link
+              to="/dashboard/admin/shops"
+              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs shadow-md transition-all flex items-center gap-2"
+            >
+              <i className="fa-solid fa-store"></i> Stores Directory ({shops.length})
+            </Link>
+            <Link
+              to="/dashboard/admin/orders"
+              className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition-all flex items-center gap-2"
+            >
+              <i className="fa-solid fa-list-check"></i> Customer Leads ({orders.length})
+            </Link>
           </div>
         </div>
 
-        {/* Stats Grid - 6 responsive cards */}
+        {/* Stats Grid - 6 live metric cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           
-          {/* Card 1: Shops */}
-          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 transition-all hover:-translate-y-0.5">
+          {/* Card 1: Total Shops */}
+          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 shadow-xs">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base flex-shrink-0">
               <i className="fa-solid fa-store"></i>
             </div>
             <div className="leading-tight">
               <span className="text-[10px] text-slate-400 font-bold block">Total Shops</span>
-              <span className="text-base font-black text-slate-900 mt-1 block">412</span>
-              <span className="text-[9px] text-emerald-600 font-bold mt-1 block flex items-center gap-0.5"><i className="fa-solid fa-arrow-up"></i> +18</span>
+              <span className="text-base font-black text-slate-900 mt-1 block">{totalShopsCount}</span>
+              <span className="text-[9px] text-emerald-600 font-bold mt-1 block">{verifiedShops.length} Verified</span>
             </div>
           </div>
 
           {/* Card 2: Products */}
-          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 transition-all hover:-translate-y-0.5">
+          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 shadow-xs">
             <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-base flex-shrink-0">
               <i className="fa-solid fa-box"></i>
             </div>
             <div className="leading-tight">
-              <span className="text-[10px] text-slate-400 font-bold block">Products</span>
-              <span className="text-base font-black text-slate-900 mt-1 block">12,568</span>
-              <span className="text-[9px] text-emerald-600 font-bold mt-1 block flex items-center gap-0.5"><i className="fa-solid fa-arrow-up"></i> +24</span>
+              <span className="text-[10px] text-slate-400 font-bold block">Live Products</span>
+              <span className="text-base font-black text-slate-900 mt-1 block">{totalProductsCount}</span>
+              <span className="text-[9px] text-purple-600 font-bold mt-1 block">Active Catalog</span>
             </div>
           </div>
 
-          {/* Card 3: Users */}
-          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 transition-all hover:-translate-y-0.5">
+          {/* Card 3: Markets */}
+          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 shadow-xs">
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base flex-shrink-0">
-              <i className="fa-solid fa-users"></i>
+              <i className="fa-solid fa-location-dot"></i>
             </div>
             <div className="leading-tight">
-              <span className="text-[10px] text-slate-400 font-bold block">Total Users</span>
-              <span className="text-base font-black text-slate-900 mt-1 block">8,945</span>
-              <span className="text-[9px] text-emerald-600 font-bold mt-1 block flex items-center gap-0.5"><i className="fa-solid fa-arrow-up"></i> +16</span>
+              <span className="text-[10px] text-slate-400 font-bold block">Market Hubs</span>
+              <span className="text-base font-black text-slate-900 mt-1 block">{markets.length}</span>
+              <span className="text-[9px] text-blue-600 font-bold mt-1 block">Active Hubs</span>
             </div>
           </div>
 
-          {/* Card 4: Visitors */}
-          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 transition-all hover:-translate-y-0.5">
+          {/* Card 4: Categories */}
+          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 shadow-xs">
             <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-base flex-shrink-0">
-              <i className="fa-solid fa-chart-line"></i>
+              <i className="fa-solid fa-layer-group"></i>
             </div>
             <div className="leading-tight">
-              <span className="text-[10px] text-slate-400 font-bold block">Visitors</span>
-              <span className="text-base font-black text-slate-900 mt-1 block">45,670</span>
-              <span className="text-[9px] text-emerald-600 font-bold mt-1 block flex items-center gap-0.5"><i className="fa-solid fa-arrow-up"></i> +21%</span>
+              <span className="text-[10px] text-slate-400 font-bold block">Categories</span>
+              <span className="text-base font-black text-slate-900 mt-1 block">{categories.length}</span>
+              <span className="text-[9px] text-orange-600 font-bold mt-1 block">Taxonomy</span>
             </div>
           </div>
 
-          {/* Card 5: Leads */}
-          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 transition-all hover:-translate-y-0.5">
+          {/* Card 5: WhatsApp Leads */}
+          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 shadow-xs">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-base flex-shrink-0">
               <i className="fa-brands fa-whatsapp text-lg"></i>
             </div>
             <div className="leading-tight">
-              <span className="text-[10px] text-slate-400 font-bold block">WhatsApp Clicks</span>
-              <span className="text-base font-black text-slate-900 mt-1 block">356</span>
-              <span className="text-[9px] text-emerald-600 font-bold mt-1 block flex items-center gap-0.5"><i className="fa-solid fa-arrow-up"></i> +14</span>
+              <span className="text-[10px] text-slate-400 font-bold block">Order Leads</span>
+              <span className="text-base font-black text-slate-900 mt-1 block">{totalOrdersCount}</span>
+              <span className="text-[9px] text-emerald-600 font-bold mt-1 block">WhatsApp Enquiries</span>
             </div>
           </div>
 
-          {/* Card 6: Active Orders */}
-          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 transition-all hover:-translate-y-0.5">
-            <div className="w-10 h-10 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center text-base flex-shrink-0">
-              <i className="fa-solid fa-truck-fast"></i>
+          {/* Card 6: Catalog Value */}
+          <div className="bg-white rounded-2xl p-4 flex items-center gap-3.5 border border-slate-100 shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base flex-shrink-0">
+              <i className="fa-solid fa-indian-rupee-sign"></i>
             </div>
             <div className="leading-tight">
-              <span className="text-[10px] text-slate-400 font-bold block">Active Orders</span>
-              <span className="text-base font-black text-slate-900 mt-1 block">1,256</span>
-              <span className="text-[9px] text-emerald-600 font-bold mt-1 block flex items-center gap-0.5"><i className="fa-solid fa-arrow-up"></i> +20%</span>
+              <span className="text-[10px] text-slate-400 font-bold block">Inventory Value</span>
+              <span className="text-base font-black text-slate-900 mt-1 block">₹{(totalCatalogValue / 1000).toFixed(0)}K</span>
+              <span className="text-[9px] text-indigo-600 font-bold mt-1 block">Total Listed MRP</span>
             </div>
           </div>
 
         </div>
 
-        {/* Analytics Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Visitor Chart */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100">
-            <div className="flex justify-between items-center mb-5">
-              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-wider">Visitor Analytics</h3>
-              <select className="border border-slate-200 rounded-lg text-[10px] font-bold px-2 py-1 outline-none text-slate-600 cursor-pointer">
-                <option>This Week</option>
-                <option>This Month</option>
-              </select>
-            </div>
-            <div className="h-44 relative">
-              <svg viewBox="0 0 500 200" className="w-full h-full">
-                <line x1="20" y1="20" x2="480" y2="20" stroke="#f1f5f9" strokeWidth="1.5" />
-                <line x1="20" y1="70" x2="480" y2="70" stroke="#f1f5f9" strokeWidth="1.5" />
-                <line x1="20" y1="120" x2="480" y2="120" stroke="#f1f5f9" strokeWidth="1.5" />
-                <line x1="20" y1="170" x2="480" y2="170" stroke="#f1f5f9" strokeWidth="1.5" />
-                <text x="5" y="25" fill="#94a3b8" fontSize="8" fontWeight="bold">50K</text>
-                <text x="5" y="75" fill="#94a3b8" fontSize="8" fontWeight="bold">30K</text>
-                <text x="5" y="175" fill="#94a3b8" fontSize="8" fontWeight="bold">0</text>
-                
-                <path 
-                  d="M 30,150 Q 80,100 130,120 T 230,90 T 330,120 T 430,80 L 480,40" 
-                  fill="none" 
-                  stroke="#056839" 
-                  strokeWidth="3.5" 
-                  strokeLinecap="round" 
-                />
-                
-                <circle cx="30" cy="150" r="4.5" fill="#056839" />
-                <circle cx="130" cy="120" r="4.5" fill="#056839" />
-                <circle cx="230" cy="90" r="4.5" fill="#056839" />
-                <circle cx="330" cy="120" r="4.5" fill="#056839" />
-                <circle cx="430" cy="80" r="4.5" fill="#056839" />
-                <circle cx="480" cy="40" r="4.5" fill="#056839" />
-              </svg>
-            </div>
-          </div>
-
-          {/* Top Categories */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col justify-between">
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-slate-900 text-xs uppercase tracking-wider">Top Categories</h3>
-                <a href="#categories" onClick={e => e.preventDefault()} className="text-[10px] font-bold text-emerald-600 hover:text-emerald-700">View All</a>
-              </div>
-              <div className="flex flex-col gap-3.5">
-                <div className="flex flex-col gap-1">
-                  <div className="flex justify-between text-xs font-semibold text-slate-700">
-                    <span>Mobile &amp; Accessories</span>
-                    <span>18.7%</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-emerald-600 rounded-full" style={{ width: '18.7%' }} />
-                  </div>
-                </div>
-                
-                <div className="flex flex-col gap-1">
-                  <div className="flex justify-between text-xs font-semibold text-slate-700">
-                    <span>Fashion Boutique</span>
-                    <span>15.1%</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-purple-650 rounded-full" style={{ width: '15.1%' }} />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <div className="flex justify-between text-xs font-semibold text-slate-700">
-                    <span>Consumer Electronics</span>
-                    <span>12.3%</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-600 rounded-full" style={{ width: '12.3%' }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <span className="text-[10px] text-slate-400 font-semibold mt-4">Calculated across 12,568 products</span>
-          </div>
-
-          {/* Recent Shop Registrations */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-wider">Recent Shops</h3>
-              <a href="#shops" onClick={e => e.preventDefault()} className="text-[10px] font-bold text-emerald-600 hover:text-emerald-700">View All</a>
-            </div>
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800">Gupta General Store</h4>
-                  <span className="text-[10px] text-slate-450 font-semibold">Civil Lines, Rampur</span>
-                </div>
-                <span className="text-[10px] text-slate-400 font-semibold">2h ago</span>
-              </div>
-              
-              <div className="flex justify-between items-start border-t border-slate-50 pt-3">
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800">Khan Footwear</h4>
-                  <span className="text-[10px] text-slate-450 font-semibold">Nai Sadak, Rampur</span>
-                </div>
-                <span className="text-[10px] text-slate-400 font-semibold">4h ago</span>
-              </div>
-
-              <div className="flex justify-between items-start border-t border-slate-50 pt-3">
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800">Fashion Hub</h4>
-                  <span className="text-[10px] text-slate-450 font-semibold">Mandi Samiti, Rampur</span>
-                </div>
-                <span className="text-[10px] text-slate-400 font-semibold">6h ago</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Pending Approvals & Platform Overview */}
+        {/* Pending Approvals & Platform Directory Section */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           
-          {/* Pending Approvals Card (3/5 Width) */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 lg:col-span-3 flex flex-col justify-between">
+          {/* Pending Merchant Approvals Table (3/5 width) */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 lg:col-span-3 flex flex-col justify-between shadow-xs">
             <div>
-              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-wider mb-4">Pending Approvals</h3>
-              
-              {/* Tabs Select */}
-              <div className="flex border-b border-slate-100 mb-4 gap-6">
-                <button 
-                  onClick={() => setApprovalTab('shops')}
-                  className={`pb-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${approvalTab === 'shops' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-slate-400 hover:text-slate-650'}`}
-                >
-                  Shops ({pendingShops.length})
-                </button>
-                <button 
-                  onClick={() => setApprovalTab('products')}
-                  className={`pb-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${approvalTab === 'products' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-slate-400 hover:text-slate-650'}`}
-                >
-                  Products (15)
-                </button>
-                <button 
-                  onClick={() => setApprovalTab('banners')}
-                  className={`pb-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${approvalTab === 'banners' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-slate-400 hover:text-slate-650'}`}
-                >
-                  Banners (3)
-                </button>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-sm">Merchant Verification Approvals</h3>
+                  <p className="text-xs text-slate-400">Review newly registered storefronts requiring owner verification.</p>
+                </div>
+
+                <span className="px-3 py-1 bg-amber-50 text-amber-700 font-black text-xs rounded-full border border-amber-200">
+                  {pendingShops.length} Pending
+                </span>
               </div>
 
               {/* Data Table */}
-              {approvalTab === 'shops' && (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50 text-slate-500 font-bold border-b border-slate-100">
-                        <th className="p-3">Shop Info</th>
-                        <th className="p-3">Market</th>
-                        <th className="p-3">Applied</th>
-                        <th className="p-3 text-center">Actions</th>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-500 font-bold border-b border-slate-100">
+                      <th className="p-3">Store Info</th>
+                      <th className="p-3">Market Area</th>
+                      <th className="p-3">Category</th>
+                      <th className="p-3 text-center">Status Control</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {pendingShops.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="text-center py-10 text-slate-400 font-medium">
+                          <i className="fa-solid fa-circle-check text-emerald-500 text-2xl mb-2 block"></i>
+                          All storefronts have been verified by Admin.
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {pendingShops.length === 0 ? (
-                        <tr>
-                          <td colSpan="4" className="text-center py-8 text-slate-400 font-medium">No pending shop verifications.</td>
-                        </tr>
-                      ) : (
-                        pendingShops.map(shop => (
-                          <tr key={shop.id} className="border-b border-slate-50 hover:bg-slate-50/50">
-                            <td className="p-3 flex items-center gap-3">
-                              <img src={shop.logoImage} alt={shop.name} className="w-8 h-8 rounded-full object-cover border border-slate-100" />
+                    ) : (
+                      pendingShops.map(shop => (
+                        <tr key={shop.id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="p-3">
+                            <div className="flex items-center gap-3">
+                              <img 
+                                src={shop.image || shop.logoImage || 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=200'} 
+                                alt={shop.name} 
+                                className="w-9 h-9 rounded-xl object-cover border border-slate-100 flex-shrink-0" 
+                              />
                               <div>
-                                <strong className="text-slate-800 font-bold block">{shop.name}</strong>
-                                <span className="text-[10px] text-slate-400">Owner: Rohit Kumar</span>
+                                <strong className="text-slate-900 font-bold block">{shop.name}</strong>
+                                <span className="text-[10px] text-slate-400 font-medium">{shop.phone || 'No phone'}</span>
                               </div>
-                            </td>
-                            <td className="p-3 text-slate-500 font-semibold">{shop.market}</td>
-                            <td className="p-3 text-slate-400 font-medium">26 May 2024</td>
-                            <td className="p-3 text-center">
-                              <div className="flex gap-2 justify-center">
-                                <button 
-                                  onClick={() => toggleShopVerification(shop.id)} 
-                                  className="w-7 h-7 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-650 flex items-center justify-center cursor-pointer transition-colors border border-emerald-100"
-                                  title="Approve Shop"
-                                >
-                                  <i className="fa-solid fa-check"></i>
-                                </button>
-                                <button 
-                                  className="w-7 h-7 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center cursor-pointer transition-colors border border-red-100"
-                                  title="Reject"
-                                >
-                                  <i className="fa-solid fa-xmark"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {approvalTab === 'products' && (
-                <div className="py-8 text-center text-slate-400 font-medium text-xs">
-                  Pending product list is up to date.
-                </div>
-              )}
-
-              {approvalTab === 'banners' && (
-                <div className="py-8 text-center text-slate-400 font-medium text-xs">
-                  Pending promotion banners are up to date.
-                </div>
-              )}
-            </div>
-
-            <button className="text-xs font-bold text-emerald-600 hover:text-emerald-700 mt-4 flex items-center gap-1.5">
-              View All Approvals <i className="fa-solid fa-arrow-right text-[9px]"></i>
-            </button>
-          </div>
-
-          {/* Platform Overview (2/5 Width) */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 lg:col-span-2 flex flex-col justify-between">
-            <div>
-              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-wider mb-5">Platform Overview</h3>
-              <div className="flex flex-col items-center gap-6 justify-center">
-                
-                {/* SVG Doughnut */}
-                <div className="relative w-28 h-28">
-                  <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f8fafc" strokeWidth="12" />
-                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#056839" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="50.2" strokeLinecap="round" />
-                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#7c3aed" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="130.6" strokeLinecap="round" />
-                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#0284c7" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="188.4" strokeLinecap="round" />
-                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#ea580c" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="213.5" strokeLinecap="round" />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-[8px] text-slate-400 font-bold uppercase leading-none">Products</span>
-                    <strong className="text-xs font-black text-slate-800 mt-1">12,568</strong>
-                  </div>
-                </div>
-
-                {/* Legends */}
-                <div className="flex flex-col gap-2 w-full text-[10px] text-slate-500 font-semibold border-t border-slate-50 pt-4">
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-emerald-600" />Mobile &amp; Accessories</span>
-                    <strong>18.7%</strong>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-purple-650" />Fashion Boutique</span>
-                    <strong>15.1%</strong>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-blue-600" />Consumer Electronics</span>
-                    <strong>12.3%</strong>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-orange-500" />Home &amp; Kitchen</span>
-                    <strong>9.8%</strong>
-                  </div>
-                </div>
-
+                            </div>
+                          </td>
+                          <td className="p-3 text-slate-600 font-medium">{shop.market}</td>
+                          <td className="p-3 text-slate-600 font-medium">{shop.category || shop.categoryName}</td>
+                          <td className="p-3 text-center">
+                            <div className="flex gap-2 justify-center">
+                              <button 
+                                onClick={() => handleApproveShop(shop.id, shop.name)} 
+                                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 shadow-sm cursor-pointer transition-colors"
+                                title="Approve & Verify Storefront"
+                              >
+                                <i className="fa-solid fa-check text-xs"></i> Verify Store
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <button className="text-xs font-bold text-emerald-600 hover:text-emerald-700 mt-4 flex items-center justify-center gap-1.5 w-full text-center">
-              View Detailed Metrics <i className="fa-solid fa-arrow-right text-[9px]"></i>
-            </button>
+            <div className="pt-4 border-t border-slate-100 flex justify-end">
+              <Link 
+                to="/dashboard/admin/shops" 
+                className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1.5"
+              >
+                View Full Stores Directory <i className="fa-solid fa-arrow-right text-[10px]"></i>
+              </Link>
+            </div>
           </div>
 
+          {/* Quick Platform Overview & Stores Status (2/5 width) */}
+          <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-xl flex flex-col justify-between border border-slate-800 lg:col-span-2">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 mb-3 uppercase tracking-wider">
+                <i className="fa-solid fa-shield-halved"></i> Application Owner Status
+              </div>
+              
+              <h3 className="text-lg font-black text-white mb-1">Meena Bazaar Admin Panel</h3>
+              <p className="text-xs text-slate-400 leading-relaxed mb-6">
+                You have full administrative authorization over all local storefronts, merchant listings, catalog items, and customer lead inquiries.
+              </p>
+
+              <div className="space-y-4 border-t border-slate-800 pt-5 text-xs">
+                <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
+                  <span className="text-slate-400">Verified Stores:</span>
+                  <span className="font-extrabold text-emerald-400">{verifiedShops.length} Stores</span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
+                  <span className="text-slate-400">Pending Verification:</span>
+                  <span className="font-extrabold text-amber-400">{pendingShops.length} Stores</span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
+                  <span className="text-slate-400">Total Listed Products:</span>
+                  <span className="font-extrabold text-white">{products.length} Products</span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
+                  <span className="text-slate-400">Active Market Locations:</span>
+                  <span className="font-extrabold text-white">{markets.length} Markets</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 mt-6 border-t border-slate-800 flex flex-col gap-2">
+              <Link
+                to="/dashboard/admin/shops"
+                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl text-center transition-all shadow-md block"
+              >
+                Manage All Merchant Shops
+              </Link>
+              <Link
+                to="/dashboard/admin/orders"
+                className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl text-center transition-all border border-slate-700 block"
+              >
+                View Global Lead Orders ({orders.length})
+              </Link>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Global Recent Lead Inquiries */}
+        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-extrabold text-slate-900 text-sm">Recent Platform Customer Leads</h3>
+              <p className="text-xs text-slate-400">Live order inquiries submitted across all local storefronts.</p>
+            </div>
+
+            <Link to="/dashboard/admin/orders" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">
+              View All ({orders.length})
+            </Link>
+          </div>
+
+          <div className="divide-y divide-slate-100">
+            {orders.slice(0, 5).map(order => (
+              <div key={order.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold flex-shrink-0">
+                    <i className="fa-solid fa-bag-shopping text-xs"></i>
+                  </div>
+                  <div>
+                    <strong className="text-slate-900 block font-bold">{order.productName}</strong>
+                    <span className="text-[11px] text-slate-500">
+                      Store: <span className="font-semibold text-slate-700">{order.shopName}</span> &bull; Customer: {order.customerName} ({order.customerPhone})
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <span className="font-black text-slate-900">₹{order.price?.toLocaleString('en-IN')}</span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                    order.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+                    order.status === 'Cancelled' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {order.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
       </div>

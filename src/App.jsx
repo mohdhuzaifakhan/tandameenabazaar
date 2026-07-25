@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { BazaarProvider } from './context/BazaarContext';
+import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import MobileDrawer from './components/MobileDrawer';
@@ -13,6 +14,8 @@ import SavedProducts from './pages/SavedProducts';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 import Login from './pages/Login';
+
+import ProtectedRoute from './components/ProtectedRoute';
 
 import ShopDashboard from './pages/ShopDashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -38,9 +41,10 @@ function PublicLayout() {
 
 export default function App() {
   return (
-    <BazaarProvider>
-      <BrowserRouter>
-        <Routes>
+    <AuthProvider>
+      <BazaarProvider>
+        <BrowserRouter>
+          <Routes>
           {/* Public Storefront Routes */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
@@ -55,14 +59,51 @@ export default function App() {
           {/* Login Route (standalone) */}
           <Route path="/login" element={<Login />} />
 
-          {/* Dashboard Panel Routes */}
-          <Route path="/dashboard/shop" element={<ShopDashboard />} />
-          <Route path="/dashboard/admin" element={<AdminDashboard />} />
-          <Route path="/dashboard/admin/shops" element={<AdminShops />} />
-          <Route path="/dashboard/admin/orders" element={<AdminOrders />} />
-          <Route path="/dashboard/admin/shop/:id" element={<AdminShopDetails />} />
+          {/* Dashboard Panel Routes with Role Protection */}
+          <Route 
+            path="/dashboard/shop" 
+            element={
+              <ProtectedRoute allowedRoles={['shop_owner', 'admin']}>
+                <ShopDashboard />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/dashboard/admin" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/admin/shops" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminShops />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/admin/orders" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminOrders />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/admin/shop/:id" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminShopDetails />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </BrowserRouter>
     </BazaarProvider>
+  </AuthProvider>
   );
 }

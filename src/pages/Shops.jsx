@@ -258,17 +258,25 @@ export default function Shops() {
                   <div>
                     {/* Banner header with badge */}
                     <div className="h-32 relative bg-slate-100 overflow-hidden">
-                      <img src={shop.bannerImage} alt={shop.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <span className="absolute top-3 right-3 px-2 py-1 bg-white/95 backdrop-blur-sm text-[10px] font-bold text-slate-900 rounded-md">
-                        {shop.productsCount || 120}+ Products
+                      <img 
+                        src={shop.banner || shop.bannerImage || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1200&q=80'} 
+                        alt={shop.name} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      />
+                      <span className="absolute top-3 right-3 px-2.5 py-1 bg-white/95 backdrop-blur-sm text-[10px] font-bold text-slate-900 rounded-md">
+                        {shop.productsCount || 0} Listed Items
                       </span>
                     </div>
 
                     {/* Logo & Info panel */}
                     <div className="p-5 flex gap-4 -mt-8 relative z-10">
                       {/* Logo avatar */}
-                      <div className="w-16 h-16 rounded-xl bg-white p-1 flex-shrink-0">
-                        <img src={shop.logoImage} alt={shop.name} className="w-full h-full object-cover rounded-lg" />
+                      <div className="w-16 h-16 rounded-xl bg-white p-1 flex-shrink-0 border border-slate-100">
+                        <img 
+                          src={shop.image || shop.logoImage || 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=400&q=80'} 
+                          alt={shop.name} 
+                          className="w-full h-full object-cover rounded-lg" 
+                        />
                       </div>
                       
                       <div className="flex flex-col gap-1 mt-6">

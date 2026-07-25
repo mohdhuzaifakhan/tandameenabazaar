@@ -5,46 +5,60 @@ import ShopProductCard from '../components/ShopProductCard';
 
 export default function ShopDetails() {
   const { id } = useParams();
-  const { shops, products } = useBazaar();
-  const [activeTab, setActiveTab] = useState('products'); // 'products', 'about', 'reviews'
+  const { shops, products, openWhatsApp } = useBazaar();
+  const [activeTab, setActiveTab] = useState('products'); // 'products' | 'about'
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
   const [inShopSearch, setInShopSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Find current shop
-  const currentShopId = id || 'sharma-mobile';
-  const shop = shops.find(s => s.id === currentShopId) || shops[0];
+  // Find current shop from real state
+  const shop = shops.find(s => s.id === id) || shops[0];
 
-  // Filter products by shop
+  if (!shop) {
+    return (
+      <div className="w-full py-16 text-center text-slate-400 space-y-4">
+        <i className="fa-solid fa-store-slash text-4xl text-slate-300"></i>
+        <h2 className="text-lg font-bold text-slate-800">Store Not Found</h2>
+        <Link to="/shops" className="px-5 py-2.5 bg-emerald-600 text-white font-bold text-xs rounded-xl inline-block">
+          Explore Stores Directory
+        </Link>
+      </div>
+    );
+  }
+
+  // Filter real products for this shop
   const shopProducts = products.filter(p => p.shopId === shop.id);
-
-  // Get unique categories for this shop
-  const shopCategories = ['all', ...new Set(shopProducts.map(p => p.category))];
+  const shopCategories = ['all', ...new Set(shopProducts.map(p => p.categoryName || p.category))];
 
   // Filter products by search and category
   const filteredProducts = shopProducts.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(inShopSearch.toLowerCase()) ||
       (p.brand && p.brand.toLowerCase().includes(inShopSearch.toLowerCase()));
-    const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || (p.categoryName || p.category) === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const handleWhatsAppContact = () => {
-    const text = `Hello ${shop.name}, I found your shop on Digital Meena Bazaar.`;
-    window.open(`https://wa.me/${shop.phone || '919876543210'}?text=${encodeURIComponent(text)}`, "_blank");
+    const whatsappNum = (shop.whatsapp || shop.phone || '').replace(/[^0-9]/g, '');
+    const text = `Hello ${shop.name}, I found your store on Meena Bazaar and would like to inquire about your catalog.`;
+    window.open(`https://wa.me/${whatsappNum}?text=${encodeURIComponent(text)}`, "_blank");
   };
 
   const handleShareShop = () => {
     if (navigator.share) {
       navigator.share({
         title: shop.name,
-        text: `Check out ${shop.name} on Digital Meena Bazaar!`,
+        text: `Check out ${shop.name} on Meena Bazaar!`,
         url: window.location.href,
       }).catch(err => console.log(err));
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
+      alert('Storefront link copied to clipboard!');
     }
   };
+
+  const shopBanner = shop.banner || shop.bannerImage || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1200&q=80';
+  const shopLogo = shop.image || shop.logoImage || 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=400&q=80';
 
   return (
     <div className="w-full flex flex-col gap-6 py-4 animate-fade-in">
@@ -58,139 +72,128 @@ export default function ShopDetails() {
         <span className="text-slate-800">{shop.name}</span>
       </div>
 
-      {/* Cover Image banner */}
-      <div className="h-48 md:h-72 w-full rounded-2xl bg-slate-100 overflow-hidden relative border border-slate-200">
-        <img src={shop.bannerImage} alt={`${shop.name} Cover`} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+      {/* Cover Image Banner */}
+      <div className="h-44 sm:h-56 md:h-72 w-full rounded-2xl bg-slate-900 overflow-hidden relative border border-slate-200">
+        <img src={shopBanner} alt={`${shop.name} Cover`} className="w-full h-full object-cover opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
       </div>
 
       {/* Profile summary card */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 -mt-16 md:-mt-24 relative z-10 mx-4 md:mx-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 -mt-16 md:-mt-24 relative z-10 mx-2 sm:mx-6 md:mx-8 shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-5">
           
-          <div className="flex flex-col md:flex-row gap-5 items-start md:items-end">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start sm:items-end">
             {/* Floating Logo */}
-            <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white border border-slate-200 overflow-hidden flex-shrink-0">
-              <img src={shop.logoImage} alt={shop.name} className="w-full h-full object-cover" />
+            <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-2xl bg-white border border-slate-200 overflow-hidden flex-shrink-0">
+              <img src={shopLogo} alt={shop.name} className="w-full h-full object-cover" />
             </div>
             
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl md:text-2xl font-black text-slate-900 leading-none">{shop.name}</h1>
+                <h1 className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 leading-none">{shop.name}</h1>
                 {shop.verified && <i className="fa-solid fa-circle-check text-emerald-600 text-base" title="Verified Store"></i>}
               </div>
-              <span className="text-xs font-bold text-emerald-600 uppercase tracking-wide">{shop.categoryName || 'Boutique Brand'}</span>
+              <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">{shop.category || shop.categoryName || 'General Store'}</span>
               
-              <div className="flex items-center gap-4 text-xs text-slate-500 font-semibold mt-1">
-                <span className="flex items-center gap-1"><i className="fa-solid fa-star text-amber-500"></i> {shop.rating} ({shop.reviewsCount} Reviews)</span>
+              <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold mt-1">
+                <span className="flex items-center gap-1"><i className="fa-solid fa-star text-amber-500"></i> {shop.rating || 5.0} ★</span>
                 <span>&bull;</span>
-                <span className="flex items-center gap-1"><i className="fa-solid fa-location-dot text-slate-400"></i> {shop.market}</span>
+                <span className="flex items-center gap-1"><i className="fa-solid fa-location-dot text-slate-400"></i> {shop.market || 'Main Market'}</span>
               </div>
             </div>
           </div>
 
-          {/* Action Row */}
-          <div className="flex gap-2">
+          {/* Action Buttons */}
+          <div className="flex gap-2 w-full sm:w-auto">
             <button 
               onClick={handleWhatsAppContact}
-              className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs flex items-center gap-2 transition-colors cursor-pointer border border-emerald-600"
+              className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-emerald-700 shadow-xs"
             >
               <i className="fa-brands fa-whatsapp text-sm"></i> Contact Merchant
             </button>
             <button 
               onClick={handleShareShop}
-              className="px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer"
               title="Share Shop"
             >
-              <i className="fa-solid fa-arrow-up-from-bracket"></i> Share
+              <i className="fa-solid fa-arrow-up-from-bracket"></i>
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* Main split grid layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-4">
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8 mt-2">
         
-        {/* Left Side: Merchant Info Cards */}
-        <aside className="flex flex-col gap-6">
-          {/* Shopkeeper details */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-4">
+        {/* Left Side: Merchant Info Sidebar */}
+        <aside className="flex flex-col gap-4 sm:gap-6">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-3">
             <h3 className="font-bold text-slate-900 text-sm pb-2 border-b border-slate-100">Merchant Profile</h3>
             <div className="flex items-center gap-3">
-              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&q=80" alt="Owner" className="w-10 h-10 rounded-full object-cover" />
+              <img src={shopLogo} alt={shop.name} className="w-10 h-10 rounded-xl object-cover border border-slate-100" />
               <div>
-                <div className="font-black text-slate-800 text-xs">Mohd. Shadab</div>
-                <span className="text-[10px] text-slate-400 font-semibold">Store Manager</span>
+                <div className="font-black text-slate-900 text-xs">{shop.name}</div>
+                <span className="text-[10px] text-slate-400 font-semibold">Storefront Owner</span>
               </div>
             </div>
-            <p className="text-[11px] text-slate-500 leading-relaxed font-normal">"Welcome to our storefront. All catalog orders can be directly coordinated via WhatsApp. We coordinate home delivery and store collection options."</p>
+            {shop.description && (
+              <p className="text-[11px] text-slate-500 leading-relaxed font-normal">{shop.description}</p>
+            )}
           </div>
 
-          {/* Hours Card */}
           <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-3">
             <h3 className="font-bold text-slate-900 text-sm pb-2 border-b border-slate-100">Business Details</h3>
             <div className="flex flex-col gap-2 text-[11px] text-slate-600">
               <div className="flex justify-between">
-                <span className="font-semibold text-slate-400">Hours:</span>
-                <span className="font-bold text-emerald-600">10:00 AM – 09:00 PM</span>
+                <span className="font-semibold text-slate-400">Timings:</span>
+                <span className="font-bold text-emerald-700">{shop.timing || '10:00 AM – 09:00 PM'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-semibold text-slate-400">Response time:</span>
-                <span className="font-bold text-slate-800">Under 15 mins</span>
+                <span className="font-semibold text-slate-400">Market Hub:</span>
+                <span className="font-bold text-slate-800">{shop.market || 'Main Market'}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="font-semibold text-slate-400">Years Active:</span>
-                <span className="font-bold text-slate-800">Est. 5 Years</span>
-              </div>
+              {shop.phone && (
+                <div className="flex justify-between">
+                  <span className="font-semibold text-slate-400">Contact:</span>
+                  <span className="font-bold text-slate-800">{shop.phone}</span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Location details */}
           <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-3">
-            <h3 className="font-bold text-slate-900 text-sm pb-2 border-b border-slate-100">Shop Address</h3>
-            <p className="text-[11px] text-slate-500 leading-normal"><i className="fa-solid fa-location-dot text-emerald-600 mr-1"></i> {shop.address}</p>
-            <a 
-              href="https://maps.google.com" 
-              target="_blank" 
-              rel="noreferrer" 
-              className="w-full py-2 text-center bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5"
-            >
-              <i className="fa-solid fa-map"></i> View on Google Maps
-            </a>
+            <h3 className="font-bold text-slate-900 text-sm pb-2 border-b border-slate-100">Physical Address</h3>
+            <p className="text-[11px] text-slate-500 leading-normal">
+              <i className="fa-solid fa-location-dot text-emerald-600 mr-1"></i> {shop.address || shop.market || 'Main Market Road'}
+            </p>
           </div>
         </aside>
 
-        {/* Right Side: Tab panel and catalog */}
+        {/* Right Side: Tab Panel and Catalog */}
         <div className="lg:col-span-3 flex flex-col gap-6">
-          {/* Tab nav links */}
-          <div className="flex border-b border-slate-100 gap-6">
+          {/* Scrollable Navigation Tabs */}
+          <div className="flex border-b border-slate-200 gap-4 overflow-x-auto flex-nowrap scrollbar-none pb-0.5">
             <button 
               onClick={() => setActiveTab('products')}
-              className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer ${activeTab === 'products' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+              className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${activeTab === 'products' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
             >
               Catalog ({shopProducts.length})
             </button>
             <button 
               onClick={() => setActiveTab('about')}
-              className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer ${activeTab === 'about' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+              className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${activeTab === 'about' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
             >
               About Seller
-            </button>
-            <button 
-              onClick={() => setActiveTab('reviews')}
-              className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer ${activeTab === 'reviews' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
-            >
-              Reviews ({shop.reviewsCount})
             </button>
           </div>
 
           {/* TAB 1: CATALOG PRODUCTS */}
           {activeTab === 'products' && (
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-5">
               
-              {/* Search catalog bar */}
-              <div className="flex flex-col md:flex-row gap-3">
+              {/* Search catalog bar + View Switcher */}
+              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
                 <div className="relative flex-1">
                   <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                   <input 
@@ -202,32 +205,112 @@ export default function ShopDetails() {
                   />
                 </div>
 
-                {/* Category quick selectors */}
-                <div className="flex gap-1.5 overflow-x-auto pb-1">
-                  {shopCategories.map(cat => (
-                    <button 
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border ${selectedCategory === cat ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                {/* Grid vs Table View Mode Switcher */}
+                <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                  <div className="bg-slate-100 p-1 rounded-xl border border-slate-200 flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('grid')}
+                      className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        viewMode === 'grid' ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                      title="Grid View"
                     >
-                      {cat === 'all' ? 'All Items' : cat}
+                      <i className="fa-solid fa-border-all"></i>
                     </button>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('table')}
+                      className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        viewMode === 'table' ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                      title="Table List View"
+                    >
+                      <i className="fa-solid fa-list text-xs"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Grid of catalog cards */}
+              {/* Scrollable Category Filter Strip */}
+              <div className="flex gap-2 overflow-x-auto flex-nowrap scrollbar-none pb-1 -mx-2 px-2 sm:mx-0 sm:px-0">
+                {shopCategories.map(cat => (
+                  <button 
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border whitespace-nowrap flex-shrink-0 ${
+                      selectedCategory === cat ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {cat === 'all' ? 'All Catalog Items' : cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* Display Catalog Items */}
               {filteredProducts.length === 0 ? (
                 <div className="text-center py-16 bg-white border border-slate-200 rounded-2xl flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center text-lg"><i className="fa-solid fa-magnifying-glass"></i></div>
-                  <h4 className="font-bold text-slate-800 text-xs">No matching products</h4>
-                  <p className="text-xs text-slate-400">Try adjusting your category pills or search query.</p>
+                  <div className="w-12 h-12 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center text-lg"><i className="fa-solid fa-box-open"></i></div>
+                  <h4 className="font-bold text-slate-800 text-xs">No products listed by this store</h4>
+                  <p className="text-xs text-slate-400">Items added by this merchant will appear here in real-time.</p>
                 </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+              ) : viewMode === 'grid' ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
                   {filteredProducts.map(prod => (
                     <ShopProductCard key={prod.id} product={prod} />
                   ))}
+                </div>
+              ) : (
+                /* Compact Mobile-Responsive Product List Table */
+                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden divide-y divide-slate-100">
+                  <div className="hidden sm:grid grid-cols-12 gap-4 bg-slate-50 px-4 py-3 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
+                    <div className="col-span-6">Product Details</div>
+                    <div className="col-span-3 text-right">Price</div>
+                    <div className="col-span-3 text-right">Inquire</div>
+                  </div>
+
+                  {filteredProducts.map(prod => {
+                    const img = prod.images && prod.images.length > 0 ? prod.images[0] : 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300';
+                    return (
+                      <div key={prod.id} className="p-3 sm:p-4 flex items-center justify-between gap-3 hover:bg-slate-50/80 transition-colors">
+                        
+                        <Link to={`/product/${prod.id}`} className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-100">
+                            <img src={img} alt={prod.name} className="w-full h-full object-cover" />
+                          </div>
+                          
+                          <div className="min-w-0 flex-1">
+                            <h4 className="font-bold text-xs sm:text-sm text-slate-900 truncate hover:text-emerald-600 transition-colors">{prod.name}</h4>
+                            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                              <span className="text-[10px] text-slate-400 font-semibold">{prod.categoryName || prod.category}</span>
+                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${prod.stockStatus === 'Out of Stock' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                                {prod.stockStatus || 'In Stock'}
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <div className="text-right">
+                            <span className="font-black text-xs sm:text-sm text-slate-900 block">₹{prod.price?.toLocaleString('en-IN')}</span>
+                            {prod.originalPrice > prod.price && (
+                              <span className="text-[10px] text-slate-400 line-through">₹{prod.originalPrice?.toLocaleString('en-IN')}</span>
+                            )}
+                          </div>
+
+                          <button
+                            onClick={() => openWhatsApp(prod.id)}
+                            className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                            title="Inquire on WhatsApp"
+                          >
+                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                            <span className="hidden sm:inline">WhatsApp</span>
+                          </button>
+                        </div>
+
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -238,42 +321,18 @@ export default function ShopDetails() {
           {activeTab === 'about' && (
             <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-6 leading-relaxed">
               <div>
-                <h3 className="font-black text-slate-900 text-sm mb-2">Store Biography</h3>
-                <p className="text-xs text-slate-500 font-normal leading-relaxed">{shop.description || 'Welcome to our verified local store. We operate directly within Rampur to provide top-quality collections and tech accessories. Complete order coordination occurs directly through WhatsApp.'}</p>
+                <h3 className="font-black text-slate-900 text-sm mb-2">Store Description</h3>
+                <p className="text-xs text-slate-500 font-normal leading-relaxed">
+                  {shop.description || 'Official merchant storefront on Meena Bazaar. All customer orders are directly coordinated via WhatsApp.'}
+                </p>
               </div>
               
               <div className="border-t border-slate-100 pt-4">
-                <h3 className="font-black text-slate-900 text-sm mb-3">Verified Business Guidelines</h3>
+                <h3 className="font-black text-slate-900 text-sm mb-3">Merchant Guidelines</h3>
                 <ul className="flex flex-col gap-2.5 text-xs text-slate-500 font-normal">
-                  <li className="flex items-center gap-2"><i className="fa-solid fa-check text-emerald-600"></i> Direct-to-merchant pricing without middleman fees.</li>
-                  <li className="flex items-center gap-2"><i className="fa-solid fa-check text-emerald-600"></i> Store collection options available immediately during business hours.</li>
-                  <li className="flex items-center gap-2"><i className="fa-solid fa-check text-emerald-600"></i> Guaranteed support response times on chat inquiries.</li>
+                  <li className="flex items-center gap-2"><i className="fa-solid fa-check text-emerald-600"></i> Direct-to-merchant WhatsApp inquiries.</li>
+                  <li className="flex items-center gap-2"><i className="fa-solid fa-check text-emerald-600"></i> Local market store collection and delivery options.</li>
                 </ul>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: REVIEWS */}
-          {activeTab === 'reviews' && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-4">
-              <h3 className="font-black text-slate-900 text-sm pb-2 border-b border-slate-100">Customer Reviews ({shop.reviewsCount})</h3>
-              
-              <div className="flex flex-col gap-4 mt-2">
-                <div className="border-b border-slate-100 pb-4">
-                  <div className="flex justify-between items-center text-xs">
-                    <strong className="text-slate-800">Amit Saxena</strong>
-                    <span className="text-amber-500"><i className="fa-solid fa-star text-[10px]"></i> 5.0</span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 mt-2 font-normal leading-relaxed">"Great store with excellent response times. Ordered my new smartphone via their WhatsApp link, and picked it up within 2 hours at the market."</p>
-                </div>
-                
-                <div>
-                  <div className="flex justify-between items-center text-xs">
-                    <strong className="text-slate-800">Farhan Khan</strong>
-                    <span className="text-amber-500"><i className="fa-solid fa-star text-[10px]"></i> 4.5</span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 mt-2 font-normal leading-relaxed">"Verified and trusted shopkeeper. They checked the product and warranty papers right in front of me during store pickup."</p>
-                </div>
               </div>
             </div>
           )}

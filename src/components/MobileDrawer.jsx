@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useBazaar } from '../context/BazaarContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function MobileDrawer({ isOpen, onClose }) {
-  const { currentUser } = useBazaar();
+  const { userProfile, logout } = useAuth();
   const location = useLocation();
 
   if (!isOpen) return null;
@@ -31,7 +31,6 @@ export default function MobileDrawer({ isOpen, onClose }) {
               <i className="fa-solid fa-bag-shopping"></i>
             </div>
             <div className="flex flex-col leading-none">
-              {/* <span className="text-[9px] text-slate-400 font-bold uppercase">Digital</span> */}
               <span className="text-xs font-black text-slate-900 mt-0.5">Meena Bazaar</span>
             </div>
           </Link>
@@ -45,6 +44,28 @@ export default function MobileDrawer({ isOpen, onClose }) {
 
         {/* Drawer Body (Navigation Links) */}
         <div className="flex-1 overflow-y-auto py-5 flex flex-col gap-1">
+
+          {/* User Profile Banner if logged in */}
+          {userProfile && (
+            <div className="mx-4 mb-4 p-3 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-3">
+              {userProfile.photoURL ? (
+                <img
+                  src={userProfile.photoURL}
+                  alt={userProfile.displayName}
+                  className="w-9 h-9 rounded-full object-cover border border-emerald-500"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-emerald-700 text-white font-bold flex items-center justify-center text-xs">
+                  {userProfile.displayName ? userProfile.displayName[0].toUpperCase() : 'U'}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <span className="font-extrabold text-xs text-slate-900 block truncate">{userProfile.displayName}</span>
+                <span className="text-[10px] text-emerald-700 font-bold uppercase">{userProfile.role || 'Merchant'}</span>
+              </div>
+            </div>
+          )}
+
           <nav className="flex flex-col gap-1">
             <Link to="/" className={`flex items-center gap-3 py-2.5 text-xs font-bold transition-all ${isActive('/')}`} onClick={onClose}>
               <i className="fa-solid fa-house text-sm w-4 text-center"></i>
@@ -70,45 +91,42 @@ export default function MobileDrawer({ isOpen, onClose }) {
 
           <div className="h-px bg-slate-100 my-4 mx-5"></div>
 
-          <nav className="flex flex-col gap-1">
-            {currentUser && currentUser.role !== 'guest' ? (
-              <Link
-                to={currentUser.role === 'admin' ? '/dashboard/admin' : '/dashboard/shop'}
-                className="flex items-center gap-3 py-2.5 pl-4 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all border-l-4 border-transparent"
-                onClick={onClose}
-              >
-                <i className="fa-solid fa-gauge text-sm w-4 text-center text-emerald-600"></i>
-                <span>{currentUser.role === 'admin' ? 'Admin Panel' : 'Shop Dashboard'}</span>
-              </Link>
-            ) : (
+          {/* Merchant / Dashboard Actions */}
+          <div className="px-4 space-y-2">
+            {userProfile ? (
               <>
                 <Link
-                  to="/login"
-                  className="flex items-center gap-3 py-2.5 pl-4 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all border-l-4 border-transparent"
+                  to={userProfile.role === 'admin' ? '/dashboard/admin' : '/dashboard/shop'}
+                  className="w-full py-2.5 px-4 bg-emerald-600 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-md"
                   onClick={onClose}
                 >
-                  <i className="fa-regular fa-user text-sm w-4 text-center"></i>
-                  <span>Shop Owner Portal</span>
+                  <i className="fa-solid fa-store"></i>
+                  <span>{userProfile.role === 'admin' ? 'Admin Panel' : 'My Shop Dashboard'}</span>
                 </Link>
-                <Link
-                  to="/login"
-                  className="flex items-center gap-3 py-2.5 pl-4 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all border-l-4 border-transparent"
-                  onClick={onClose}
-                >
-                  <i className="fa-solid fa-user-shield text-sm w-4 text-center"></i>
-                  <span>Admin Dashboard</span>
-                </Link>
-              </>
-            )}
-          </nav>
-        </div>
 
-        {/* Drawer Footer */}
-        <div className="p-5 border-t border-slate-100 bg-slate-50/50">
-          <p className="text-[10px] text-slate-400 text-center leading-normal font-semibold">
-            &copy; 2026 Meena Bazaar<br />
-            Powered by <strong className="text-slate-600 font-bold">UnifiedStack</strong>
-          </p>
+                <button
+                  onClick={() => {
+                    logout();
+                    onClose();
+                  }}
+                  className="w-full py-2 px-4 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border border-rose-100 mt-2"
+                >
+                  <i className="fa-solid fa-right-from-bracket"></i>
+                  <span>Log Out</span>
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="w-full py-2.5 px-4 bg-emerald-600 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-md"
+                onClick={onClose}
+              >
+                <i className="fa-solid fa-right-to-bracket"></i>
+                <span>Login / Register Shop</span>
+              </Link>
+            )}
+          </div>
+
         </div>
 
       </div>

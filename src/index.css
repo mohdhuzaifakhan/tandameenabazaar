@@ -7,3 +7,23 @@
 html, body, button, input, select, textarea {
   font-family: "Poppins", sans-serif !important;
 }
+
+/* Clean text wrapping without splitting single letters */
+h1, h2, h3, h4, h5, h6, p, span, a, button {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Global No-Shadow Rule */
+*, ::before, ::after {
+  box-shadow: none !important;
+}

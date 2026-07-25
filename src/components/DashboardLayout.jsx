@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useBazaar } from '../context/BazaarContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function DashboardLayout({ children, title, role }) {
-  const { logout, orders, shops, products } = useBazaar();
+  const { logout: bazaarLogout, orders, shops, products } = useBazaar();
+  const { userProfile, logout: authLogout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await authLogout();
+    bazaarLogout();
     navigate('/login');
   };
 
@@ -17,8 +20,10 @@ export default function DashboardLayout({ children, title, role }) {
     ? 'bg-emerald-900/40 text-white font-bold border-l-4 border-emerald-500 pl-3.5'
     : 'text-emerald-100 hover:bg-emerald-900/20 hover:text-white border-l-4 border-transparent pl-4';
 
-  const shopOrdersCount = 23;
-  const adminOrdersCount = 356;
+  // Find logged in merchant shop
+  const userShop = shops.find(s => s.ownerUid === userProfile?.uid || s.id === userProfile?.shopId) || shops[0];
+  const shopOrdersCount = orders.filter(o => o.shopId === userShop?.id).length;
+  const adminOrdersCount = orders.length;
 
   return (
     <div className="min-h-screen flex bg-slate-50/50 font-sans text-slate-800">
@@ -32,7 +37,6 @@ export default function DashboardLayout({ children, title, role }) {
               <i className="fa-solid fa-bag-shopping"></i>
             </div>
             <div className="flex flex-col leading-none">
-              {/* <span className="text-[10px] text-emerald-450 font-bold uppercase tracking-wider">Digital</span> */}
               <span className="text-sm font-black text-white mt-0.5">Meena Bazaar</span>
               {role === 'admin' && (
                 <span className="text-[7px] text-emerald-400 font-extrabold tracking-widest mt-1 uppercase">ADMIN PANEL</span>
@@ -48,7 +52,7 @@ export default function DashboardLayout({ children, title, role }) {
                   <li>
                     <Link to="/dashboard/admin" className={`flex items-center gap-3 py-2.5 text-xs font-semibold rounded-lg transition-all ${isActive('/dashboard/admin')}`}>
                       <i className="fa-solid fa-chart-line text-sm w-4 text-center"></i>
-                      <span>Dashboard</span>
+                      <span>Dashboard Overview</span>
                     </Link>
                   </li>
                   <li>
@@ -58,37 +62,19 @@ export default function DashboardLayout({ children, title, role }) {
                     </Link>
                   </li>
                   <li>
-                    <a href="#products" onClick={e => e.preventDefault()} className="flex items-center gap-3 py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4">
-                      <i className="fa-solid fa-box text-sm w-4 text-center"></i>
-                      <span>Products</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#categories" onClick={e => e.preventDefault()} className="flex items-center gap-3 py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4">
-                      <i className="fa-solid fa-layer-group text-sm w-4 text-center"></i>
-                      <span>Categories</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#users" onClick={e => e.preventDefault()} className="flex items-center gap-3 py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4">
-                      <i className="fa-solid fa-users text-sm w-4 text-center"></i>
-                      <span>Users</span>
-                    </a>
-                  </li>
-                  <li>
                     <Link to="/dashboard/admin/orders" className={`flex items-center justify-between py-2.5 text-xs font-semibold rounded-lg transition-all pr-3 ${isActive('/dashboard/admin/orders')}`}>
                       <span className="flex items-center gap-3">
                         <i className="fa-regular fa-comment-dots text-sm w-4 text-center"></i>
-                        <span>Orders (Leads)</span>
+                        <span>Customer Leads</span>
                       </span>
-                      <span className="bg-emerald-500 text-white font-extrabold text-[8px] px-2 py-0.5 rounded-full">{adminOrdersCount}</span>
+                      <span className="bg-emerald-500 text-slate-950 font-extrabold text-[9px] px-2 py-0.5 rounded-full">{adminOrdersCount}</span>
                     </Link>
                   </li>
                   <li>
-                    <a href="#settings" onClick={e => e.preventDefault()} className="flex items-center gap-3 py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4">
-                      <i className="fa-solid fa-gear text-sm w-4 text-center"></i>
-                      <span>Settings</span>
-                    </a>
+                    <Link to="/shops" className="flex items-center gap-3 py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4">
+                      <i className="fa-solid fa-eye text-sm w-4 text-center"></i>
+                      <span>Public Storefront</span>
+                    </Link>
                   </li>
                 </>
               ) : (
@@ -96,35 +82,31 @@ export default function DashboardLayout({ children, title, role }) {
                   <li>
                     <Link to="/dashboard/shop" className={`flex items-center gap-3 py-2.5 text-xs font-semibold rounded-lg transition-all ${isActive('/dashboard/shop')}`}>
                       <i className="fa-solid fa-chart-line text-sm w-4 text-center"></i>
-                      <span>Dashboard</span>
+                      <span>Merchant Dashboard</span>
                     </Link>
                   </li>
+                  {userShop && (
+                    <li>
+                      <Link to={`/shop/${userShop.id}`} target="_blank" className="flex items-center gap-3 py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4">
+                        <i className="fa-solid fa-store text-sm w-4 text-center"></i>
+                        <span>View Live Storefront</span>
+                      </Link>
+                    </li>
+                  )}
                   <li>
-                    <Link to="/shop/sharma-mobile" className="flex items-center gap-3 py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4">
-                      <i className="fa-solid fa-store text-sm w-4 text-center"></i>
-                      <span>My Shop</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <a href="#products" onClick={e => e.preventDefault()} className="flex items-center gap-3 py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4">
-                      <i className="fa-solid fa-box text-sm w-4 text-center"></i>
-                      <span>Products</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#orders" onClick={e => e.preventDefault()} className="flex items-center justify-between py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4 pr-3">
+                    <Link to="/dashboard/shop" className="flex items-center justify-between py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4 pr-3">
                       <span className="flex items-center gap-3">
                         <i className="fa-regular fa-comment-dots text-sm w-4 text-center"></i>
-                        <span>Orders (Leads)</span>
+                        <span>WhatsApp Leads</span>
                       </span>
-                      <span className="bg-emerald-500 text-white font-extrabold text-[8px] px-2 py-0.5 rounded-full">{shopOrdersCount}</span>
-                    </a>
+                      <span className="bg-emerald-500 text-slate-950 font-extrabold text-[9px] px-2 py-0.5 rounded-full">{shopOrdersCount}</span>
+                    </Link>
                   </li>
                   <li>
-                    <a href="#settings" onClick={e => e.preventDefault()} className="flex items-center gap-3 py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4">
-                      <i className="fa-solid fa-gear text-sm w-4 text-center"></i>
-                      <span>Settings</span>
-                    </a>
+                    <Link to="/" className="flex items-center gap-3 py-2.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-900/20 hover:text-white rounded-lg transition-all pl-4">
+                      <i className="fa-solid fa-house text-sm w-4 text-center"></i>
+                      <span>Home Storefront</span>
+                    </Link>
                   </li>
                 </>
               )}
@@ -180,9 +162,9 @@ export default function DashboardLayout({ children, title, role }) {
               </div>
             ) : (
               <div className="flex items-center gap-1.5 text-xs min-w-0">
-                <strong className="text-slate-800 font-black truncate">Sharma Mobile</strong>
+                <strong className="text-slate-800 font-black truncate">{userProfile?.shopName || userShop?.name || 'Merchant Storefront'}</strong>
                 <i className="fa-solid fa-circle-check text-emerald-600 text-[10px] flex-shrink-0"></i>
-                <span className="text-slate-400 font-medium hidden md:inline truncate">&bull; Gandhi Market</span>
+                <span className="text-slate-400 font-medium hidden md:inline truncate">&bull; {userShop?.market || 'Main Market'}</span>
               </div>
             )}
           </div>
@@ -208,14 +190,20 @@ export default function DashboardLayout({ children, title, role }) {
 
             {/* Avatar */}
             <div className="flex items-center gap-2 pl-2 border-l border-slate-100">
-              <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&q=80"
-                alt="Avatar"
-                className="w-7 h-7 rounded-full object-cover border border-slate-200 flex-shrink-0"
-              />
+              {userProfile?.photoURL ? (
+                <img
+                  src={userProfile.photoURL}
+                  alt={userProfile.displayName}
+                  className="w-7 h-7 rounded-full object-cover border border-emerald-500 flex-shrink-0"
+                />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-emerald-700 text-white font-bold flex items-center justify-center text-xs">
+                  {userProfile?.displayName ? userProfile.displayName[0].toUpperCase() : 'M'}
+                </div>
+              )}
               <div className="hidden lg:flex flex-col text-[11px] leading-tight">
-                <span className="font-bold text-slate-800">{role === 'admin' ? 'Admin' : 'Mohd. Shadab'}</span>
-                <span className="text-slate-400">{role === 'admin' ? 'Administrator' : 'Store Manager'}</span>
+                <span className="font-bold text-slate-800 truncate max-w-[120px]">{userProfile?.displayName || (role === 'admin' ? 'Admin' : 'Shop Manager')}</span>
+                <span className="text-slate-400">{role === 'admin' ? 'Administrator' : 'Merchant'}</span>
               </div>
             </div>
           </div>
