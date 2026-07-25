@@ -5,12 +5,18 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/tandameenabazaar/',
   plugins: [
     tailwindcss(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt'],
+      workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true
+      },
       manifest: {
         name: 'Digital Meena Bazaar Rampur',
         short_name: 'MeenaBazaar',
@@ -19,7 +25,8 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '.',
+        start_url: './',
+        scope: './',
         icons: [
           {
             src: 'https://img.icons8.com/color/192/shopping-bag--v1.png',
