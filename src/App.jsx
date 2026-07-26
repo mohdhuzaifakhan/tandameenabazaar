@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { BazaarProvider } from './context/BazaarContext';
 import { AuthProvider } from './context/AuthContext';
 import { ImageModalProvider } from './context/ImageModalContext';
@@ -24,6 +24,17 @@ import AdminShops from './pages/AdminShops';
 import AdminCategoriesMarkets from './pages/AdminCategoriesMarkets';
 import AdminShopDetails from './pages/AdminShopDetails';
 
+// Global ScrollToTop helper for route changes
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pathname]);
+
+  return null;
+}
+
 // Layout wrapper for public pages
 function PublicLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -46,67 +57,68 @@ export default function App() {
       <BazaarProvider>
         <ImageModalProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
-          {/* Public Storefront Routes */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/shops" element={<Shops />} />
-            <Route path="/shop/:id" element={<ShopDetails />} />
-            <Route path="/product/:id" element={<ProductDetails />} />
-            <Route path="/saved" element={<SavedProducts />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/contact" element={<ContactUs />} />
-          </Route>
+              {/* Public Storefront Routes */}
+              <Route element={<PublicLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/shops" element={<Shops />} />
+                <Route path="/shop/:id" element={<ShopDetails />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
+                <Route path="/saved" element={<SavedProducts />} />
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/contact" element={<ContactUs />} />
+              </Route>
 
-          {/* Login Route (standalone) */}
-          <Route path="/login" element={<Login />} />
+              {/* Login Route (standalone) */}
+              <Route path="/login" element={<Login />} />
 
-          {/* Dashboard Panel Routes with Role Protection */}
-          <Route 
-            path="/dashboard/shop" 
-            element={
-              <ProtectedRoute allowedRoles={['shop_owner', 'admin']}>
-                <ShopDashboard />
-              </ProtectedRoute>
-            } 
-          />
+              {/* Dashboard Panel Routes with Role Protection */}
+              <Route
+                path="/dashboard/shop"
+                element={
+                  <ProtectedRoute allowedRoles={['shop_owner', 'admin']}>
+                    <ShopDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route 
-            path="/dashboard/admin" 
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/dashboard/admin/shops" 
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminShops />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/dashboard/admin/categories" 
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminCategoriesMarkets />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/dashboard/admin/shop/:id" 
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminShopDetails />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
-      </BrowserRouter>
-    </ImageModalProvider>
-  </BazaarProvider>
-</AuthProvider>
+              <Route
+                path="/dashboard/admin"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/admin/shops"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminShops />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/admin/categories"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminCategoriesMarkets />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/admin/shop/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminShopDetails />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </BrowserRouter>
+        </ImageModalProvider>
+      </BazaarProvider>
+    </AuthProvider>
   );
 }

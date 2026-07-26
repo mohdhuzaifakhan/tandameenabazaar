@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useBazaar } from '../context/BazaarContext';
+import BottomNav from './BottomNav';
 
 export default function Footer({ onOpenDrawer }) {
   const { savedProductIds, currentUser } = useBazaar();
@@ -107,7 +108,7 @@ export default function Footer({ onOpenDrawer }) {
       </footer>
 
       {/* ── Mobile Footer (simple copyright only) ── */}
-      <footer className="md:hidden w-full border-t border-slate-100 bg-slate-50 py-4 px-4 pb-20 text-center text-[10px] text-slate-400 font-semibold">
+      <footer className="md:hidden w-full border-t border-slate-100 bg-slate-50 py-4 px-4 pb-24 text-center text-[10px] text-slate-400 font-semibold">
         &copy; 2026 Digital Meena Bazaar &bull; Powered by <strong className="text-slate-600">Unifiedstack</strong>
       </footer>
 
@@ -167,72 +168,8 @@ export default function Footer({ onOpenDrawer }) {
         </div>
       )}
 
-      {/* ── Public Mobile Bottom Nav Bar (Ultra-Thin Line SVG Icons) ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] safe-area-bottom">
-        <div className="flex justify-around items-center h-16 px-1">
-
-          {/* Home */}
-          <Link
-            to="/"
-            className="flex flex-col items-center justify-center gap-1 flex-1 h-full py-1 transition-colors"
-          >
-            <svg className={`w-6 h-6 ${location.pathname === '/' ? 'text-[#056839]' : 'text-slate-700'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21v-6a2.25 2.25 0 0 1 2.25-2.25h3a2.25 2.25 0 0 1 2.25 2.25v6" />
-            </svg>
-            <span className={`text-[11px] ${location.pathname === '/' ? 'text-[#056839] font-bold' : 'text-slate-700 font-medium'}`}>Home</span>
-          </Link>
-
-          {/* Search */}
-          <button
-            onClick={() => setSearchOpen(true)}
-            className="flex flex-col items-center justify-center gap-1 flex-1 h-full py-1 transition-colors cursor-pointer border-none bg-transparent"
-          >
-            <svg className="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607z" />
-            </svg>
-            <span className="text-[11px] font-medium text-slate-700">Search</span>
-          </button>
-
-          {/* Shops */}
-          <Link
-            to="/shops"
-            className="flex flex-col items-center justify-center gap-1 flex-1 h-full py-1 transition-colors"
-          >
-            <svg className={`w-6 h-6 ${location.pathname === '/shops' ? 'text-[#056839]' : 'text-slate-700'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H21m-9 0H3m18 0h-3m0 0h-3m0 0H9m-6 0h3m2.25-18h8.5a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-.75.75h-8.5a.75.75 0 0 1-.75-.75v-3a.75.75 0 0 1 .75-.75z" />
-            </svg>
-            <span className={`text-[11px] ${location.pathname === '/shops' ? 'text-[#056839] font-bold' : 'text-slate-700 font-medium'}`}>Shops</span>
-          </Link>
-
-          {/* Saved */}
-          <Link
-            to="/saved"
-            className="flex flex-col items-center justify-center gap-1 flex-1 h-full py-1 relative transition-colors"
-          >
-            <svg className={`w-6 h-6 ${location.pathname === '/saved' ? 'text-[#056839]' : 'text-slate-700'}`} fill={location.pathname === '/saved' ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-            </svg>
-            <span className={`text-[11px] ${location.pathname === '/saved' ? 'text-[#056839] font-bold' : 'text-slate-700 font-medium'}`}>Saved</span>
-            {savedProductIds.length > 0 && (
-              <span className="absolute top-1 right-[calc(50%-14px)] bg-red-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
-                {savedProductIds.length}
-              </span>
-            )}
-          </Link>
-
-          {/* Profile */}
-          <Link
-            to={profilePath}
-            className="flex flex-col items-center justify-center gap-1 flex-1 h-full py-1 transition-colors"
-          >
-            <svg className={`w-6 h-6 ${isProfileActive ? 'text-[#056839]' : 'text-slate-700'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-            </svg>
-            <span className={`text-[11px] ${isProfileActive ? 'text-[#056839] font-bold' : 'text-slate-700 font-medium'}`}>Profile</span>
-          </Link>
-
-        </div>
-      </nav>
+      {/* ── Public Mobile Bottom Nav Bar (Lucide React Icons) ── */}
+      <BottomNav onOpenSearch={() => setSearchOpen(true)} />
     </>
   );
 }
