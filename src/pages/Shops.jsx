@@ -39,7 +39,13 @@ export default function Shops() {
       shop.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.address.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory = !selectedCategory || shop.category === selectedCategory;
+    const matchesCategory = !selectedCategory || 
+      shop.category === selectedCategory || 
+      (shop.category && shop.category.toLowerCase() === selectedCategory.toLowerCase()) ||
+      (shop.categoryName && shop.categoryName.toLowerCase() === selectedCategory.toLowerCase()) ||
+      (categories.find(c => c.id === selectedCategory)?.name.toLowerCase() === (shop.category || '').toLowerCase()) ||
+      (categories.find(c => c.id === selectedCategory)?.name.toLowerCase() === (shop.categoryName || '').toLowerCase());
+
     const matchesMarket = !selectedMarket || shop.market === selectedMarket;
 
     return matchesSearch && matchesCategory && matchesMarket;
@@ -294,7 +300,7 @@ export default function Shops() {
                           <h4 className="font-black text-slate-900 text-sm">{shop.name}</h4>
                           {shop.verified && <i className="fa-solid fa-circle-check text-emerald-600 text-[11px]" title="Verified Seller"></i>}
                         </div>
-                        <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide">{shop.categoryName || 'Retailer'}</span>
+                        <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide">{shop.categoryName || shop.category || 'General Store'}</span>
                       </div>
                     </div>
 

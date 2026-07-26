@@ -115,7 +115,7 @@ export default function AdminShops() {
                       
                       <div className="flex flex-wrap items-center gap-1.5 mt-2 text-[10px]">
                         <span className="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-md">{shop.market || 'Main Market'}</span>
-                        <span className="bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-md">{shop.category || shop.categoryName || 'General'}</span>
+                        <span className="bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-md">{shop.categoryName || shop.category || 'General'}</span>
                         <span className="bg-slate-900 text-white font-bold px-2 py-0.5 rounded-md">{shopProdsCount} Products</span>
                       </div>
                     </div>
@@ -189,7 +189,7 @@ export default function AdminShops() {
                         </div>
                       </td>
                       <td className="py-4 px-4 text-slate-700 font-semibold">{shop.market || 'Main Market'}</td>
-                      <td className="py-4 px-4 text-slate-700 font-semibold">{shop.category || shop.categoryName || 'General'}</td>
+                      <td className="py-4 px-4 text-slate-700 font-semibold">{shop.categoryName || shop.category || 'General'}</td>
                       <td className="py-4 px-4 text-slate-900 font-black">{shopProdsCount} Products</td>
                       <td className="py-4 px-4">
                         <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase whitespace-nowrap ${

@@ -174,10 +174,20 @@ export const BazaarProvider = ({ children }) => {
     const userEmail = typeof userProfile === 'object' ? userProfile?.email : null;
 
     const shopId = shopData.id || (shopData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(100 + Math.random() * 900));
+
+    // Resolve category ID & Name from categories list
+    const rawCat = shopData.category || 'Electronics';
+    const matchedCategory = categories.find(
+      c => c.id === rawCat || c.id === shopData.categoryId || c.name.toLowerCase() === rawCat.toLowerCase()
+    );
+    const categoryId = matchedCategory ? matchedCategory.id : rawCat.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const categoryName = matchedCategory ? matchedCategory.name : (shopData.categoryName || rawCat);
+
     const newShop = {
       id: shopId,
       name: shopData.name,
-      category: shopData.category || 'Electronics',
+      category: categoryId,
+      categoryName: categoryName,
       market: shopData.market || 'Main Market',
       location: shopData.location || shopData.market || 'Main Market',
       phone: shopData.phone || '',
@@ -222,25 +232,38 @@ export const BazaarProvider = ({ children }) => {
 
   // Update Shop Profile in State and Firestore
   const updateShopDetails = async (shopId, updatedData) => {
+    let resolvedData = { ...updatedData };
+    if (resolvedData.category) {
+      const matchedCategory = categories.find(
+        c => c.id === resolvedData.category || c.name.toLowerCase() === resolvedData.category.toLowerCase()
+      );
+      if (matchedCategory) {
+        resolvedData.category = matchedCategory.id;
+        resolvedData.categoryName = matchedCategory.name;
+      } else if (!resolvedData.categoryName) {
+        resolvedData.categoryName = resolvedData.category;
+      }
+    }
+
     setShops(prevShops => {
       const exists = prevShops.some(s => s.id === shopId);
       if (exists) {
-        return prevShops.map(s => (s.id === shopId ? { ...s, ...updatedData } : s));
+        return prevShops.map(s => (s.id === shopId ? { ...s, ...resolvedData } : s));
       } else {
-        return [{ id: shopId, name: 'My Storefront', ...updatedData }, ...prevShops];
+        return [{ id: shopId, name: 'My Storefront', ...resolvedData }, ...prevShops];
       }
     });
 
-    if (updatedData.name) {
+    if (resolvedData.name) {
       setProducts(prevProducts =>
-        prevProducts.map(p => (p.shopId === shopId ? { ...p, shopName: updatedData.name } : p))
+        prevProducts.map(p => (p.shopId === shopId ? { ...p, shopName: resolvedData.name } : p))
       );
     }
 
     if (isFirebaseConfigured) {
       try {
         const shopRef = doc(db, 'shops', shopId);
-        await setDoc(shopRef, updatedData, { merge: true });
+        await setDoc(shopRef, resolvedData, { merge: true });
       } catch (err) {
         console.warn("Could not update shop details in Firestore:", err);
       }
