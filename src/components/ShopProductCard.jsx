@@ -67,25 +67,25 @@ export default function ShopProductCard({ product }) {
         {/* Description Info Block */}
         <div className="mt-3.5 flex flex-col">
           {/* Brand Name */}
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+          <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider leading-none">
             {product.brand || 'LOCAL BRAND'}
           </span>
           
           {/* Title */}
-          <h4 className="text-xs font-bold text-slate-800 line-clamp-1 mt-1 leading-snug group-hover:text-emerald-600 transition-colors">
+          <h4 className="font-display text-sm font-bold text-slate-900 line-clamp-1 mt-1 leading-snug group-hover:text-emerald-700 transition-colors">
             {product.name}
           </h4>
 
           {/* Rating */}
-          <div className="flex items-center gap-1 mt-1 text-[9px] font-semibold text-slate-400">
+          <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-slate-600 tabular-nums">
             <span className="text-amber-400"><i className="fa-solid fa-star"></i></span>
-            <span className="text-slate-700">{product.rating || '4.8'}</span>
-            <span>({product.reviewsCount || '120'} Reviews)</span>
+            <span className="text-slate-800 font-bold">{product.rating || '4.8'}</span>
+            <span className="text-slate-400 font-medium">({product.reviewsCount || '120'} Reviews)</span>
           </div>
           
-          {/* Store Info Label (Muted inside shop details, but keeping visual balance) */}
-          <div className="text-[9px] text-slate-400 font-semibold mt-2.5 flex items-center gap-1">
-            <i className="fa-solid fa-circle-check text-emerald-600 text-[9px]"></i>
+          {/* Store Info Label */}
+          <div className="text-[10px] text-emerald-700 font-bold mt-2 flex items-center gap-1">
+            <i className="fa-solid fa-circle-check text-emerald-600 text-[10px]"></i>
             <span>In Stock</span>
           </div>
         </div>
@@ -94,12 +94,12 @@ export default function ShopProductCard({ product }) {
 
       {/* Pricing & CTA Footer */}
       <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-        <div className="flex flex-col">
-          <span className="text-[8px] font-extrabold text-slate-455 uppercase tracking-wider leading-none">Price</span>
+        <div className="flex flex-col font-price">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none font-sans">Price</span>
           <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-sm font-black text-slate-900">₹{product.price.toLocaleString('en-IN')}</span>
+            <span className="text-base font-extrabold text-slate-900 tabular-nums">₹{product.price.toLocaleString('en-IN')}</span>
             {hasDiscount && (
-              <span className="text-[9px] text-slate-400 line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+              <span className="text-xs text-slate-400 line-through tabular-nums">₹{product.originalPrice.toLocaleString('en-IN')}</span>
             )}
           </div>
         </div>

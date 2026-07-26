@@ -206,10 +206,10 @@ export default function ProductDetails() {
         {/* RIGHT COLUMN: Info */}
         <div className="flex flex-col gap-6">
           <div>
-            <span className="text-xs font-black text-emerald-600 uppercase tracking-widest">{product.brand || 'Local Brand'}</span>
-            <h1 className="text-2xl md:text-3.5xl font-black tracking-tight text-slate-900 mt-1 leading-tight">{product.name}</h1>
+            <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-widest font-sans">{product.brand || 'Local Brand'}</span>
+            <h1 className="font-display text-2xl md:text-3.5xl font-black tracking-tight text-slate-900 mt-1 leading-tight">{product.name}</h1>
             
-            <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold mt-2.5">
+            <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold mt-2.5 tabular-nums">
               <span className="flex items-center gap-1"><i className="fa-solid fa-star text-amber-500"></i> {product.rating || '4.5'} ({product.reviewsCount || '120'} Reviews)</span>
               <span>&bull;</span>
               <span className="text-slate-800">{product.soldCount || '210'} Sold</span>
@@ -217,12 +217,12 @@ export default function ProductDetails() {
           </div>
 
           {/* Pricing Box */}
-          <div className="p-4 bg-emerald-50/50 border border-emerald-100/30 rounded-2xl flex items-baseline gap-2.5 w-fit min-w-[200px]">
-            <span className="text-2xl font-black text-emerald-800">₹{product.price.toLocaleString('en-IN')}</span>
+          <div className="p-4 bg-emerald-50/60 border border-emerald-100/50 rounded-2xl flex items-baseline gap-2.5 w-fit min-w-[200px] font-price">
+            <span className="text-3xl font-extrabold text-emerald-900 tabular-nums">₹{product.price.toLocaleString('en-IN')}</span>
             {hasDiscount && (
               <>
-                <span className="text-xs text-slate-400 line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-                <span className="px-2 py-0.5 bg-red-500 text-white font-bold text-[9px] uppercase rounded">
+                <span className="text-xs text-slate-400 line-through tabular-nums font-medium">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+                <span className="px-2 py-0.5 bg-rose-500 text-white font-bold text-[9px] uppercase tracking-wider rounded font-sans">
                   {discountPercent}% OFF
                 </span>
               </>
@@ -234,12 +234,12 @@ export default function ProductDetails() {
             <div className="flex flex-col gap-1">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Available at Store</span>
               <div className="flex items-center gap-1">
-                <Link to={`/shop/${shop.id}`} className="text-sm font-black text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
+                <Link to={`/shop/${shop.id}`} className="font-display text-sm font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1">
                   {shop.name}
                   <i className="fa-solid fa-chevron-right text-[9px]"></i>
                 </Link>
               </div>
-              <span className="text-xs text-slate-400 font-semibold">{shop.address}</span>
+              <span className="text-xs text-slate-500 font-medium">{shop.address}</span>
             </div>
             <div className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold text-slate-700 flex items-center gap-1">
               <i className="fa-solid fa-star text-amber-500"></i> {shop.rating}

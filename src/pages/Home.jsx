@@ -40,46 +40,46 @@ export default function Home() {
   return (
     <div className="w-full py-4 md:py-6 flex flex-col gap-8 md:gap-12 animate-fade-in">
       
-      {/* Hero Section matching reference design */}
+      {/* Hero Section */}
       <section className="relative overflow-hidden rounded-3xl bg-[#f0fdf4] px-6 py-8 md:px-12 md:py-16 text-slate-800 border border-emerald-100/70 flex flex-col lg:flex-row items-center justify-between gap-8">
         
         <div className="relative z-10 max-w-xl flex flex-col gap-4 text-center lg:text-left items-center lg:items-start">
           
           {/* Green Top Pill Badge */}
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/70 text-[#056839] text-[10px] font-black uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/80 text-[#056839] text-[10px] font-extrabold uppercase tracking-wider font-sans">
             <span className="w-2 h-2 rounded-full bg-[#056839] inline-block animate-pulse"></span> LOCAL &bull; VERIFIED &bull; TRUSTED
           </span>
           
           {/* Main Headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-[1.15] text-slate-900">
+          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-[1.12] text-slate-900">
             Discover the Best <br />
-            <span className="text-[#056839]">Shops &amp; Products</span> <br />
+            <span className="text-[#056839] font-serif italic">Shops &amp; Products</span> <br />
             in Your City
           </h1>
           
           <p className="text-xs md:text-sm text-slate-600 max-w-md font-medium leading-relaxed">
-            Verified local shops. Direct WhatsApp. Fast &amp; easy.
+            Verified local shops. Direct WhatsApp orders. Fast &amp; reliable Rampur marketplace.
           </p>
 
           {/* Action Callouts */}
           <div className="flex flex-wrap justify-center lg:justify-start gap-3 mt-1 w-full">
             <Link 
               to="/shops" 
-              className="px-6 py-3 rounded-xl bg-[#056839] hover:bg-emerald-800 text-white font-bold transition-all flex items-center justify-center gap-2 text-xs w-full sm:w-auto"
+              className="px-6 py-3 rounded-xl bg-[#056839] hover:bg-emerald-800 text-white font-bold transition-all flex items-center justify-center gap-2 text-xs w-full sm:w-auto tracking-wide shadow-sm"
             >
               Explore Shops <i className="fa-solid fa-arrow-right text-xs"></i>
             </Link>
           </div>
 
-          {/* Stats Bar Strip matching mockup */}
+          {/* Stats Bar Strip with Tabular Numbers */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-emerald-200/50 mt-2 w-full text-left">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-white text-[#056839] flex items-center justify-center text-xs flex-shrink-0">
                 <i className="fa-solid fa-bag-shopping"></i>
               </div>
               <div className="leading-tight">
-                <strong className="text-xs font-black text-slate-900 block">1,500+</strong>
-                <span className="text-[10px] text-slate-500 font-semibold">Products</span>
+                <strong className="font-display text-sm font-extrabold text-slate-900 block tabular-nums">1,500+</strong>
+                <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Products</span>
               </div>
             </div>
 
@@ -88,8 +88,8 @@ export default function Home() {
                 <i className="fa-solid fa-store"></i>
               </div>
               <div className="leading-tight">
-                <strong className="text-xs font-black text-slate-900 block">200+</strong>
-                <span className="text-[10px] text-slate-500 font-semibold">Shops</span>
+                <strong className="font-display text-sm font-extrabold text-slate-900 block tabular-nums">200+</strong>
+                <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Shops</span>
               </div>
             </div>
 
@@ -98,8 +98,8 @@ export default function Home() {
                 <i className="fa-solid fa-layer-group"></i>
               </div>
               <div className="leading-tight">
-                <strong className="text-xs font-black text-slate-900 block">15+</strong>
-                <span className="text-[10px] text-slate-500 font-semibold">Categories</span>
+                <strong className="font-display text-sm font-extrabold text-slate-900 block tabular-nums">15+</strong>
+                <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Categories</span>
               </div>
             </div>
 
@@ -108,15 +108,15 @@ export default function Home() {
                 <i className="fa-solid fa-handshake"></i>
               </div>
               <div className="leading-tight">
-                <strong className="text-xs font-black text-slate-900 block">100%</strong>
-                <span className="text-[10px] text-slate-500 font-semibold">Local</span>
+                <strong className="font-display text-sm font-extrabold text-slate-900 block tabular-nums">100%</strong>
+                <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Local</span>
               </div>
             </div>
           </div>
 
         </div>
 
-        {/* Storefront Illustration matching reference image graphics */}
+        {/* Storefront Illustration */}
         <div className="relative z-10 hidden lg:flex items-center justify-center w-[400px] flex-shrink-0">
           <div className="relative w-full aspect-[4/3] bg-white rounded-3xl border border-slate-100 p-4 flex items-center justify-center">
             {/* Store Graphic Canvas */}
@@ -137,7 +137,7 @@ export default function Home() {
             {/* Floating Verified Hub Badge */}
             <div className="absolute bottom-6 left-12 bg-white/95 backdrop-blur-xs border border-slate-100 px-3.5 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold text-slate-800">
               <i className="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
-              <span>Verified Hub &bull; Trusted</span>
+              <span className="font-semibold">Verified Hub &bull; Trusted</span>
             </div>
           </div>
         </div>
@@ -148,10 +148,10 @@ export default function Home() {
       <section className="flex flex-col gap-3.5">
         <div className="flex items-center justify-between gap-2 min-w-0">
           <div className="min-w-0 flex-1">
-            <h2 className="text-base sm:text-lg md:text-xl font-black text-slate-900 leading-snug truncate">Nearby Stores</h2>
-            <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">Top rated shops near you</p>
+            <h2 className="font-display text-lg sm:text-xl md:text-2xl font-bold text-slate-900 leading-snug truncate tracking-tight">Nearby Stores</h2>
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">Top rated shops near you in Rampur</p>
           </div>
-          <Link to="/shops" className="text-xs font-extrabold text-[#056839] hover:underline flex items-center gap-1 flex-shrink-0 whitespace-nowrap">
+          <Link to="/shops" className="text-xs font-bold text-[#056839] hover:underline flex items-center gap-1 flex-shrink-0 whitespace-nowrap tracking-wide">
             <span>View All</span> <i className="fa-solid fa-chevron-right text-[9px]"></i>
           </Link>
         </div>
@@ -169,10 +169,10 @@ export default function Home() {
       <section className="flex flex-col gap-3.5">
         <div className="flex items-center justify-between gap-2 min-w-0">
           <div className="min-w-0 flex-1">
-            <h2 className="text-base sm:text-lg md:text-xl font-black text-slate-900 leading-snug truncate">Shop by Categories</h2>
-            <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">Explore top categories</p>
+            <h2 className="font-display text-lg sm:text-xl md:text-2xl font-bold text-slate-900 leading-snug truncate tracking-tight">Shop by Categories</h2>
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">Explore curated marketplace categories</p>
           </div>
-          <Link to="/shops" className="text-xs font-extrabold text-[#056839] hover:underline flex items-center gap-1 flex-shrink-0 whitespace-nowrap">
+          <Link to="/shops" className="text-xs font-bold text-[#056839] hover:underline flex items-center gap-1 flex-shrink-0 whitespace-nowrap tracking-wide">
             <span className="hidden sm:inline">View All Categories</span>
             <span className="sm:hidden">View All</span>
             <i className="fa-solid fa-chevron-right text-[9px]"></i>
@@ -193,8 +193,8 @@ export default function Home() {
                   <i className={`fa-solid ${cat.icon || 'fa-tag'}`}></i>
                 </div>
                 <div className="flex flex-col leading-none w-full min-w-0">
-                  <span className="text-xs font-black text-slate-800 group-hover:text-[#056839] transition-colors truncate block">{cat.name}</span>
-                  <span className="text-[10px] text-slate-400 font-medium mt-1 truncate block">{color.count}</span>
+                  <span className="font-display text-xs font-bold text-slate-800 group-hover:text-[#056839] transition-colors truncate block">{cat.name}</span>
+                  <span className="text-[10px] text-slate-400 font-semibold mt-1 truncate block">{color.count}</span>
                 </div>
               </Link>
             );
@@ -206,10 +206,10 @@ export default function Home() {
       <section className="flex flex-col gap-3.5">
         <div className="flex items-center justify-between gap-2 min-w-0">
           <div className="min-w-0 flex-1">
-            <h2 className="text-base sm:text-lg md:text-xl font-black text-slate-900 leading-snug truncate">Featured Products</h2>
+            <h2 className="font-display text-lg sm:text-xl md:text-2xl font-bold text-slate-900 leading-snug truncate tracking-tight">Featured Products</h2>
             <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">Handpicked products from trusted local shops</p>
           </div>
-          <Link to="/shops" className="text-xs font-extrabold text-[#056839] hover:underline flex items-center gap-1 flex-shrink-0 whitespace-nowrap">
+          <Link to="/shops" className="text-xs font-bold text-[#056839] hover:underline flex items-center gap-1 flex-shrink-0 whitespace-nowrap tracking-wide">
             <span className="hidden sm:inline">View All Products</span>
             <span className="sm:hidden">View All</span>
             <i className="fa-solid fa-chevron-right text-[9px]"></i>

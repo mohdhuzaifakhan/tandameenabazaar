@@ -37,10 +37,10 @@ export default function DashboardLayout({ children, title, role }) {
               <i className="fa-solid fa-bag-shopping"></i>
             </div>
             <div className="flex flex-col leading-none">
-              <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wide">Digital</span>
-              <span className="text-sm font-black text-white mt-0.5">Meena Bazaar</span>
+              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest font-sans">Digital</span>
+              <span className="font-display text-base font-extrabold text-white mt-0.5 tracking-tight">Meena Bazaar</span>
               {role === 'admin' && (
-                <span className="text-[7px] text-emerald-400 font-extrabold tracking-widest mt-1 uppercase">ADMIN PANEL</span>
+                <span className="text-[8px] text-emerald-400 font-extrabold tracking-widest mt-1 uppercase font-sans">ADMIN PANEL</span>
               )}
             </div>
           </div>

@@ -59,8 +59,8 @@ export default function Shops() {
           <i className="fa-solid fa-chevron-right text-[8px]"></i>
           <span className="text-slate-800">Shops</span>
         </div>
-        <h1 className="text-xl md:text-3xl font-black tracking-tight text-slate-900">Explore Storefronts</h1>
-        <p className="text-xs md:text-sm text-slate-500 hidden md:block">Discover top-rated local retailers, boutique brands and merchants in Rampur markets.</p>
+        <h1 className="font-display text-2xl md:text-3.5xl font-black tracking-tight text-slate-900">Explore Storefronts</h1>
+        <p className="text-xs md:text-sm text-slate-500 hidden md:block font-medium">Discover top-rated local retailers, boutique brands and merchants in Rampur markets.</p>
       </div>
 
       {/* Main split grid */}

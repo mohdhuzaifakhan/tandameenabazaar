@@ -24,26 +24,26 @@ export default function Header({ onOpenDrawer }) {
 
   const isActive = (path) =>
     location.pathname === path
-      ? 'text-[#056839] font-bold border-b-2 border-[#056839] pb-1'
-      : 'text-slate-600 hover:text-[#056839] font-medium transition-colors pb-1';
+      ? 'text-[#056839] font-bold border-b-2 border-[#056839] pb-1 tracking-wide'
+      : 'text-slate-600 hover:text-[#056839] font-semibold tracking-wide transition-colors pb-1';
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-100/80 bg-white/95 backdrop-blur-md">
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
 
-        {/* Brand Logo matching reference design */}
+        {/* Brand Logo with display typography */}
         <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 group">
           <div className="w-9 h-9 rounded-xl bg-[#056839] text-white flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
             <i className="fa-solid fa-bag-shopping"></i>
           </div>
           <div className="flex flex-col justify-center leading-none">
-            <span className="text-sm font-black text-slate-900 tracking-tight">Meena Bazaar</span>
-            <span className="text-[10px] font-semibold text-emerald-700 mt-0.5">Local shops, verified sellers</span>
+            <span className="font-display text-base font-extrabold text-slate-900 tracking-tight">Meena Bazaar</span>
+            <span className="text-[10px] font-bold text-emerald-700 mt-0.5 tracking-wider uppercase">Local Rampur Shops</span>
           </div>
         </Link>
 
-        {/* Desktop Center: Search input + Location pill matching reference */}
+        {/* Desktop Center: Search input + Location pill */}
         <form onSubmit={handleSearch} className="flex-1 max-w-lg relative hidden md:flex items-center gap-2">
           <div className="relative flex-1">
             <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -52,13 +52,13 @@ export default function Header({ onOpenDrawer }) {
               placeholder="Search products, shops, categories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-slate-200/80 rounded-xl text-xs outline-none focus:border-[#056839] bg-slate-50/50 font-medium"
+              className="w-full pl-9 pr-4 py-2 border border-slate-200/80 rounded-xl text-xs outline-none focus:border-[#056839] bg-slate-50/50 font-medium placeholder:text-slate-400"
             />
           </div>
 
-          <div className="px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-700 font-bold flex items-center gap-1.5 flex-shrink-0">
+          <div className="px-3 py-2 bg-slate-50/80 border border-slate-200/80 rounded-xl text-xs text-slate-700 font-bold flex items-center gap-1.5 flex-shrink-0 tracking-tight">
             <i className="fa-solid fa-location-dot text-[#056839]"></i>
-            <span>Rampur, UP</span>
+            <span className="font-semibold">Rampur, UP</span>
             <i className="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
           </div>
         </form>
@@ -66,7 +66,7 @@ export default function Header({ onOpenDrawer }) {
         {/* Desktop Right: Navigation links & user controls */}
         <div className="hidden md:flex items-center gap-6">
 
-          <nav className="flex items-center gap-6 text-xs">
+          <nav className="flex items-center gap-6 text-xs font-semibold">
             <Link to="/" className={isActive('/')}>Home</Link>
             <Link to="/shops" className={isActive('/shops')}>Shops</Link>
             <Link to="/shops" className={isActive('/categories')}>Categories</Link>

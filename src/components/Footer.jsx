@@ -44,18 +44,18 @@ export default function Footer({ onOpenDrawer }) {
           {/* Column 1: Brand */}
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-emerald-950 text-white flex items-center justify-center text-sm border border-emerald-900">
+              <div className="w-8 h-8 rounded-lg bg-[#056839] text-white flex items-center justify-center text-sm">
                 <i className="fa-solid fa-bag-shopping"></i>
               </div>
-              <span className="font-black text-slate-900 text-sm tracking-tight">Meena Bazaar</span>
+              <span className="font-display text-base font-extrabold text-slate-900 tracking-tight">Meena Bazaar</span>
             </div>
-            <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-sm">
+            <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-sm">
               Empowering local commerce in Rampur. Discover verified storefronts, browse catalogs, and order directly via WhatsApp.
             </p>
             <div className="mt-2 text-xs text-slate-500 font-semibold">
               Developed &amp; Managed by <br />
-              <span className="text-slate-950 font-black tracking-tight">Unifiedstack</span> <br />
-              <span className="text-[10px] text-slate-400">Software Solutions Company</span>
+              <span className="font-display text-slate-950 font-bold tracking-tight">Unifiedstack</span> <br />
+              <span className="text-[10px] text-slate-400 font-sans">Software Solutions Company</span>
             </div>
           </div>
 

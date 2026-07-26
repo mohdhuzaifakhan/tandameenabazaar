@@ -42,7 +42,7 @@ export default function ProductCard({ product }) {
           
           {/* Discount Badge */}
           {hasDiscount && (
-            <span className="absolute top-2.5 left-2.5 bg-rose-500 text-white font-black text-[9px] uppercase px-2 py-0.5 rounded-md z-10">
+            <span className="absolute top-2.5 left-2.5 bg-rose-500 text-white font-bold text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-md z-10 font-sans">
               {discountPercent}% OFF
             </span>
           )}
@@ -67,18 +67,18 @@ export default function ProductCard({ product }) {
         {/* Description Info Block */}
         <div className="mt-3 flex flex-col">
           {/* Merchant Shop Tag */}
-          <span className="text-[10px] font-semibold text-slate-400 truncate">
+          <span className="text-[11px] sm:text-[10px] font-bold text-emerald-800 uppercase tracking-wide truncate">
             {product.shopName || 'Digital Hub'}
           </span>
           
           {/* Title */}
-          <h4 className="text-xs font-extrabold text-slate-900 line-clamp-1 mt-0.5 group-hover:text-[#056839] transition-colors">
+          <h4 className="font-display text-sm font-bold text-slate-900 leading-snug line-clamp-1 mt-0.5 group-hover:text-[#056839] transition-colors">
             {product.name}
           </h4>
 
           {/* Rating */}
-          <div className="flex items-center gap-1 mt-1 text-[10px] font-bold text-slate-500">
-            <i className="fa-solid fa-star text-amber-400 text-[10px]"></i>
+          <div className="flex items-center gap-1 mt-1 text-xs sm:text-[11px] font-semibold text-slate-600 tabular-nums">
+            <i className="fa-solid fa-star text-amber-400 text-[11px] sm:text-[10px]"></i>
             <span>{product.rating || '4.4'}</span>
             <span className="text-slate-400 font-medium">({product.reviewsCount || '78'})</span>
           </div>
@@ -88,10 +88,10 @@ export default function ProductCard({ product }) {
 
       {/* Pricing & CTA Footer */}
       <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-sm font-black text-slate-900">₹{product.price?.toLocaleString('en-IN')}</span>
+        <div className="flex items-baseline gap-1.5 font-price">
+          <span className="text-base font-extrabold text-slate-900 tabular-nums">₹{product.price?.toLocaleString('en-IN')}</span>
           {hasDiscount && (
-            <span className="text-[10px] text-slate-400 line-through font-medium">₹{product.originalPrice?.toLocaleString('en-IN')}</span>
+            <span className="text-xs text-slate-400 line-through font-medium tabular-nums">₹{product.originalPrice?.toLocaleString('en-IN')}</span>
           )}
         </div>
 

@@ -125,12 +125,12 @@ export default function ShopDetails() {
             
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 leading-none">{shop.name}</h1>
+                <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-black text-slate-900 leading-none tracking-tight">{shop.name}</h1>
                 {shop.verified && <i className="fa-solid fa-circle-check text-emerald-600 text-base" title="Verified Store"></i>}
               </div>
-              <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">{shop.category || shop.categoryName || 'General Store'}</span>
+              <span className="text-[11px] font-extrabold text-emerald-700 uppercase tracking-wider font-sans">{shop.category || shop.categoryName || 'General Store'}</span>
               
-              <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold mt-1">
+              <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold mt-1 tabular-nums">
                 <span className="flex items-center gap-1"><i className="fa-solid fa-star text-amber-500"></i> {shop.rating || 5.0} ★</span>
                 <span>&bull;</span>
                 <span className="flex items-center gap-1"><i className="fa-solid fa-location-dot text-slate-400"></i> {shop.market || 'Main Market'}</span>
