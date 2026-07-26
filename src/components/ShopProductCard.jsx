@@ -1,13 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBazaar } from '../context/BazaarContext';
+import { DEFAULT_PRODUCT_IMAGE } from '../utils/defaultAssets';
 
 export default function ShopProductCard({ product }) {
+  if (!product) return null;
+
   const { isProductSaved, toggleSaveProduct, openWhatsApp } = useBazaar();
   const navigate = useNavigate();
   const saved = isProductSaved(product.id);
   const hasDiscount = product.originalPrice && product.originalPrice > product.price;
-  const discountPercent = hasDiscount ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 105) : 0;
+  const discountPercent = hasDiscount ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
 
   const handleCardClick = () => {
     navigate(`/product/${product.id}`);
@@ -24,6 +27,8 @@ export default function ShopProductCard({ product }) {
     e.stopPropagation();
     openWhatsApp(product.id);
   };
+
+  const imageUrl = (product.images && product.images.length > 0 ? product.images[0] : product.image) || DEFAULT_PRODUCT_IMAGE;
 
   return (
     <div 
@@ -53,8 +58,8 @@ export default function ShopProductCard({ product }) {
 
           {/* Product Image */}
           <img 
-            src={product.images ? product.images[0] : product.image} 
-            alt={product.name} 
+            src={imageUrl} 
+            alt={product.name || 'Product'} 
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
           />
         </div>

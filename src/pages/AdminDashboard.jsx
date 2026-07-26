@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useBazaar } from '../context/BazaarContext';
 import { useAuth } from '../context/AuthContext';
+import { DEFAULT_STORE_LOGO, DEFAULT_PRODUCT_IMAGE } from '../utils/defaultAssets';
 import DashboardLayout from '../components/DashboardLayout';
 
 export default function AdminDashboard() {
   const { userProfile } = useAuth();
-  const { shops, products, orders, toggleShopVerification, categories, markets } = useBazaar();
-  const [approvalTab, setApprovalTab] = useState('shops'); // 'shops' | 'products' | 'orders'
+  const { shops, products, toggleShopVerification, categories, markets } = useBazaar();
+  const [approvalTab, setApprovalTab] = useState('shops'); // 'shops' | 'products'
   const [toastMessage, setToastMessage] = useState(null);
 
   const showToast = (text, type = 'success') => {
@@ -19,11 +20,9 @@ export default function AdminDashboard() {
   const pendingShops = shops.filter(s => !s.verified);
   const verifiedShops = shops.filter(s => s.verified);
   const inStockProducts = products.filter(p => p.stockStatus !== 'Out of Stock');
-  const pendingOrders = orders.filter(o => o.status === 'Pending');
 
   const totalShopsCount = shops.length;
   const totalProductsCount = products.length;
-  const totalLeadsCount = orders.length;
   const totalInventoryValue = products.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
 
   const handleApproveShop = (shopId, shopName) => {
@@ -64,17 +63,17 @@ export default function AdminDashboard() {
               <span>Shops ({shops.length})</span>
             </Link>
             <Link
-              to="/dashboard/admin/orders"
+              to="/dashboard/admin/categories"
               className="bg-[#056839] text-white shadow-2xs px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-emerald-800 transition-colors"
             >
-              <i className="fa-solid fa-list-check"></i>
-              <span>Leads ({orders.length})</span>
+              <i className="fa-solid fa-tags"></i>
+              <span>Taxonomy ({categories.length})</span>
             </Link>
           </div>
         </div>
 
         {/* Metrics Grid - 6 Dynamic Cards with Icon, Label, Real Firebase Value, and Live Status */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 2xl:grid-cols-6 gap-3.5 sm:gap-4">
           
           {/* Card 1: Total Shops */}
           <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs flex flex-col justify-between min-w-0">
@@ -88,7 +87,7 @@ export default function AdminDashboard() {
               <span className="text-xl sm:text-2xl font-black text-slate-900 block tracking-tight">
                 {totalShopsCount}
               </span>
-              <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-1">
+              <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-1 truncate">
                 <i className="fa-solid fa-check text-[9px]"></i> {verifiedShops.length} Verified
               </span>
             </div>
@@ -106,26 +105,26 @@ export default function AdminDashboard() {
               <span className="text-xl sm:text-2xl font-black text-slate-900 block tracking-tight">
                 {totalProductsCount}
               </span>
-              <span className="text-[11px] text-purple-600 font-bold flex items-center gap-1 mt-1">
+              <span className="text-[11px] text-purple-600 font-bold flex items-center gap-1 mt-1 truncate">
                 <i className="fa-solid fa-circle text-[7px]"></i> {inStockProducts.length} In Stock
               </span>
             </div>
           </div>
 
-          {/* Card 3: WhatsApp Leads */}
+          {/* Card 3: WhatsApp Direct Channel */}
           <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs flex flex-col justify-between min-w-0">
             <div className="flex items-center justify-between gap-2">
               <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-base font-bold flex-shrink-0">
-                <i className="fa-brands fa-whatsapp"></i>
+                <i className="fa-brands fa-whatsapp text-[#25D366]"></i>
               </div>
-              <span className="text-xs text-slate-500 font-extrabold truncate text-right">Customer Leads</span>
+              <span className="text-xs text-slate-500 font-extrabold truncate text-right">Order Channel</span>
             </div>
             <div className="mt-3">
-              <span className="text-xl sm:text-2xl font-black text-slate-900 block tracking-tight">
-                {totalLeadsCount}
+              <span className="text-base sm:text-lg font-black text-[#25D366] block tracking-tight truncate whitespace-nowrap">
+                WhatsApp
               </span>
-              <span className="text-[11px] text-amber-600 font-bold flex items-center gap-1 mt-1">
-                <i className="fa-solid fa-clock text-[9px]"></i> {pendingOrders.length} Pending
+              <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-1 truncate">
+                <i className="fa-solid fa-circle text-[7px] text-[#25D366]"></i> Direct Customer Connect
               </span>
             </div>
           </div>
@@ -142,16 +141,16 @@ export default function AdminDashboard() {
               <span className="text-xl sm:text-2xl font-black text-slate-900 block tracking-tight">
                 ₹{totalInventoryValue > 1000 ? `${(totalInventoryValue / 1000).toFixed(1)}K` : totalInventoryValue}
               </span>
-              <span className="text-[11px] text-blue-600 font-bold flex items-center gap-1 mt-1">
+              <span className="text-[11px] text-blue-600 font-bold flex items-center gap-1 mt-1 truncate">
                 <i className="fa-solid fa-layer-group text-[9px]"></i> Listed Products
               </span>
             </div>
           </div>
 
           {/* Card 5: Market Locations */}
-          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs flex flex-col justify-between min-w-0">
+          <Link to="/dashboard/admin/categories" className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs flex flex-col justify-between min-w-0 hover:border-emerald-300 transition-all cursor-pointer group">
             <div className="flex items-center justify-between gap-2">
-              <div className="w-9 h-9 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-sm font-bold flex-shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-sm font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
                 <i className="fa-solid fa-location-dot"></i>
               </div>
               <span className="text-xs text-slate-500 font-extrabold truncate text-right">Market Hubs</span>
@@ -160,16 +159,16 @@ export default function AdminDashboard() {
               <span className="text-xl sm:text-2xl font-black text-slate-900 block tracking-tight">
                 {markets.length}
               </span>
-              <span className="text-[11px] text-orange-600 font-bold flex items-center gap-1 mt-1">
-                <i className="fa-solid fa-city text-[9px]"></i> Rampur Hubs
+              <span className="text-[11px] text-orange-600 font-bold flex items-center gap-1 mt-1 truncate">
+                <i className="fa-solid fa-city text-[9px]"></i> Manage Locations &rarr;
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* Card 6: Categories */}
-          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs flex flex-col justify-between min-w-0">
+          <Link to="/dashboard/admin/categories" className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs flex flex-col justify-between min-w-0 hover:border-emerald-300 transition-all cursor-pointer group">
             <div className="flex items-center justify-between gap-2">
-              <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm font-bold flex-shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
                 <i className="fa-solid fa-tags"></i>
               </div>
               <span className="text-xs text-slate-500 font-extrabold truncate text-right">Categories</span>
@@ -178,12 +177,11 @@ export default function AdminDashboard() {
               <span className="text-xl sm:text-2xl font-black text-slate-900 block tracking-tight">
                 {categories.length}
               </span>
-              <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 mt-1">
-                <i className="fa-solid fa-shapes text-[9px]"></i> Taxonomy
+              <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 mt-1 truncate">
+                <i className="fa-solid fa-shapes text-[9px]"></i> Manage Categories &rarr;
               </span>
             </div>
-          </div>
-
+          </Link>
         </div>
 
         {/* Visitor Analytics Line Chart Card (Derived from real order lead velocity) */}
@@ -283,16 +281,6 @@ export default function AdminDashboard() {
             >
               Catalog Products ({products.length})
             </button>
-            <button 
-              onClick={() => setApprovalTab('orders')}
-              className={`pb-2.5 font-extrabold transition-all cursor-pointer ${
-                approvalTab === 'orders'
-                  ? 'text-[#056839] border-b-2 border-[#056839]'
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              Recent Leads ({orders.length})
-            </button>
           </div>
 
           {/* Tab Content Item List - Fully Real & Dynamic */}
@@ -305,27 +293,31 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 pendingShops.map(shop => (
-                  <div key={shop.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50/80 transition-colors border border-slate-100/60">
-                    <div className="flex items-center gap-3 min-w-0">
+                  <div key={shop.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-3.5 rounded-xl hover:bg-slate-50/80 transition-colors border border-slate-100 bg-white shadow-2xs">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
                       <img 
-                        src={shop.image || shop.logoImage || 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=200'} 
+                        src={shop.image || shop.logoImage || DEFAULT_STORE_LOGO} 
                         alt={shop.name} 
-                        className="w-11 h-11 rounded-xl object-cover border border-slate-100 flex-shrink-0"
+                        onError={(e) => { e.target.src = DEFAULT_STORE_LOGO; }}
+                        className="w-11 h-11 rounded-xl object-cover border border-slate-100 flex-shrink-0 bg-slate-50"
                       />
-                      <div className="min-w-0">
-                        <strong className="text-slate-900 font-bold text-xs sm:text-sm block truncate">{shop.name}</strong>
-                        <span className="text-[11px] text-slate-500 block truncate">{shop.market || 'Main Market'} &bull; {shop.phone || 'No phone'}</span>
+                      <div className="min-w-0 flex-1">
+                        <strong className="text-slate-900 font-extrabold text-xs sm:text-sm block truncate">{shop.name}</strong>
+                        <span className="text-[11px] text-slate-500 font-medium block truncate">{shop.market || 'Main Market'} &bull; {shop.phone || 'No phone'}</span>
                       </div>
+                      <Link to={`/dashboard/admin/shop/${shop.id}`} className="sm:hidden text-slate-400 hover:text-slate-600 p-1">
+                        <i className="fa-solid fa-chevron-right text-xs"></i>
+                      </Link>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 justify-end w-full sm:w-auto">
                       <button
                         onClick={() => handleApproveShop(shop.id, shop.name)}
-                        className="px-3 py-1.5 rounded-lg bg-[#056839] hover:bg-emerald-800 text-white text-[10px] font-extrabold cursor-pointer transition-colors shadow-2xs"
+                        className="flex-1 sm:flex-initial px-3.5 py-2 sm:py-1.5 rounded-xl bg-[#056839] hover:bg-emerald-800 text-white text-xs font-black cursor-pointer transition-all shadow-2xs whitespace-nowrap text-center"
                       >
                         Verify Store
                       </button>
-                      <Link to={`/dashboard/admin/shop/${shop.id}`} className="text-slate-400 hover:text-slate-600">
+                      <Link to={`/dashboard/admin/shop/${shop.id}`} className="hidden sm:inline-block text-slate-400 hover:text-slate-600">
                         <i className="fa-solid fa-chevron-right text-xs"></i>
                       </Link>
                     </div>
@@ -341,57 +333,26 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 products.slice(0, 5).map(prod => (
-                  <div key={prod.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50/80 transition-colors border border-slate-100/60">
+                  <div key={prod.id} className="flex items-center justify-between gap-3 p-3 rounded-xl hover:bg-slate-50/80 transition-colors border border-slate-100 bg-white shadow-2xs">
                     <div className="flex items-center gap-3 min-w-0">
                       <img 
-                        src={prod.images && prod.images.length > 0 ? prod.images[0] : 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100'} 
+                        src={prod.images && prod.images.length > 0 ? prod.images[0] : (prod.image || DEFAULT_PRODUCT_IMAGE)} 
                         alt={prod.name} 
-                        className="w-11 h-11 rounded-xl object-cover border border-slate-100 flex-shrink-0"
+                        onError={(e) => { e.target.src = DEFAULT_PRODUCT_IMAGE; }}
+                        className="w-11 h-11 rounded-xl object-cover border border-slate-100 flex-shrink-0 bg-slate-50"
                       />
                       <div className="min-w-0">
-                        <strong className="text-slate-900 font-bold text-xs sm:text-sm block truncate">{prod.name}</strong>
-                        <span className="text-[11px] text-slate-500 block truncate">Store: {prod.shopName || 'Merchant Store'}</span>
+                        <strong className="text-slate-900 font-extrabold text-xs sm:text-sm block truncate">{prod.name}</strong>
+                        <span className="text-[11px] text-slate-500 font-medium block truncate">Store: {prod.shopName || 'Merchant Store'}</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <span className="font-black text-slate-900 text-xs">₹{prod.price?.toLocaleString('en-IN')}</span>
-                      <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold ${
+                    <div className="flex items-center gap-2.5 flex-shrink-0">
+                      <span className="font-black text-slate-900 text-xs sm:text-sm">₹{prod.price?.toLocaleString('en-IN')}</span>
+                      <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
                         prod.stockStatus === 'Out of Stock' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-800'
                       }`}>
                         {prod.stockStatus || 'In Stock'}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )
-            )}
-
-            {approvalTab === 'orders' && (
-              orders.length === 0 ? (
-                <div className="py-8 text-center text-slate-400 font-medium text-xs">
-                  No customer lead inquiries registered yet.
-                </div>
-              ) : (
-                orders.slice(0, 5).map(order => (
-                  <div key={order.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50/80 transition-colors border border-slate-100/60">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#056839] flex items-center justify-center font-bold text-xs flex-shrink-0">
-                        <i className="fa-solid fa-bag-shopping"></i>
-                      </div>
-                      <div className="min-w-0">
-                        <strong className="text-slate-900 font-bold text-xs sm:text-sm block truncate">{order.productName}</strong>
-                        <span className="text-[11px] text-slate-500 block truncate">{order.customerName} ({order.customerPhone})</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <span className="font-black text-slate-900 text-xs">₹{order.price?.toLocaleString('en-IN')}</span>
-                      <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase ${
-                        order.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' :
-                        order.status === 'Cancelled' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
-                      }`}>
-                        {order.status}
                       </span>
                     </div>
                   </div>

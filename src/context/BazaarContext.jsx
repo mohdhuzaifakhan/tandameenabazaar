@@ -2,97 +2,157 @@ import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { BAZAAR_DATA } from '../data';
 import { db, isFirebaseConfigured } from '../firebase';
+import { STORAGE_KEYS, FIRESTORE_COLLECTIONS, APP_CONFIG } from '../constants/appConstants';
+import { DEFAULT_STORE_LOGO, DEFAULT_COVER_BANNER, DEFAULT_PRODUCT_IMAGE } from '../utils/defaultAssets';
 
 const BazaarContext = createContext();
 
-export const BazaarProvider = ({ children }) => {
-  // Real Products State (Defaults to empty array)
-  const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('meena_bazaar_products_v2');
-    return saved ? JSON.parse(saved) : [];
-  });
+const DEFAULT_CATEGORIES = [
+  { id: "electronics", name: "Electronics", icon: "fa-laptop", description: "Mobile phones, laptops, and gadgets" },
+  { id: "fashion", name: "Fashion", icon: "fa-shirt", description: "Apparel, sarees, suits, and garments" },
+  { id: "groceries", name: "Groceries", icon: "fa-basket-shopping", description: "Daily essentials, spices, and provisions" },
+  { id: "footwear", name: "Footwear", icon: "fa-shoe-prints", description: "Shoes, sandals, and traditional footwear" },
+  { id: "cosmetics", name: "Cosmetics", icon: "fa-spray-can-sparkles", description: "Beauty products, perfumes, and care" },
+  { id: "furniture", name: "Furniture", icon: "fa-couch", description: "Home decor, tables, and wooden furniture" },
+  { id: "mobile-acc", name: "Mobile Accessories", icon: "fa-mobile-screen-button", description: "Cases, chargers, and earphones" },
+  { id: "jewellery", name: "Jewellery", icon: "fa-gem", description: "Gold, silver, and artificial jewellery" },
+  { id: "books", name: "Books & Stationery", icon: "fa-book", description: "Educational books, notebooks, and supplies" }
+];
 
-  // Real Shops State (Defaults to empty array)
-  const [shops, setShops] = useState(() => {
-    const saved = localStorage.getItem('meena_bazaar_shops_v2');
-    return saved ? JSON.parse(saved) : [];
-  });
+const DEFAULT_MARKETS = [
+  { id: "gandhi-market", name: "Gandhi Market", city: "Rampur", area: "Center City", description: "Major retail hub for clothing, electronics, and daily essentials" },
+  { id: "nai-sadak", name: "Nai Sadak", city: "Rampur", area: "Old City", description: "Famous market for footwear, textiles, and traditional bazaar items" },
+  { id: "civil-lines", name: "Civil Lines", city: "Rampur", area: "Civil Lines", description: "Premium commercial market area for boutiques and showrooms" },
+  { id: "mandi-samiti", name: "Mandi Samiti", city: "Rampur", area: "Station Road", description: "Wholesale and retail hub for groceries and fresh produce" },
+  { id: "bada-bazaar", name: "Bada Bazaar", city: "Rampur", area: "Central Rampur", description: "Historic market for jewellery, bridal wear, and handicrafts" }
+];
+
+export const BazaarProvider = ({ children }) => {
+  // Helper for safe localStorage access
+  const safeGetItem = (key, fallback) => {
+    try {
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : fallback;
+    } catch (e) {
+      console.warn(`Error reading localStorage key "${key}":`, e);
+      return fallback;
+    }
+  };
+
+  const safeSetItem = (key, value) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+      console.warn(`Error writing localStorage key "${key}":`, e);
+    }
+  };
+
+  // Real Products State
+  const [products, setProducts] = useState(() => safeGetItem(STORAGE_KEYS.PRODUCTS, BAZAAR_DATA.products || []));
+
+  // Real Shops State
+  const [shops, setShops] = useState(() => safeGetItem(STORAGE_KEYS.SHOPS, BAZAAR_DATA.shops || []));
+
+  // Dynamic Categories State
+  const [categories, setCategories] = useState(() => safeGetItem(STORAGE_KEYS.CATEGORIES, DEFAULT_CATEGORIES));
+
+  // Dynamic Markets / Locations State
+  const [markets, setMarkets] = useState(() => safeGetItem(STORAGE_KEYS.MARKETS, DEFAULT_MARKETS));
 
   // Saved Products Wishlist State
-  const [savedProductIds, setSavedProductIds] = useState(() => {
-    const saved = localStorage.getItem('meena_bazaar_saved_products_v2');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  // Real Customer Lead Orders State (Defaults to empty array)
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('meena_bazaar_orders_v2');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [savedProductIds, setSavedProductIds] = useState(() => safeGetItem(STORAGE_KEYS.SAVED_PRODUCTS, []));
 
   // User Authentication State
-  const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('meena_bazaar_user_v2');
-    return saved ? JSON.parse(saved) : { role: 'guest' };
-  });
+  const [currentUser, setCurrentUser] = useState(() => safeGetItem(STORAGE_KEYS.USER_PROFILE, { role: 'guest' }));
 
   // Active City
-  const [currentCity, setCurrentCity] = useState(BAZAAR_DATA.currentCity);
+  const [currentCity, setCurrentCity] = useState(BAZAAR_DATA.currentCity || APP_CONFIG.DEFAULT_CITY);
 
-  // ── REAL FIREBASE FIRESTORE SYNC (READ ONLY REAL DATA) ──
+  // ── REAL FIREBASE FIRESTORE SYNC (DYNAMIC REAL-TIME DATA) ──
   useEffect(() => {
     if (!isFirebaseConfigured) return;
 
     // 1. Sync Real Shops Collection
-    const shopsUnsub = onSnapshot(collection(db, 'shops'), (snapshot) => {
+    const shopsUnsub = onSnapshot(collection(db, FIRESTORE_COLLECTIONS.SHOPS), (snapshot) => {
       const loadedShops = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(s => !s.deleted);
-      setShops(loadedShops);
+      if (loadedShops.length > 0) {
+        setShops(loadedShops);
+      }
     }, (err) => console.warn("Firestore shops snapshot error:", err));
 
     // 2. Sync Real Products Collection
-    const productsUnsub = onSnapshot(collection(db, 'products'), (snapshot) => {
+    const productsUnsub = onSnapshot(collection(db, FIRESTORE_COLLECTIONS.PRODUCTS), (snapshot) => {
       const loadedProds = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(p => !p.deleted);
-      setProducts(loadedProds);
+      if (loadedProds.length > 0) {
+        setProducts(loadedProds);
+      }
     }, (err) => console.warn("Firestore products snapshot error:", err));
 
-    // 3. Sync Real Orders Collection
-    const ordersUnsub = onSnapshot(collection(db, 'orders'), (snapshot) => {
-      const loadedOrders = snapshot.docs
+    // 3. Sync Dynamic Categories Collection
+    const categoriesUnsub = onSnapshot(collection(db, FIRESTORE_COLLECTIONS.CATEGORIES), (snapshot) => {
+      const loadedCats = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(o => !o.deleted);
-      setOrders(loadedOrders);
-    }, (err) => console.warn("Firestore orders snapshot error:", err));
+        .filter(c => !c.deleted);
+      if (loadedCats.length > 0) {
+        setCategories(loadedCats);
+      } else {
+        // Seed default categories if collection is empty
+        DEFAULT_CATEGORIES.forEach(cat => {
+          setDoc(doc(db, FIRESTORE_COLLECTIONS.CATEGORIES, cat.id), cat, { merge: true }).catch(err => console.warn("Error seeding category:", err));
+        });
+      }
+    }, (err) => console.warn("Firestore categories snapshot error:", err));
+
+    // 4. Sync Dynamic Markets / Locations Collection
+    const marketsUnsub = onSnapshot(collection(db, FIRESTORE_COLLECTIONS.MARKETS), (snapshot) => {
+      const loadedMkts = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(m => !m.deleted);
+      if (loadedMkts.length > 0) {
+        setMarkets(loadedMkts);
+      } else {
+        // Seed default markets if collection is empty
+        DEFAULT_MARKETS.forEach(mkt => {
+          setDoc(doc(db, FIRESTORE_COLLECTIONS.MARKETS, mkt.id), mkt, { merge: true }).catch(err => console.warn("Error seeding market:", err));
+        });
+      }
+    }, (err) => console.warn("Firestore markets snapshot error:", err));
 
     return () => {
       shopsUnsub();
       productsUnsub();
-      ordersUnsub();
+      categoriesUnsub();
+      marketsUnsub();
     };
   }, []);
 
-  // Sync real state to localStorage
+  // Sync real state to localStorage safely
   useEffect(() => {
-    localStorage.setItem('meena_bazaar_products_v2', JSON.stringify(products));
+    safeSetItem(STORAGE_KEYS.PRODUCTS, products);
   }, [products]);
 
   useEffect(() => {
-    localStorage.setItem('meena_bazaar_shops_v2', JSON.stringify(shops));
+    safeSetItem(STORAGE_KEYS.SHOPS, shops);
   }, [shops]);
 
   useEffect(() => {
-    localStorage.setItem('meena_bazaar_saved_products_v2', JSON.stringify(savedProductIds));
+    safeSetItem(STORAGE_KEYS.CATEGORIES, categories);
+  }, [categories]);
+
+  useEffect(() => {
+    safeSetItem(STORAGE_KEYS.MARKETS, markets);
+  }, [markets]);
+
+  useEffect(() => {
+    safeSetItem(STORAGE_KEYS.SAVED_PRODUCTS, savedProductIds);
   }, [savedProductIds]);
 
   useEffect(() => {
-    localStorage.setItem('meena_bazaar_orders_v2', JSON.stringify(orders));
-  }, [orders]);
-
-  useEffect(() => {
-    localStorage.setItem('meena_bazaar_user_v2', JSON.stringify(currentUser));
+    safeSetItem(STORAGE_KEYS.USER_PROFILE, currentUser);
   }, [currentUser]);
 
   // Actions
@@ -109,7 +169,10 @@ export const BazaarProvider = ({ children }) => {
   };
 
   // Create New Shop Storefront in State and Firestore
-  const createShop = async (shopData, userUid = null) => {
+  const createShop = async (shopData, userProfile = null) => {
+    const userUid = typeof userProfile === 'string' ? userProfile : userProfile?.uid;
+    const userEmail = typeof userProfile === 'object' ? userProfile?.email : null;
+
     const shopId = shopData.id || (shopData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(100 + Math.random() * 900));
     const newShop = {
       id: shopId,
@@ -123,12 +186,14 @@ export const BazaarProvider = ({ children }) => {
       reviewsCount: 0,
       productsCount: 0,
       verified: true,
-      ownerUid: userUid,
+      ownerUid: userUid || '',
+      ownerEmail: userEmail || '',
       timing: shopData.timing || '10:00 AM - 9:00 PM',
       address: shopData.address || '',
       description: shopData.description || '',
-      image: shopData.image || 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=400&q=80',
-      banner: shopData.banner || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1200&q=80'
+      image: shopData.image || DEFAULT_STORE_LOGO,
+      banner: shopData.banner || DEFAULT_COVER_BANNER,
+      createdAt: new Date().toISOString()
     };
 
     setShops(prev => [newShop, ...prev.filter(s => s.id !== shopId)]);
@@ -143,7 +208,8 @@ export const BazaarProvider = ({ children }) => {
           await setDoc(userRef, {
             role: 'shop_owner',
             shopId: shopId,
-            shopName: newShop.name
+            shopName: newShop.name,
+            ownerEmail: userEmail
           }, { merge: true });
         }
       } catch (err) {
@@ -156,9 +222,14 @@ export const BazaarProvider = ({ children }) => {
 
   // Update Shop Profile in State and Firestore
   const updateShopDetails = async (shopId, updatedData) => {
-    setShops(prevShops =>
-      prevShops.map(s => (s.id === shopId ? { ...s, ...updatedData } : s))
-    );
+    setShops(prevShops => {
+      const exists = prevShops.some(s => s.id === shopId);
+      if (exists) {
+        return prevShops.map(s => (s.id === shopId ? { ...s, ...updatedData } : s));
+      } else {
+        return [{ id: shopId, name: 'My Storefront', ...updatedData }, ...prevShops];
+      }
+    });
 
     if (updatedData.name) {
       setProducts(prevProducts =>
@@ -177,18 +248,27 @@ export const BazaarProvider = ({ children }) => {
   };
 
   const addProduct = async (productData) => {
-    const id = productData.id || (productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(100 + Math.random() * 900));
+    if (!productData) return;
+    const nameSlug = productData.name ? productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'product';
+    const id = productData.id || (nameSlug + '-' + Math.floor(100 + Math.random() * 900));
+
+    const finalImages = productData.images && productData.images.length > 0
+      ? productData.images
+      : (productData.image ? [productData.image] : [DEFAULT_PRODUCT_IMAGE]);
+
     const newProduct = {
       ...productData,
       id,
-      price: Number(productData.price),
-      originalPrice: Number(productData.originalPrice || productData.price),
+      name: productData.name || 'Untitled Product',
+      price: Number(productData.price) || 0,
+      originalPrice: Number(productData.originalPrice || productData.price) || 0,
       isNew: true,
       isFeatured: false,
       rating: productData.rating || 4.5,
       reviewsCount: productData.reviewsCount || 1,
       soldCount: productData.soldCount || 0,
-      images: productData.images && productData.images.length > 0 ? productData.images : ["https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600"],
+      images: finalImages,
+      image: finalImages[0],
       highlights: productData.highlights || [],
       specifications: productData.specifications || {}
     };
@@ -210,15 +290,31 @@ export const BazaarProvider = ({ children }) => {
         console.warn("Could not add product to Firestore:", err);
       }
     }
+
+    return newProduct;
   };
 
   const updateProduct = async (updatedProduct) => {
-    setProducts(prev => prev.map(p => p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p));
+    if (!updatedProduct || !updatedProduct.id) return;
+
+    const finalImages = updatedProduct.images && updatedProduct.images.length > 0
+      ? updatedProduct.images
+      : (updatedProduct.image ? [updatedProduct.image] : [DEFAULT_PRODUCT_IMAGE]);
+
+    const cleanProduct = {
+      ...updatedProduct,
+      price: Number(updatedProduct.price) || 0,
+      originalPrice: Number(updatedProduct.originalPrice || updatedProduct.price) || 0,
+      images: finalImages,
+      image: finalImages[0]
+    };
+
+    setProducts(prev => prev.map(p => p.id === cleanProduct.id ? { ...p, ...cleanProduct } : p));
 
     if (isFirebaseConfigured) {
       try {
-        const productRef = doc(db, 'products', updatedProduct.id);
-        await setDoc(productRef, updatedProduct, { merge: true });
+        const productRef = doc(db, 'products', cleanProduct.id);
+        await setDoc(productRef, cleanProduct, { merge: true });
       } catch (err) {
         console.warn("Could not update product in Firestore:", err);
       }
@@ -244,39 +340,6 @@ export const BazaarProvider = ({ children }) => {
         await setDoc(productRef, { deleted: true }, { merge: true });
       } catch (err) {
         console.warn("Could not delete product in Firestore:", err);
-      }
-    }
-  };
-
-  const updateOrderStatus = async (orderId, newStatus) => {
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-
-    if (isFirebaseConfigured) {
-      try {
-        const orderRef = doc(db, 'orders', orderId);
-        await setDoc(orderRef, { status: newStatus }, { merge: true });
-      } catch (err) {
-        console.warn("Could not update order status in Firestore:", err);
-      }
-    }
-  };
-
-  const addOrder = async (orderData) => {
-    const id = orderData.id || `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
-    const newOrder = {
-      id,
-      date: new Date().toISOString().split('T')[0],
-      status: 'Pending',
-      ...orderData
-    };
-    setOrders(prev => [newOrder, ...prev.filter(o => o.id !== id)]);
-
-    if (isFirebaseConfigured) {
-      try {
-        const orderRef = doc(db, 'orders', id);
-        await setDoc(orderRef, newOrder, { merge: true });
-      } catch (err) {
-        console.warn("Could not add order in Firestore:", err);
       }
     }
   };
@@ -315,13 +378,113 @@ export const BazaarProvider = ({ children }) => {
     }
   };
 
+  // ── DYNAMIC CATEGORY & MARKET CRUD HANDLERS ──
+  const addCategory = async (catData) => {
+    if (!catData || !catData.name) return;
+    const id = catData.id || catData.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+    const newCategory = {
+      id,
+      name: catData.name.trim(),
+      icon: catData.icon || 'fa-shapes',
+      description: catData.description || '',
+      color: catData.color || 'bg-emerald-100 text-[#056839]',
+      createdAt: new Date().toISOString()
+    };
+
+    setCategories(prev => [newCategory, ...prev.filter(c => c.id !== id)]);
+
+    if (isFirebaseConfigured) {
+      try {
+        await setDoc(doc(db, 'categories', id), newCategory, { merge: true });
+      } catch (err) {
+        console.warn("Could not save category to Firestore:", err);
+      }
+    }
+    return newCategory;
+  };
+
+  const updateCategory = async (catId, updatedData) => {
+    if (!catId) return;
+    setCategories(prev => prev.map(c => c.id === catId ? { ...c, ...updatedData } : c));
+
+    if (isFirebaseConfigured) {
+      try {
+        await setDoc(doc(db, 'categories', catId), updatedData, { merge: true });
+      } catch (err) {
+        console.warn("Could not update category in Firestore:", err);
+      }
+    }
+  };
+
+  const deleteCategory = async (catId) => {
+    if (!catId) return;
+    setCategories(prev => prev.filter(c => c.id !== catId));
+
+    if (isFirebaseConfigured) {
+      try {
+        await setDoc(doc(db, 'categories', catId), { deleted: true }, { merge: true });
+      } catch (err) {
+        console.warn("Could not delete category in Firestore:", err);
+      }
+    }
+  };
+
+  const addMarket = async (mktData) => {
+    if (!mktData || !mktData.name) return;
+    const id = mktData.id || mktData.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+    const newMarket = {
+      id,
+      name: mktData.name.trim(),
+      city: mktData.city || 'Rampur',
+      area: mktData.area || 'Main City Area',
+      description: mktData.description || '',
+      createdAt: new Date().toISOString()
+    };
+
+    setMarkets(prev => [newMarket, ...prev.filter(m => m.id !== id)]);
+
+    if (isFirebaseConfigured) {
+      try {
+        await setDoc(doc(db, 'markets', id), newMarket, { merge: true });
+      } catch (err) {
+        console.warn("Could not save market to Firestore:", err);
+      }
+    }
+    return newMarket;
+  };
+
+  const updateMarket = async (mktId, updatedData) => {
+    if (!mktId) return;
+    setMarkets(prev => prev.map(m => m.id === mktId ? { ...m, ...updatedData } : m));
+
+    if (isFirebaseConfigured) {
+      try {
+        await setDoc(doc(db, 'markets', mktId), updatedData, { merge: true });
+      } catch (err) {
+        console.warn("Could not update market in Firestore:", err);
+      }
+    }
+  };
+
+  const deleteMarket = async (mktId) => {
+    if (!mktId) return;
+    setMarkets(prev => prev.filter(m => m.id !== mktId));
+
+    if (isFirebaseConfigured) {
+      try {
+        await setDoc(doc(db, 'markets', mktId), { deleted: true }, { merge: true });
+      } catch (err) {
+        console.warn("Could not delete market in Firestore:", err);
+      }
+    }
+  };
+
   const login = (email, password) => {
-    const adminEmail = (import.meta.env.VITE_ADMIN_EMAIL || 'mohdhuzaifa8126195456@gmail.com').toLowerCase().trim();
+    const adminEmail = (APP_CONFIG.ADMIN_EMAIL || 'mohdhuzaifa8126195456@gmail.com').toLowerCase().trim();
     if (email?.toLowerCase().trim() === adminEmail && password === 'admin123') {
       setCurrentUser({ role: 'admin', email });
       return { success: true, redirect: '/dashboard/admin' };
     }
-
     return { success: false, message: 'Invalid credentials.' };
   };
 
@@ -340,16 +503,6 @@ export const BazaarProvider = ({ children }) => {
     const product = products.find(p => p.id === productId);
     if (!product) return;
     const shop = shops.find(s => s.id === product.shopId);
-
-    addOrder({
-      productName: product.name,
-      price: product.price,
-      customerName: "WhatsApp Lead",
-      customerPhone: shop?.phone || "",
-      shopId: product.shopId,
-      shopName: product.shopName || shop?.name || "Merchant Store"
-    });
-
     const link = generateWhatsAppLink(product, shop);
     window.open(link, "_blank");
   };
@@ -359,12 +512,11 @@ export const BazaarProvider = ({ children }) => {
       cities: BAZAAR_DATA.cities,
       currentCity,
       setCurrentCity,
-      categories: BAZAAR_DATA.categories,
-      markets: BAZAAR_DATA.markets,
+      categories,
+      markets,
       products,
       shops,
       savedProductIds,
-      orders,
       currentUser,
       isProductSaved,
       toggleSaveProduct,
@@ -374,10 +526,14 @@ export const BazaarProvider = ({ children }) => {
       addProduct,
       updateProduct,
       deleteProduct,
-      updateOrderStatus,
-      addOrder,
       toggleShopVerification,
       deleteShop,
+      addCategory,
+      updateCategory,
+      deleteCategory,
+      addMarket,
+      updateMarket,
+      deleteMarket,
       login,
       logout,
       generateWhatsAppLink,

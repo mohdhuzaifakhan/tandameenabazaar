@@ -1,14 +1,24 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useImageModal } from '../context/ImageModalContext';
+import { DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 
 export default function ShopCardClean({ shop }) {
+  if (!shop) return null;
+
   const navigate = useNavigate();
-  const logo = shop.image || shop.logoImage || 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=400&q=80';
+  const { openImageModal } = useImageModal();
+  const logo = shop.image || shop.logoImage || DEFAULT_STORE_LOGO;
 
   const handleCardClick = () => {
     if (shop?.id) {
       navigate(`/shop/${shop.id}`);
     }
+  };
+
+  const handleZoom = (e) => {
+    e.stopPropagation();
+    openImageModal(logo, `${shop.name || 'Store'} Logo / Image`);
   };
 
   const handleWhatsAppClick = (e) => {
@@ -22,13 +32,23 @@ export default function ShopCardClean({ shop }) {
     >
       
       {/* Store Cover Banner & Rating Badge */}
-      <div className="relative h-28 bg-slate-100 overflow-hidden">
+      <div className="relative h-28 bg-slate-100 overflow-hidden group/banner">
         <img 
           src={logo} 
           alt={shop.name} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
         />
         
+        {/* Image Zoom Button */}
+        <button
+          type="button"
+          onClick={handleZoom}
+          className="absolute top-2.5 left-2.5 w-6 h-6 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white text-[9px] flex items-center justify-center opacity-0 group-hover/banner:opacity-100 transition-opacity z-10 cursor-zoom-in shadow-sm"
+          title="Zoom image"
+        >
+          <i className="fa-solid fa-magnifying-glass-plus"></i>
+        </button>
+
         {/* Rating Pill Top Right */}
         <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-white/90 text-slate-900 font-extrabold text-[10px] flex items-center gap-1">
           <i className="fa-solid fa-star text-amber-400 text-[9px]"></i> {shop.rating || 4.9}

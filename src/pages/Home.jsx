@@ -7,15 +7,22 @@ import ShopCardClean from '../components/ShopCardClean';
 export default function Home() {
   const { categories, products, shops } = useBazaar();
 
-  // Real products list
-  const featuredProducts = (products.filter(p => p.isFeatured).length > 0
-    ? products.filter(p => p.isFeatured)
-    : products).slice(0, 8);
+  // Only shops verified by Admin are published to public users
+  const verifiedShops = shops.filter(s => s.verified);
+  const verifiedShopIds = new Set(verifiedShops.map(s => s.id));
 
-  // Real shops list
-  const popularShops = (shops.filter(s => s.rating >= 4.0).length > 0
-    ? shops.filter(s => s.rating >= 4.0)
-    : shops).slice(0, 5);
+  // Only products from verified shops
+  const publicProducts = products.filter(p => verifiedShopIds.has(p.shopId));
+
+  // Real featured products list from verified shops
+  const featuredProducts = (publicProducts.filter(p => p.isFeatured).length > 0
+    ? publicProducts.filter(p => p.isFeatured)
+    : publicProducts).slice(0, 8);
+
+  // Real popular verified shops list
+  const popularShops = (verifiedShops.filter(s => s.rating >= 4.0).length > 0
+    ? verifiedShops.filter(s => s.rating >= 4.0)
+    : verifiedShops).slice(0, 5);
 
   // Category Icon Colors Map matching mockup
   const categoryColors = [

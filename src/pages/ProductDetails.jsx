@@ -1,30 +1,69 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBazaar } from '../context/BazaarContext';
+import { useAuth } from '../context/AuthContext';
+import { useImageModal } from '../context/ImageModalContext';
 import ProductCard from '../components/ProductCard';
 
 export default function ProductDetails() {
   const { id } = useParams();
   const { products, shops, isProductSaved, toggleSaveProduct, openWhatsApp } = useBazaar();
+  const { userProfile } = useAuth();
+  const { openImageModal } = useImageModal();
   
   const currentProductId = id || 'samsung-m16-5g';
-  const product = products.find(p => p.id === currentProductId) || products[0];
-  const shop = shops.find(s => s.id === product.shopId) || shops[0];
+  const product = products.find(p => p.id === currentProductId);
+  const shop = shops.find(s => s.id === product?.shopId);
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('desc');
   const [readMore, setReadMore] = useState(false);
-  const [zoomOpen, setZoomOpen] = useState(false);
   const [slideDir, setSlideDir] = useState(''); // 'left' | 'right'
   const [isSliding, setIsSliding] = useState(false);
   const touchStartX = useRef(null);
 
   useEffect(() => {
-    setActiveImageIndex(0);
-    setActiveTab('desc');
-    setReadMore(false);
-    setZoomOpen(false);
+    if (product) {
+      setActiveImageIndex(0);
+      setActiveTab('desc');
+      setReadMore(false);
+    }
   }, [product]);
+
+  if (!product) {
+    return (
+      <div className="w-full py-16 text-center text-slate-400 space-y-4">
+        <i className="fa-solid fa-box-open text-4xl text-slate-300"></i>
+        <h2 className="text-lg font-bold text-slate-800">Product Not Found</h2>
+        <p className="text-xs text-slate-500">The product you are looking for is unavailable or has been removed.</p>
+        <Link to="/shops" className="px-5 py-2.5 bg-emerald-600 text-white font-bold text-xs rounded-xl inline-block">
+          Explore Products & Stores
+        </Link>
+      </div>
+    );
+  }
+
+  // Verification Access Control: Block public access if merchant storefront is unverified
+  const isOwnerOrAdmin = (userProfile?.role === 'admin') || (userProfile?.uid === shop?.ownerUid) || (userProfile?.shopId === shop?.id);
+
+  if (shop && !shop.verified && !isOwnerOrAdmin) {
+    return (
+      <div className="w-full py-16 px-4 text-center space-y-4 max-w-lg mx-auto animate-fade-in">
+        <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto shadow-inner border border-amber-200">
+          <i className="fa-solid fa-box-archive"></i>
+        </div>
+        <h2 className="text-xl font-black text-slate-900 tracking-tight">Product Unavailable</h2>
+        <p className="text-xs text-slate-500 font-medium leading-relaxed">
+          The merchant storefront listing this product is currently under admin verification or delisted. This item is not visible to public buyers.
+        </p>
+        <div className="pt-2">
+          <Link to="/shops" className="px-5 py-2.5 bg-[#056839] hover:bg-emerald-800 text-white font-bold text-xs rounded-xl inline-flex items-center gap-2 transition-colors shadow-sm">
+            <i className="fa-solid fa-arrow-left"></i> Explore Active Stores
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Close zoom on ESC
   useEffect(() => {
@@ -96,7 +135,8 @@ export default function ProductDetails() {
             className="w-full aspect-[4/3] sm:aspect-square md:h-[460px] rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center relative overflow-hidden cursor-zoom-in select-none group"
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
-            onClick={() => setZoomOpen(true)}
+            onClick={() => openImageModal(activeImage, product.name)}
+            title="Click to view fullscreen photo"
           >
             {hasDiscount && (
               <span className="absolute top-4 left-4 z-10 px-3 py-1 bg-red-500 text-white font-black text-xs uppercase tracking-wide rounded-md shadow-sm">
@@ -369,26 +409,6 @@ export default function ProductDetails() {
           <i className="fa-brands fa-whatsapp text-sm"></i> Order on WhatsApp
         </button>
       </div>
-
-      {/* Fullscreen Image Zoom Modal */}
-      {zoomOpen && (
-        <div 
-          className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4 cursor-zoom-out select-none"
-          onClick={() => setZoomOpen(false)}
-        >
-          <button 
-            onClick={() => setZoomOpen(false)} 
-            className="absolute top-6 right-6 text-white text-xl w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
-          >
-            <i className="fa-solid fa-xmark"></i>
-          </button>
-          <img 
-            src={activeImage} 
-            alt={product.name} 
-            className="max-w-full max-h-[90vh] object-contain rounded-2xl animate-fade-in" 
-          />
-        </div>
-      )}
 
     </div>
   );

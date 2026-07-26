@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useBazaar } from '../context/BazaarContext';
+import { useImageModal } from '../context/ImageModalContext';
+import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 import DashboardLayout from '../components/DashboardLayout';
 
 export default function AdminShopDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { shops, products, toggleShopVerification, deleteProduct } = useBazaar();
+  const { openImageModal } = useImageModal();
 
   const [toastMessage, setToastMessage] = useState(null);
   const [productToDelete, setProductToDelete] = useState(null);
@@ -60,59 +63,72 @@ export default function AdminShopDetails() {
 
       <div className="flex flex-col gap-5 sm:gap-6 md:gap-8 animate-fade-in pb-12">
         
-        {/* Store Header Banner Card */}
-        <div className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-xs">
-          <div className="h-32 sm:h-44 bg-slate-900 relative">
+        {/* Store Header Banner Card (Ultra-Premium Dark Emerald Cover) */}
+        <div className="relative rounded-3xl overflow-hidden bg-slate-900 text-white shadow-xl border border-slate-800">
+          <div 
+            onClick={() => openImageModal(shop.banner || shop.bannerImage || DEFAULT_COVER_BANNER, `${shop.name} Store Cover`)}
+            className="h-32 sm:h-44 md:h-52 w-full relative cursor-zoom-in group"
+            title="Click to view full cover image"
+          >
             <img 
-              src={shop.banner || shop.bannerImage || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1200&q=80'} 
+              src={shop.banner || shop.bannerImage || DEFAULT_COVER_BANNER} 
               alt={shop.name} 
-              className="w-full h-full object-cover opacity-60" 
+              onError={(e) => { e.target.src = DEFAULT_COVER_BANNER; }}
+              className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" 
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
           </div>
 
-          <div className="p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 relative -mt-10 sm:-mt-12 z-10">
-            <div className="flex items-center gap-3.5">
+          <div className="p-4 sm:p-6 md:p-8 flex flex-col md:flex-row items-start md:items-end justify-between gap-4 relative -mt-10 sm:-mt-14 md:-mt-18 z-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 sm:gap-4 min-w-0 flex-1 w-full md:w-auto">
               <img 
-                src={shop.image || shop.logoImage || 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=400&q=80'} 
+                onClick={() => openImageModal(shop.image || shop.logoImage || DEFAULT_STORE_LOGO, `${shop.name} Store Logo`)}
+                src={shop.image || shop.logoImage || DEFAULT_STORE_LOGO} 
                 alt={shop.name} 
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-4 border-white shadow-2xl bg-slate-800 flex-shrink-0" 
+                onError={(e) => { e.target.src = DEFAULT_STORE_LOGO; }}
+                className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl object-cover border-3 border-slate-950 shadow-2xl bg-slate-800 flex-shrink-0 cursor-zoom-in hover:scale-105 transition-transform duration-300" 
+                title="Click to view full logo image"
               />
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 truncate">{shop.name}</h1>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                    shop.verified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                  }`}>
-                    {shop.verified ? 'Verified Store' : 'Pending Verification'}
-                  </span>
+              <div className="min-w-0 flex-1 w-full sm:w-auto">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-base sm:text-xl md:text-3xl font-black text-white leading-tight break-words">{shop.name}</h1>
+                  {shop.verified ? (
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold uppercase tracking-wider flex-shrink-0">
+                      Verified Store
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-extrabold uppercase tracking-wider flex-shrink-0">
+                      Pending Verification
+                    </span>
+                  )}
                 </div>
-                <p className="text-xs text-slate-500 font-medium mt-1 flex flex-wrap items-center gap-2">
-                  <span><i className="fa-solid fa-location-dot text-emerald-600"></i> {shop.address || shop.market || 'Main Market'}</span>
-                  <span>&bull;</span>
-                  <span><i className="fa-solid fa-tag text-emerald-600"></i> {shop.category || shop.categoryName || 'General'}</span>
+                <p className="text-xs text-slate-300 font-medium mt-1 flex items-center gap-2 flex-wrap">
+                  <span><i className="fa-solid fa-location-dot text-emerald-400"></i> {shop.address || shop.market || 'Main Market'}</span>
+                  <span>•</span>
+                  <span><i className="fa-solid fa-tag text-emerald-400"></i> {shop.category || shop.categoryName || 'General'}</span>
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3 w-full md:w-auto mt-1 sm:mt-0">
               <button 
                 onClick={handleToggleVerify}
-                className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer text-center ${
+                className={`px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer whitespace-nowrap text-center flex items-center justify-center gap-1.5 ${
                   shop.verified 
-                    ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200' 
-                    : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                    ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40' 
+                    : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold'
                 }`}
               >
-                {shop.verified ? 'Suspend Verification' : 'Approve & Verify Store'}
+                <i className={`fa-solid ${shop.verified ? 'fa-ban' : 'fa-check-circle'} text-xs`}></i>
+                <span>{shop.verified ? 'Suspend Verification' : 'Approve & Verify'}</span>
               </button>
 
               <Link 
                 to={`/shop/${shop.id}`}
                 target="_blank"
-                className="w-full sm:w-auto px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all inline-flex items-center justify-center gap-1.5 text-center"
+                className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition-all border border-slate-700 flex items-center justify-center gap-1.5 whitespace-nowrap text-center"
               >
-                <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i> View Live Storefront
+                <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i> <span>View Live Storefront</span>
               </Link>
             </div>
           </div>

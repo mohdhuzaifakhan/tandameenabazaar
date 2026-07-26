@@ -1,17 +1,14 @@
 import React, { useState, useRef } from 'react';
+import { useImageModal } from '../context/ImageModalContext';
+import { DEFAULT_STORE_LOGO, DEFAULT_COVER_BANNER } from '../utils/defaultAssets';
 
 // Preset sample graphics for quick selection
 const PRESET_LOGOS = [
-  { name: 'Mobile Shop', url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80' },
-  { name: 'Electronics', url: 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=400&q=80' },
-  { name: 'Fashion Hub', url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&q=80' },
-  { name: 'General Store', url: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=400&q=80' }
+  { name: 'Default Store Logo', url: DEFAULT_STORE_LOGO }
 ];
 
 const PRESET_BANNERS = [
-  { name: 'Modern Tech', url: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1200&q=80' },
-  { name: 'Shopping Mall', url: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&q=80' },
-  { name: 'Boutique Cover', url: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&q=80' }
+  { name: 'Default Cover Header', url: DEFAULT_COVER_BANNER }
 ];
 
 export default function ImageUploader({ 
@@ -24,19 +21,59 @@ export default function ImageUploader({
   aspectRatio = "square", 
   placeholder = "Upload file or paste image URL..." 
 }) {
+  const { openImageModal } = useImageModal();
   const [uploading, setUploading] = useState(false);
   const [activeMode, setActiveMode] = useState('upload'); // 'upload' | 'url' | 'presets'
   const [urlInput, setUrlInput] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const fileInputRef = useRef(null);
 
-  // Helper: Read file as Base64 Data URL
-  const readFileAsBase64 = (file) => {
+  // Helper: Read file and compress on canvas to optimized Base64 JPEG
+  const processAndCompressImage = (file, maxDim = 800, quality = 0.82) => {
     return new Promise((resolve, reject) => {
+      if (!file || !file.type.startsWith('image/')) {
+        reject(new Error('Selected file is not a valid image.'));
+        return;
+      }
       const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            // Draw with high quality canvas rendering
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve(compressedDataUrl);
+          } catch (canvasErr) {
+            reject(canvasErr);
+          }
+        };
+        img.onerror = () => reject(new Error('Failed to load image into memory.'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file.'));
       reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
     });
   };
 
@@ -52,11 +89,17 @@ export default function ImageUploader({
       if (validFiles.length === 0) {
         setErrorMsg('Please select valid image files (PNG, JPG, WEBP).');
         setUploading(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
         return;
       }
 
-      // Convert all selected files to Base64 Data URLs
-      const encodedImages = await Promise.all(validFiles.map(f => readFileAsBase64(f)));
+      // Determine optimal max dimension based on aspect ratio / multi mode
+      const maxDim = aspectRatio === 'banner' ? 1200 : (multiple ? 800 : 500);
+
+      // Convert and compress all selected files
+      const encodedImages = await Promise.all(
+        validFiles.map(f => processAndCompressImage(f, maxDim, 0.82))
+      );
 
       if (multiple && onImagesChange) {
         onImagesChange([...(values || []), ...encodedImages]);
@@ -65,11 +108,16 @@ export default function ImageUploader({
       }
       setUploading(false);
     } catch (err) {
-      console.error("Error reading image files:", err);
-      setErrorMsg("Failed to process image files.");
+      console.error("Error processing image files:", err);
+      setErrorMsg("Failed to process image files. Please try a different photo.");
       setUploading(false);
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
+
 
   const handleAddUrl = (e) => {
     e.preventDefault();
@@ -159,11 +207,13 @@ export default function ImageUploader({
             {imageList.map((imgUrl, idx) => (
               <div 
                 key={idx} 
-                className={`relative rounded-xl border overflow-hidden group bg-slate-50 flex items-center justify-center ${
+                className={`relative rounded-xl border overflow-hidden group bg-slate-50 flex items-center justify-center cursor-zoom-in ${
                   idx === 0 ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200'
                 } ${aspectRatio === 'banner' ? 'h-20' : 'h-24'}`}
+                onClick={() => openImageModal(imgUrl, label || 'Image Preview')}
+                title="Click to zoom image"
               >
-                <img src={imgUrl} alt={`Uploaded ${idx + 1}`} className="w-full h-full object-cover" />
+                <img src={imgUrl} alt={`Uploaded ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 
                 {/* Cover badge for first image */}
                 {idx === 0 && (

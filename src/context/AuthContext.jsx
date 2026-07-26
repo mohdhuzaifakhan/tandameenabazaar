@@ -12,22 +12,56 @@ import {
 } from 'firebase/firestore';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db, googleProvider, isFirebaseConfigured } from '../firebase';
+import { STORAGE_KEYS, APP_CONFIG } from '../constants/appConstants';
 
-// Read Application Owner Admin Email from .env configuration
-export const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || '').toLowerCase().trim();
+// Read Application Owner Admin Email from Central Constants
+export const ADMIN_EMAIL = (APP_CONFIG.ADMIN_EMAIL || '').toLowerCase().trim();
 
 export const isAdminEmail = (email) => {
   if (!email) return false;
   return email.toLowerCase().trim() === ADMIN_EMAIL;
 };
 
+// Helper for safe localStorage access
+const safeGetItem = (key, fallback) => {
+  try {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : fallback;
+  } catch (e) {
+    console.warn(`Error reading localStorage key "${key}":`, e);
+    return fallback;
+  }
+};
+
+const safeSetItem = (key, value) => {
+  try {
+    if (value === null || value === undefined) {
+      localStorage.removeItem(key);
+    } else {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+  } catch (e) {
+    console.warn(`Error writing localStorage key "${key}":`, e);
+  }
+};
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Read persistent initial session from local storage cache
+  const initialSession = safeGetItem(STORAGE_KEYS.AUTH_USER, null);
+
+  const [currentUser, setCurrentUser] = useState(() => initialSession?.user || null);
+  const [userProfile, setUserProfile] = useState(() => initialSession?.profile || null);
+  const [loading, setLoading] = useState(!initialSession);
   const [authError, setAuthError] = useState(null);
+
+  // Keep persistent storage in sync whenever user or profile changes
+  useEffect(() => {
+    if (currentUser || userProfile) {
+      safeSetItem(STORAGE_KEYS.AUTH_USER, { user: currentUser, profile: userProfile });
+    }
+  }, [currentUser, userProfile]);
 
   // Sync user profile from Firestore or local cache
   const fetchOrSyncUserProfile = async (user) => {
@@ -72,6 +106,7 @@ export const AuthProvider = ({ children }) => {
             role: effectiveRole
           };
           setUserProfile(profile);
+          safeSetItem('meena_bazaar_auth_session_v3', { user, profile });
           return profile;
         } else {
           // New merchant sign up - store in Firestore
@@ -89,10 +124,11 @@ export const AuthProvider = ({ children }) => {
 
           await setDoc(userRef, newProfile);
           setUserProfile(newProfile);
+          safeSetItem('meena_bazaar_auth_session_v3', { user, profile: newProfile });
           return newProfile;
         }
       } else {
-        // Fallback for local demo mode when Firebase API key is unconfigured
+        // Fallback for local demo mode
         const profile = {
           uid: user.uid,
           email: user.email,
@@ -103,12 +139,13 @@ export const AuthProvider = ({ children }) => {
           shopName: null
         };
         setUserProfile(profile);
+        safeSetItem('meena_bazaar_auth_session_v3', { user, profile });
         return profile;
       }
     } catch (err) {
-      console.error("Error syncing Firestore user profile:", err);
+      console.warn("Error syncing Firestore user profile:", err);
       const isUserAdmin = isAdminEmail(user.email);
-      const fallbackProfile = {
+      const fallbackProfile = userProfile || {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName || 'Merchant',
@@ -129,20 +166,28 @@ export const AuthProvider = ({ children }) => {
       if (isFirebaseConfigured) {
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
-        const profile = await fetchOrSyncUserProfile(user);
+        const minimalUser = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL
+        };
+        setCurrentUser(minimalUser);
 
+        const profile = await fetchOrSyncUserProfile(user);
         const isUserAdmin = isAdminEmail(user.email);
         const finalRole = isUserAdmin ? 'admin' : 'shop_owner';
 
         if (profile) {
           profile.role = finalRole;
           setUserProfile({ ...profile });
+          safeSetItem('meena_bazaar_auth_session_v3', { user: minimalUser, profile });
         }
-        return { success: true, user, profile };
+        return { success: true, user: minimalUser, profile };
       } else {
         // Simulated Google Auth flow for dev environment
         const mockGoogleUser = {
-          uid: 'google-uid-' + Date.now(),
+          uid: 'google-uid-demo',
           email: ADMIN_EMAIL,
           displayName: 'Application Admin',
           photoURL: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=80'
@@ -160,7 +205,8 @@ export const AuthProvider = ({ children }) => {
 
         setCurrentUser(mockGoogleUser);
         setUserProfile(mockProfile);
-        localStorage.setItem('meena_bazaar_firebase_user', JSON.stringify({ user: mockGoogleUser, profile: mockProfile }));
+        safeSetItem('meena_bazaar_auth_session_v3', { user: mockGoogleUser, profile: mockProfile });
+        safeSetItem('meena_bazaar_firebase_user', { user: mockGoogleUser, profile: mockProfile });
         return { success: true, user: mockGoogleUser, profile: mockProfile };
       }
     } catch (error) {
@@ -178,48 +224,74 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Sign out function
+  // Explicit Sign out function
   const logout = async () => {
     try {
       if (isFirebaseConfigured) {
         await signOut(auth);
       }
+    } catch (error) {
+      console.warn("Logout warning:", error);
+    } finally {
       setCurrentUser(null);
       setUserProfile(null);
-      localStorage.removeItem('meena_bazaar_firebase_user');
-      return { success: true };
-    } catch (error) {
-      console.error("Logout error:", error);
-      return { success: false, message: error.message };
+      safeSetItem('meena_bazaar_auth_session_v3', null);
+      safeSetItem('meena_bazaar_firebase_user', null);
+      safeSetItem('meena_bazaar_user_v2', null);
     }
+    return { success: true };
   };
 
-  // Listen for Firebase auth state changes
+  // Listen for Firebase auth state changes & maintain persistent state
   useEffect(() => {
-    let unsubscribe = () => { };
+    let unsubscribe = () => {};
 
     if (isFirebaseConfigured) {
-      unsubscribe = onAuthStateChanged(auth, async (user) => {
+      unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user) {
-          setCurrentUser(user);
-          await fetchOrSyncUserProfile(user);
+          const minimalUser = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL
+          };
+          setCurrentUser(minimalUser);
+
+          // If no local profile loaded yet, construct immediate role profile
+          const isUserAdmin = isAdminEmail(user.email);
+          const derivedRole = isUserAdmin ? 'admin' : 'shop_owner';
+          if (!userProfile) {
+            setUserProfile({
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName || 'Merchant',
+              photoURL: user.photoURL || '',
+              role: derivedRole,
+              shopId: null,
+              shopName: null
+            });
+          }
+
+          // Background sync profile without blocking UI
+          fetchOrSyncUserProfile(user).catch(err => {
+            console.warn("Background profile sync error:", err);
+          });
         } else {
-          setCurrentUser(null);
-          setUserProfile(null);
+          // If Firebase signals signed out, check if user session exists in local persistent storage
+          const stored = safeGetItem('meena_bazaar_auth_session_v3', null);
+          if (!stored) {
+            setCurrentUser(null);
+            setUserProfile(null);
+          }
         }
         setLoading(false);
       });
     } else {
-      // Check stored dev auth user
-      const stored = localStorage.getItem('meena_bazaar_firebase_user');
+      // Dev demo mode persistence
+      const stored = safeGetItem('meena_bazaar_auth_session_v3', null) || safeGetItem('meena_bazaar_firebase_user', null);
       if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          setCurrentUser(parsed.user);
-          setUserProfile(parsed.profile);
-        } catch (e) {
-          console.error("Error reading stored mock user:", e);
-        }
+        setCurrentUser(stored.user);
+        setUserProfile(stored.profile);
       }
       setLoading(false);
     }

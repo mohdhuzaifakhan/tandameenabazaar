@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBazaar } from '../context/BazaarContext';
+import { useAuth } from '../context/AuthContext';
+import { useImageModal } from '../context/ImageModalContext';
+import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 import ShopProductCard from '../components/ShopProductCard';
 
 export default function ShopDetails() {
   const { id } = useParams();
   const { shops, products, openWhatsApp } = useBazaar();
+  const { userProfile } = useAuth();
+  const { openImageModal } = useImageModal();
   const [activeTab, setActiveTab] = useState('products'); // 'products' | 'about'
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
   const [inShopSearch, setInShopSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   // Find current shop from real state
-  const shop = shops.find(s => s.id === id) || shops[0];
+  const shop = shops.find(s => s.id === id);
 
   if (!shop) {
     return (
@@ -22,6 +27,28 @@ export default function ShopDetails() {
         <Link to="/shops" className="px-5 py-2.5 bg-emerald-600 text-white font-bold text-xs rounded-xl inline-block">
           Explore Stores Directory
         </Link>
+      </div>
+    );
+  }
+
+  // Verification Access Control: If store is unverified, only Admin or Store Owner can view it
+  const isOwnerOrAdmin = (userProfile?.role === 'admin') || (userProfile?.uid === shop?.ownerUid) || (userProfile?.shopId === shop?.id);
+
+  if (!shop.verified && !isOwnerOrAdmin) {
+    return (
+      <div className="w-full py-16 px-4 text-center space-y-4 max-w-lg mx-auto animate-fade-in">
+        <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto shadow-inner border border-amber-200">
+          <i className="fa-solid fa-store-slash"></i>
+        </div>
+        <h2 className="text-xl font-black text-slate-900 tracking-tight">Storefront Under Verification</h2>
+        <p className="text-xs text-slate-500 font-medium leading-relaxed">
+          "{shop.name}" is currently under administrative review or has been delisted by Admin. This storefront and its product catalog are not accessible to public buyers.
+        </p>
+        <div className="pt-2">
+          <Link to="/shops" className="px-5 py-2.5 bg-[#056839] hover:bg-emerald-800 text-white font-bold text-xs rounded-xl inline-flex items-center gap-2 transition-colors shadow-sm">
+            <i className="fa-solid fa-arrow-left"></i> Explore Verified Stores
+          </Link>
+        </div>
       </div>
     );
   }
@@ -57,8 +84,8 @@ export default function ShopDetails() {
     }
   };
 
-  const shopBanner = shop.banner || shop.bannerImage || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1200&q=80';
-  const shopLogo = shop.image || shop.logoImage || 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=400&q=80';
+  const shopBanner = shop.banner || shop.bannerImage || DEFAULT_COVER_BANNER;
+  const shopLogo = shop.image || shop.logoImage || DEFAULT_STORE_LOGO;
 
   return (
     <div className="w-full flex flex-col gap-6 py-4 animate-fade-in">
@@ -73,8 +100,12 @@ export default function ShopDetails() {
       </div>
 
       {/* Cover Image Banner */}
-      <div className="h-44 sm:h-56 md:h-72 w-full rounded-2xl bg-slate-900 overflow-hidden relative border border-slate-200">
-        <img src={shopBanner} alt={`${shop.name} Cover`} className="w-full h-full object-cover opacity-80" />
+      <div 
+        onClick={() => openImageModal(shopBanner, `${shop.name} Storefront Cover`)}
+        className="h-44 sm:h-56 md:h-72 w-full rounded-2xl bg-slate-900 overflow-hidden relative border border-slate-200 cursor-zoom-in group"
+        title="Click to view full cover image"
+      >
+        <img src={shopBanner} alt={`${shop.name} Cover`} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
       </div>
 
@@ -84,8 +115,12 @@ export default function ShopDetails() {
           
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start sm:items-end">
             {/* Floating Logo */}
-            <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-2xl bg-white border border-slate-200 overflow-hidden flex-shrink-0">
-              <img src={shopLogo} alt={shop.name} className="w-full h-full object-cover" />
+            <div 
+              onClick={() => openImageModal(shopLogo, `${shop.name} Storefront Logo`)}
+              className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-2xl bg-white border border-slate-200 overflow-hidden flex-shrink-0 cursor-zoom-in group"
+              title="Click to view full logo image"
+            >
+              <img src={shopLogo} alt={shop.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             
             <div className="flex flex-col gap-1">

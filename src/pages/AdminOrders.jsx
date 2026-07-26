@@ -3,7 +3,8 @@ import { useBazaar } from '../context/BazaarContext';
 import DashboardLayout from '../components/DashboardLayout';
 
 export default function AdminOrders() {
-  const { orders, updateOrderStatus } = useBazaar();
+  const orders = [];
+  const updateOrderStatus = () => {};
   const [activeTab, setActiveTab] = useState('All'); // 'All' | 'Pending' | 'Completed' | 'Cancelled'
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMessage, setToastMessage] = useState(null);

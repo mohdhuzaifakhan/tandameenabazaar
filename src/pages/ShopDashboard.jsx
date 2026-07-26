@@ -3,19 +3,18 @@ import { useBazaar } from '../context/BazaarContext';
 import { useAuth } from '../context/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
 import ImageUploader from '../components/ImageUploader';
+import { DEFAULT_STORE_LOGO, DEFAULT_COVER_BANNER, DEFAULT_PRODUCT_IMAGE } from '../utils/defaultAssets';
 
 export default function ShopDashboard() {
   const { userProfile } = useAuth();
   const { 
     shops, 
     products, 
-    orders, 
     createShop,
     updateShopDetails, 
     addProduct, 
     updateProduct, 
     deleteProduct, 
-    updateOrderStatus,
     categories,
     markets 
   } = useBazaar();
@@ -31,12 +30,23 @@ export default function ShopDashboard() {
   // Active Tab state: 'overview' | 'products' | 'store' | 'orders'
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Find shop owned by current logged in user (by ownerUid or profile shopId)
-  const userShop = shops.find(s => s.ownerUid === userProfile?.uid || s.id === userProfile?.shopId);
+  // Find shop owned by current logged in user (by ownerUid, profile shopId, or ownerEmail)
+  const userShop = shops.find(s => 
+    (userProfile?.uid && s.ownerUid === userProfile.uid) || 
+    (userProfile?.shopId && s.id === userProfile.shopId) ||
+    (userProfile?.email && s.ownerEmail && s.ownerEmail.toLowerCase() === userProfile.email.toLowerCase())
+  );
 
   // Shop Creation Wizard State
-  const [showCreateWizard, setShowCreateWizard] = useState(!userShop);
+  const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [creating, setCreating] = useState(false);
+
+  // Auto-close creation wizard when user's store is loaded/found
+  useEffect(() => {
+    if (userShop) {
+      setShowCreateWizard(false);
+    }
+  }, [userShop?.id]);
 
   const [newStoreForm, setNewStoreForm] = useState({
     name: userProfile?.displayName ? `${userProfile.displayName}'s Store` : '',
@@ -47,15 +57,15 @@ export default function ShopDashboard() {
     timing: '10:00 AM - 9:00 PM',
     address: 'Shop No. 12, Main Market Road',
     description: 'Official storefront serving customers on Meena Bazaar.',
-    image: 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=400&q=80',
-    banner: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1200&q=80'
+    image: DEFAULT_STORE_LOGO,
+    banner: DEFAULT_COVER_BANNER
   });
 
   const handleCreateShop = async (e) => {
     e.preventDefault();
     setCreating(true);
     try {
-      const created = await createShop(newStoreForm, userProfile?.uid);
+      const created = await createShop(newStoreForm, userProfile);
       setCreating(false);
       setShowCreateWizard(false);
       showToast(`Storefront "${created.name}" launched successfully!`);
@@ -80,13 +90,12 @@ export default function ShopDashboard() {
     timing: '10:00 AM - 9:00 PM',
     address: 'Main Market Road',
     description: 'Official store on Meena Bazaar.',
-    image: 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=400&q=80',
-    banner: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1200&q=80'
+    image: DEFAULT_STORE_LOGO,
+    banner: DEFAULT_COVER_BANNER
   };
 
-  // Filter products and orders belonging to this active shop
+  // Filter products belonging to this active shop
   const shopProducts = products.filter(p => p.shopId === shop.id);
-  const shopOrders = orders.filter(o => o.shopId === shop.id);
 
   // ── Store Form State ──
   const [storeForm, setStoreForm] = useState({
@@ -203,20 +212,18 @@ export default function ShopDashboard() {
       ? productForm.highlights.split(',').map(h => h.trim()).filter(Boolean)
       : [];
 
-    const defaultImg = 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&q=80';
-
     const productPayload = {
       name: productForm.name,
-      brand: productForm.brand,
-      price: Number(productForm.price),
-      originalPrice: Number(productForm.originalPrice || productForm.price),
-      category: productForm.category,
-      categoryName: productForm.categoryName,
-      description: productForm.description,
-      images: productForm.images && productForm.images.length > 0 ? productForm.images : [defaultImg],
+      brand: productForm.brand || '',
+      price: Number(productForm.price) || 0,
+      originalPrice: Number(productForm.originalPrice || productForm.price) || 0,
+      category: productForm.category || 'electronics',
+      categoryName: productForm.categoryName || 'Electronics',
+      description: productForm.description || '',
+      images: productForm.images && productForm.images.length > 0 ? productForm.images : [DEFAULT_PRODUCT_IMAGE],
       highlights: highlightsArr,
-      stockStatus: productForm.stockStatus,
-      status: productForm.status,
+      stockStatus: productForm.stockStatus || 'In Stock',
+      status: productForm.status || 'Active',
       shopId: shop.id,
       shopName: shop.name
     };
@@ -259,19 +266,12 @@ export default function ShopDashboard() {
     }
   };
 
-  // Orders Filter State
-  const [orderStatusFilter, setOrderStatusFilter] = useState('all');
-
-  const filteredOrders = shopOrders.filter(o => {
-    return orderStatusFilter === 'all' || o.status === orderStatusFilter;
-  });
-
   const totalCatalogValue = shopProducts.reduce((sum, p) => sum + (p.price || 0), 0);
 
   const stats = [
     { label: 'Total Products', value: shopProducts.length, icon: 'fa-box', color: 'bg-emerald-50 text-emerald-600', trend: 'Live Catalog' },
     { label: 'Store Rating', value: `${shop.rating || 5.0} ★`, icon: 'fa-star', color: 'bg-amber-50 text-amber-500', trend: `${shop.reviewsCount || 1} Reviews` },
-    { label: 'Customer Leads', value: shopOrders.length, icon: 'fa-message', color: 'bg-emerald-50 text-emerald-600', trend: 'WhatsApp Leads' },
+    { label: 'Order Channel', value: 'WhatsApp', icon: 'fa-brands fa-whatsapp text-[#25D366]', color: 'bg-emerald-50 text-emerald-600', trend: 'Direct Connect' },
     { label: 'Inventory Value', value: `₹${totalCatalogValue.toLocaleString('en-IN')}`, icon: 'fa-indian-rupee-sign', color: 'bg-blue-50 text-blue-600', trend: 'Active Items' },
   ];
 
@@ -313,30 +313,47 @@ export default function ShopDashboard() {
           </div>
         )}
 
+        {/* ── Unverified Store Public Visibility Banner ── */}
+        {!shop.verified && (
+          <div className="bg-amber-950/90 border border-amber-800 text-amber-200 rounded-2xl p-4 flex items-start gap-3 shadow-lg animate-fade-in">
+            <i className="fa-solid fa-shield-halved text-amber-400 text-lg mt-0.5 flex-shrink-0"></i>
+            <div className="min-w-0 flex-1">
+              <strong className="text-xs sm:text-sm font-black block text-amber-100">Verification Pending — Hidden from Public Buyers</strong>
+              <p className="text-[11px] text-amber-300/90 font-medium mt-0.5 leading-relaxed">
+                Your store status is currently <strong>Unverified / Pending Review</strong>. Admin has complete control over storefront listings. Once verified by Admin, your store and catalog will publish automatically to public buyers.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* ── Shop Banner Header ── */}
         <div className="relative rounded-3xl overflow-hidden bg-slate-900 text-white shadow-xl border border-slate-800">
-          <div className="h-32 md:h-44 w-full relative">
+          <div className="h-28 sm:h-36 md:h-48 w-full relative">
             <img 
-              src={shop.banner || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1200&q=80'} 
+              src={shop.banner || DEFAULT_COVER_BANNER} 
               alt={shop.name}
               className="w-full h-full object-cover opacity-60"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
           </div>
 
-          <div className="p-6 md:p-8 flex flex-col md:flex-row items-start md:items-end justify-between gap-4 relative -mt-12 md:-mt-16 z-10">
-            <div className="flex items-center gap-4 min-w-0 flex-1 w-full md:w-auto">
+          <div className="p-4 sm:p-6 md:p-8 flex flex-col md:flex-row items-start md:items-end justify-between gap-4 relative -mt-10 sm:-mt-14 md:-mt-18 z-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 sm:gap-4 min-w-0 flex-1 w-full md:w-auto">
               <img 
-                src={shop.image || 'https://images.unsplash.com/photo-1556742049-0a670f4a4591?w=400&q=80'} 
+                src={shop.image || DEFAULT_STORE_LOGO} 
                 alt={shop.name}
-                className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover border-4 border-slate-950 shadow-2xl bg-slate-800 flex-shrink-0"
+                className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl object-cover border-3 border-slate-950 shadow-2xl bg-slate-800 flex-shrink-0"
               />
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 w-full sm:w-auto">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-lg sm:text-xl md:text-3xl font-black text-white leading-tight break-words">{shop.name}</h1>
-                  {shop.verified && (
+                  <h1 className="text-base sm:text-xl md:text-3xl font-black text-white leading-tight break-words">{shop.name}</h1>
+                  {shop.verified ? (
                     <span className="w-5 h-5 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-[10px] font-black flex-shrink-0" title="Verified Merchant">
                       <i className="fa-solid fa-check"></i>
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-extrabold uppercase tracking-wider">
+                      Pending Verification
                     </span>
                   )}
                 </div>
@@ -348,18 +365,28 @@ export default function ShopDashboard() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap w-full md:w-auto">
-              <button
-                onClick={() => setShowCreateWizard(true)}
-                className="flex-1 md:flex-initial px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition-all border border-slate-700 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
-              >
-                <i className="fa-solid fa-plus-circle"></i> Create New Store
-              </button>
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3 w-full md:w-auto mt-1 sm:mt-0">
+              {userShop ? (
+                <button
+                  onClick={() => setActiveTab('store')}
+                  className="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition-all border border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+                >
+                  <i className="fa-solid fa-sliders text-xs"></i> <span>Store Settings</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowCreateWizard(true)}
+                  className="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition-all border border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+                >
+                  <i className="fa-solid fa-plus-circle text-xs"></i> <span>Create Store</span>
+                </button>
+              )}
+
               <button
                 onClick={openAddModal}
-                className="flex-1 md:flex-initial px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                className="px-3 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shadow-md"
               >
-                <i className="fa-solid fa-plus text-sm"></i> Add New Product
+                <i className="fa-solid fa-plus text-xs"></i> <span>Add Product</span>
               </button>
             </div>
           </div>
@@ -398,17 +425,6 @@ export default function ShopDashboard() {
             }`}
           >
             <i className="fa-solid fa-store"></i> Store Profile Settings
-          </button>
-
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`px-4 py-2.5 text-xs font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap flex-shrink-0 ${
-              activeTab === 'orders'
-                ? 'bg-emerald-950 text-white font-black'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <i className="fa-solid fa-list-check"></i> WhatsApp Leads ({shopOrders.length})
           </button>
         </div>
 
@@ -863,92 +879,6 @@ export default function ShopDashboard() {
               </div>
 
             </form>
-          </div>
-        )}
-
-        {/* ───────────────────────────────────────────────────────────── */}
-        {/* TAB 4: CUSTOMER LEADS & ORDERS */}
-        {/* ───────────────────────────────────────────────────────────── */}
-        {activeTab === 'orders' && (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-black text-slate-900">Customer Leads & Inquiries</h2>
-                <p className="text-xs text-slate-500">Track customer order requests generated via WhatsApp and storefront inquiries.</p>
-              </div>
-
-              <select
-                value={orderStatusFilter}
-                onChange={(e) => setOrderStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none bg-slate-50 font-medium cursor-pointer"
-              >
-                <option value="all">All Lead Statuses</option>
-                <option value="Pending">Pending</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
-            </div>
-
-            <div className="divide-y divide-slate-100">
-              {filteredOrders.length === 0 ? (
-                <div className="py-12 text-center text-slate-400">
-                  <i className="fa-solid fa-comments text-3xl mb-2 text-slate-300 block"></i>
-                  No order leads match your selection.
-                </div>
-              ) : (
-                filteredOrders.map(order => (
-                  <div key={order.id} className="py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm flex-shrink-0">
-                        <i className="fa-solid fa-bag-shopping"></i>
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-xs text-slate-900">{order.id}</span>
-                          <span className="text-[10px] text-slate-400">• {order.date}</span>
-                        </div>
-                        <h4 className="text-xs font-bold text-slate-800 mt-0.5">{order.productName}</h4>
-                        <p className="text-[11px] text-slate-500">
-                          Customer: <span className="font-semibold text-slate-700">{order.customerName}</span> ({order.customerPhone})
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 self-end sm:self-auto">
-                      <span className="text-sm font-black text-slate-900 mr-2">₹{order.price?.toLocaleString('en-IN')}</span>
-
-                      <a
-                        href={`https://wa.me/${order.customerPhone?.replace(/[^0-9]/g, '')}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
-                        title="Chat on WhatsApp"
-                      >
-                        <i className="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
-                        <span>WhatsApp Chat</span>
-                      </a>
-
-                      <select
-                        value={order.status}
-                        onChange={(e) => {
-                          updateOrderStatus(order.id, e.target.value);
-                          showToast(`Lead ${order.id} marked as ${e.target.value}`);
-                        }}
-                        className={`px-3 py-1 rounded-full text-xs font-bold border outline-none cursor-pointer ${
-                          order.status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                          order.status === 'Cancelled' ? 'bg-rose-50 text-rose-700 border-rose-200' :
-                          'bg-amber-50 text-amber-700 border-amber-200'
-                        }`}
-                      >
-                        <option value="Pending">Pending</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Cancelled">Cancelled</option>
-                      </select>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
           </div>
         )}
 

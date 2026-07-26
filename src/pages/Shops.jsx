@@ -30,8 +30,10 @@ export default function Shops() {
     setSearchParams(newParams);
   };
 
-  // Filtered and Sorted Shops list
+  // Filtered and Sorted Shops list - Only verified shops are published to public users
   let filteredShops = shops.filter(shop => {
+    if (!shop.verified) return false;
+
     const matchesSearch = !searchQuery || 
       shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -142,18 +144,22 @@ export default function Shops() {
               >
                 All Areas
               </button>
-              {markets.map(mkt => (
-                <button 
-                  key={mkt}
-                  onClick={() => {
-                    setSelectedMarket(mkt);
-                    updateFilters('market', mkt);
-                  }}
-                  className={`text-left text-xs py-1.5 px-2.5 rounded-lg font-semibold transition-colors ${selectedMarket === mkt ? 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-100' : 'text-slate-600 hover:bg-slate-50'}`}
-                >
-                  {mkt}
-                </button>
-              ))}
+              {markets.map((mkt, idx) => {
+                const name = typeof mkt === 'object' ? (mkt.name || mkt.id) : mkt;
+                const id = typeof mkt === 'object' ? (mkt.id || name || idx) : mkt;
+                return (
+                  <button 
+                    key={id}
+                    onClick={() => {
+                      setSelectedMarket(name);
+                      updateFilters('market', name);
+                    }}
+                    className={`text-left text-xs py-1.5 px-2.5 rounded-lg font-semibold transition-colors ${selectedMarket === name ? 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-100' : 'text-slate-600 hover:bg-slate-50'}`}
+                  >
+                    {name}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </aside>
@@ -209,17 +215,21 @@ export default function Shops() {
             >
               All Areas
             </button>
-            {markets.map(mkt => (
-              <button
-                key={mkt}
-                onClick={() => { setSelectedMarket(mkt); updateFilters('market', mkt); }}
-                className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap border cursor-pointer transition-all ${
-                  selectedMarket === mkt ? 'bg-slate-800 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-600'
-                }`}
-              >
-                {mkt}
-              </button>
-            ))}
+            {markets.map((mkt, idx) => {
+              const name = typeof mkt === 'object' ? (mkt.name || mkt.id) : mkt;
+              const id = typeof mkt === 'object' ? (mkt.id || name || idx) : mkt;
+              return (
+                <button
+                  key={id}
+                  onClick={() => { setSelectedMarket(name); updateFilters('market', name); }}
+                  className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap border cursor-pointer transition-all ${
+                    selectedMarket === name ? 'bg-slate-800 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-600'
+                  }`}
+                >
+                  {name}
+                </button>
+              );
+            })}
           </div>
 
         </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { BazaarProvider } from './context/BazaarContext';
 import { AuthProvider } from './context/AuthContext';
+import { ImageModalProvider } from './context/ImageModalContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import MobileDrawer from './components/MobileDrawer';
@@ -20,7 +21,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ShopDashboard from './pages/ShopDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminShops from './pages/AdminShops';
-import AdminOrders from './pages/AdminOrders';
+import AdminCategoriesMarkets from './pages/AdminCategoriesMarkets';
 import AdminShopDetails from './pages/AdminShopDetails';
 
 // Layout wrapper for public pages
@@ -43,8 +44,9 @@ export default function App() {
   return (
     <AuthProvider>
       <BazaarProvider>
-        <BrowserRouter>
-          <Routes>
+        <ImageModalProvider>
+          <BrowserRouter>
+            <Routes>
           {/* Public Storefront Routes */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
@@ -86,10 +88,10 @@ export default function App() {
             } 
           />
           <Route 
-            path="/dashboard/admin/orders" 
+            path="/dashboard/admin/categories" 
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <AdminOrders />
+                <AdminCategoriesMarkets />
               </ProtectedRoute>
             } 
           />
@@ -103,7 +105,8 @@ export default function App() {
           />
         </Routes>
       </BrowserRouter>
-    </BazaarProvider>
-  </AuthProvider>
+    </ImageModalProvider>
+  </BazaarProvider>
+</AuthProvider>
   );
 }
