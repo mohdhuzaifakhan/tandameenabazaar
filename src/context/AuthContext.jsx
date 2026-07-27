@@ -11,8 +11,8 @@ import {
   updateDoc
 } from 'firebase/firestore';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { APP_CONFIG, STORAGE_KEYS } from '../constants/appConstants';
 import { auth, db, googleProvider, isFirebaseConfigured } from '../firebase';
-import { STORAGE_KEYS, APP_CONFIG } from '../constants/appConstants';
 
 // Read Application Owner Admin Email from Central Constants
 export const ADMIN_EMAIL = (APP_CONFIG.ADMIN_EMAIL || '').toLowerCase().trim();
@@ -109,7 +109,7 @@ export const AuthProvider = ({ children }) => {
           safeSetItem('meena_bazaar_auth_session_v3', { user, profile });
           return profile;
         } else {
-          // New merchant sign up - store in Firestore
+          // New merchant sign up - Shop in Firestore
           const newProfile = {
             uid: user.uid,
             email: user.email,
@@ -244,7 +244,7 @@ export const AuthProvider = ({ children }) => {
 
   // Listen for Firebase auth state changes & maintain persistent state
   useEffect(() => {
-    let unsubscribe = () => {};
+    let unsubscribe = () => { };
 
     if (isFirebaseConfigured) {
       unsubscribe = onAuthStateChanged(auth, (user) => {

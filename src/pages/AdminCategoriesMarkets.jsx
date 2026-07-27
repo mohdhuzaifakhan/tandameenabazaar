@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { useBazaar } from '../context/BazaarContext';
+import { useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { DEFAULT_CATEGORY_ICONS as ICON_OPTIONS } from '../constants/appConstants';
+import { useBazaar } from '../context/BazaarContext';
 
 export default function AdminCategoriesMarkets() {
-  const { 
-    categories, 
-    markets, 
-    addCategory, 
-    updateCategory, 
-    deleteCategory, 
-    addMarket, 
-    updateMarket, 
-    deleteMarket 
+  const {
+    categories,
+    markets,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    addMarket,
+    updateMarket,
+    deleteMarket
   } = useBazaar();
 
   const [activeTab, setActiveTab] = useState('categories'); // 'categories' | 'markets'
@@ -128,47 +128,44 @@ export default function AdminCategoriesMarkets() {
 
   return (
     <DashboardLayout title="Categories & Locations Management" role="admin">
-      
+
       {/* Toast Feedback */}
       {toastMessage && (
-        <div className={`fixed top-4 right-4 z-50 p-4 rounded-2xl shadow-2xl text-xs font-extrabold flex items-center gap-3 border animate-bounce ${
-          toastMessage.type === 'error'
-            ? 'bg-rose-950 text-rose-200 border-rose-800'
-            : 'bg-emerald-950 text-emerald-200 border-emerald-800'
-        }`}>
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-2xl shadow-2xl text-xs font-extrabold flex items-center gap-3 border animate-bounce ${toastMessage.type === 'error'
+          ? 'bg-rose-950 text-rose-200 border-rose-800'
+          : 'bg-emerald-950 text-emerald-200 border-emerald-800'
+          }`}>
           <i className={`fa-solid ${toastMessage.type === 'error' ? 'fa-circle-xmark text-rose-400' : 'fa-circle-check text-emerald-400'} text-base`}></i>
           <span>{toastMessage.text}</span>
         </div>
       )}
 
       <div className="flex flex-col gap-6 md:gap-8 animate-fade-in pb-12">
-        
+
         {/* Header & Tabs */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-black text-slate-900">Taxonomy & Location Control</h1>
-            <p className="text-xs text-slate-500 mt-0.5">Manage live platform categories and market locations synchronized with Firestore.</p>
+            <p className="text-xs text-slate-500 mt-0.5">Manage categories and market locations.</p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab('categories')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-                activeTab === 'categories'
-                  ? 'bg-[#056839] text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${activeTab === 'categories'
+                ? 'bg-[#056839] text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
             >
               <i className="fa-solid fa-tags"></i> Categories ({categories.length})
             </button>
 
             <button
               onClick={() => setActiveTab('markets')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-                activeTab === 'markets'
-                  ? 'bg-[#056839] text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${activeTab === 'markets'
+                ? 'bg-[#056839] text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
             >
               <i className="fa-solid fa-location-dot"></i> Market Locations ({markets.length})
             </button>
@@ -180,17 +177,22 @@ export default function AdminCategoriesMarkets() {
         {/* ───────────────────────────────────────────────────────────── */}
         {activeTab === 'categories' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-extrabold text-slate-900 text-base">Platform Product Categories</h3>
-                <p className="text-xs text-slate-400">All live categories available for storefronts and product catalog listings</p>
+            <div className="flex items-start justify-between gap-6">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-extrabold text-slate-900">
+                  Product Categories
+                </h3>
+                <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+                  All categories available for shops and product catalog listings
+                </p>
               </div>
 
               <button
                 onClick={openAddCategoryModal}
-                className="px-4 py-2.5 bg-[#056839] hover:bg-emerald-800 text-white font-extrabold text-xs rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+                className="shrink-0 inline-flex items-center gap-2 rounded-xl bg-[#056839] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-emerald-800 cursor-pointer"
               >
-                <i className="fa-solid fa-plus"></i> Add New Category
+                <i className="fa-solid fa-plus"></i>
+                <span>Add Category</span>
               </button>
             </div>
 
@@ -232,30 +234,31 @@ export default function AdminCategoriesMarkets() {
             </div>
           </div>
         )}
-
-        {/* ───────────────────────────────────────────────────────────── */}
         {/* TAB 2: MARKETS & LOCATIONS MANAGEMENT */}
-        {/* ───────────────────────────────────────────────────────────── */}
         {activeTab === 'markets' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-extrabold text-slate-900 text-base">Market Hubs & Locations</h3>
-                <p className="text-xs text-slate-400">All registered commercial market areas for storefront locations</p>
+            <div className="flex items-start justify-between gap-6">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-extrabold text-slate-900">
+                  Locations
+                </h3>
+                <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+                  All registered locations
+                </p>
               </div>
 
               <button
                 onClick={openAddMarketModal}
-                className="px-4 py-2.5 bg-[#056839] hover:bg-emerald-800 text-white font-extrabold text-xs rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+                className="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-[#056839] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-emerald-800 cursor-pointer"
               >
-                <i className="fa-solid fa-plus"></i> Add New Location
+                <i className="fa-solid fa-plus"></i>
+                <span>Add Location</span>
               </button>
             </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {markets.map((mkt, idx) => {
                 const marketObj = typeof mkt === 'string' ? { id: mkt.toLowerCase().replace(/[^a-z0-9]+/g, '-'), name: mkt, city: 'Rampur', area: 'Main Area' } : mkt;
-                
+
                 return (
                   <div key={marketObj.id || idx} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-2xs hover:border-emerald-300 transition-all flex flex-col justify-between gap-3 group">
                     <div className="flex items-center gap-3">
@@ -303,7 +306,7 @@ export default function AdminCategoriesMarkets() {
               <h3 className="font-black text-slate-900 text-base">
                 {editingCategory ? 'Edit Category' : 'Add New Category'}
               </h3>
-              <button 
+              <button
                 onClick={() => setShowCategoryModal(false)}
                 className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-sm cursor-pointer"
               >
@@ -332,11 +335,10 @@ export default function AdminCategoriesMarkets() {
                       key={icon}
                       type="button"
                       onClick={() => setCategoryForm({ ...categoryForm, icon })}
-                      className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm transition-all cursor-pointer ${
-                        categoryForm.icon === icon
-                          ? 'bg-[#056839] text-white shadow-xs'
-                          : 'bg-white text-slate-600 hover:bg-slate-200'
-                      }`}
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm transition-all cursor-pointer ${categoryForm.icon === icon
+                        ? 'bg-[#056839] text-white shadow-xs'
+                        : 'bg-white text-slate-600 hover:bg-slate-200'
+                        }`}
                     >
                       <i className={`fa-solid ${icon}`}></i>
                     </button>
@@ -383,7 +385,7 @@ export default function AdminCategoriesMarkets() {
               <h3 className="font-black text-slate-900 text-base">
                 {editingMarket ? 'Edit Location' : 'Add New Market Location'}
               </h3>
-              <button 
+              <button
                 onClick={() => setShowMarketModal(false)}
                 className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-sm cursor-pointer"
               >

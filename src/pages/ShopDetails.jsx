@@ -1,30 +1,28 @@
-import React, { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useBazaar } from '../context/BazaarContext';
-import { useAuth } from '../context/AuthContext';
-import { useImageModal } from '../context/ImageModalContext';
-import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
-import ProductCard from '../components/ProductCard';
 import {
   ArrowLeft,
-  ShoppingBag,
-  Heart,
-  Share2,
-  ChevronRight,
-  Star,
-  MapPin,
-  CheckCircle2,
-  ShieldCheck,
   Award,
-  Zap,
-  Store,
-  Search,
+  Check,
+  CheckCircle2,
+  ChevronRight,
   LayoutGrid,
   List,
   Map,
+  MapPin,
   PackageOpen,
-  Check
+  Search,
+  Share2,
+  ShieldCheck,
+  Star,
+  Store,
+  Zap
 } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
+import { useAuth } from '../context/AuthContext';
+import { useBazaar } from '../context/BazaarContext';
+import { useImageModal } from '../context/ImageModalContext';
+import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 
 export default function ShopDetails() {
   const { id } = useParams();
@@ -54,7 +52,7 @@ export default function ShopDetails() {
     );
   }
 
-  // Verification Access Control: If store is unverified, only Admin or Store Owner can view it
+  // Verification Access Control: If Shop is unverified, only Admin or Shop Owner can view it
   const isOwnerOrAdmin =
     userProfile?.role === 'admin' ||
     userProfile?.uid === shop?.ownerUid ||
@@ -98,7 +96,7 @@ export default function ShopDetails() {
 
   const handleWhatsAppContact = () => {
     const whatsappNum = (shop.whatsapp || shop.phone || '').replace(/[^0-9]/g, '');
-    const text = `Hello ${shop.name}, I found your store on Meena Bazaar and would like to inquire about your catalog.`;
+    const text = `Hello ${shop.name}, I found your Shop on Meena Bazaar and would like to inquire about your catalog.`;
     window.open(`https://wa.me/${whatsappNum}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -108,7 +106,7 @@ export default function ShopDetails() {
         title: shop.name,
         text: `Check out ${shop.name} on Digital Meena Bazaar!`,
         url: window.location.href,
-      }).catch(() => {});
+      }).catch(() => { });
     } else {
       navigator.clipboard.writeText(window.location.href);
       setCopied(true);
@@ -126,12 +124,12 @@ export default function ShopDetails() {
 
   return (
     <div className="w-full flex flex-col items-center">
-      
+
       {/* ────────────────────────────────────────────────────────── */}
       {/* 1. MOBILE VIEW (Visible on screens below md: breakpoint) */}
       {/* ────────────────────────────────────────────────────────── */}
       <div className="md:hidden w-full space-y-4 pb-20 pt-2">
-        
+
         {/* Mobile Navigation Sub-Bar: Back Button & Breadcrumbs & Share Button */}
         <div className="flex items-center justify-between gap-2 py-1">
           <button
@@ -162,7 +160,7 @@ export default function ShopDetails() {
           </button>
         </div>
 
-        {/* Mobile Store Cover Banner */}
+        {/* Mobile Shop Cover Banner */}
         <div
           onClick={() => openImageModal(shopBanner, `${shop.name} Storefront Cover`)}
           className="h-44 w-full rounded-[24px] bg-slate-900 overflow-hidden relative border border-slate-200/80 cursor-zoom-in group shadow-2xs"
@@ -171,10 +169,10 @@ export default function ShopDetails() {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent" />
         </div>
 
-        {/* Mobile Floating White Store Profile Card */}
+        {/* Mobile Floating White Shop Profile Card */}
         <div className="bg-white border border-slate-100/90 rounded-3xl p-4 sm:p-5 -mt-14 relative z-10 mx-1 sm:mx-3 shadow-xs space-y-4">
           <div className="flex items-start gap-3.5">
-            {/* Store Logo Thumbnail */}
+            {/* Shop Logo Thumbnail */}
             <div
               onClick={() => openImageModal(shopLogo, `${shop.name} Logo`)}
               className="w-18 h-18 rounded-2xl bg-white border border-slate-100 overflow-hidden flex-shrink-0 cursor-zoom-in shadow-2xs"
@@ -182,7 +180,7 @@ export default function ShopDetails() {
               <img src={shopLogo} alt={shop.name} className="w-full h-full object-cover" />
             </div>
 
-            {/* Store Header Details */}
+            {/* Shop Header Details */}
             <div className="flex flex-col gap-0.5 min-w-0 flex-1">
               <div className="flex items-center gap-1.5 min-w-0">
                 <h1 className="font-black text-lg text-slate-900 truncate">{shop.name}</h1>
@@ -290,7 +288,7 @@ export default function ShopDetails() {
           </div>
         </div>
 
-        {/* Mobile Business Details & Store Address Grid */}
+        {/* Mobile Business Details & Shop Address Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {/* Card 1: Business Details */}
           <div className="bg-white border border-slate-100 rounded-2xl p-3.5 space-y-2 shadow-2xs flex flex-col justify-between">
@@ -315,7 +313,7 @@ export default function ShopDetails() {
             </div>
           </div>
 
-          {/* Card 2: Store Address */}
+          {/* Card 2: Shop Address */}
           <div className="bg-white border border-slate-100 rounded-2xl p-3.5 space-y-2 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center gap-1.5 pb-1 border-b border-slate-100">
               <MapPin className="w-4 h-4 text-[#056839]" />
@@ -343,18 +341,16 @@ export default function ShopDetails() {
             <button
               type="button"
               onClick={() => setActiveTab('catalog')}
-              className={`pb-2.5 font-black text-xs transition-all cursor-pointer border-b-2 bg-transparent ${
-                activeTab === 'catalog' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
-              }`}
+              className={`pb-2.5 font-black text-xs transition-all cursor-pointer border-b-2 bg-transparent ${activeTab === 'catalog' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
+                }`}
             >
               Catalog ({shopProducts.length})
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('about')}
-              className={`pb-2.5 font-black text-xs transition-all cursor-pointer border-b-2 bg-transparent ${
-                activeTab === 'about' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
-              }`}
+              className={`pb-2.5 font-black text-xs transition-all cursor-pointer border-b-2 bg-transparent ${activeTab === 'about' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
+                }`}
             >
               About Seller
             </button>
@@ -362,7 +358,7 @@ export default function ShopDetails() {
 
           {activeTab === 'catalog' && (
             <div className="space-y-3">
-              {/* Search in Store + View Switcher */}
+              {/* Search in Shop + View Switcher */}
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -379,18 +375,16 @@ export default function ShopDetails() {
                   <button
                     type="button"
                     onClick={() => setViewMode('grid')}
-                    className={`p-1 rounded-lg text-xs transition-all cursor-pointer ${
-                      viewMode === 'grid' ? 'bg-white text-[#056839] shadow-2xs' : 'text-slate-500'
-                    }`}
+                    className={`p-1 rounded-lg text-xs transition-all cursor-pointer ${viewMode === 'grid' ? 'bg-white text-[#056839] shadow-2xs' : 'text-slate-500'
+                      }`}
                   >
                     <LayoutGrid className="w-3.5 h-3.5" />
                   </button>
                   <button
                     type="button"
                     onClick={() => setViewMode('list')}
-                    className={`p-1 rounded-lg text-xs transition-all cursor-pointer ${
-                      viewMode === 'list' ? 'bg-white text-[#056839] shadow-2xs' : 'text-slate-500'
-                    }`}
+                    className={`p-1 rounded-lg text-xs transition-all cursor-pointer ${viewMode === 'list' ? 'bg-white text-[#056839] shadow-2xs' : 'text-slate-500'
+                      }`}
                   >
                     <List className="w-3.5 h-3.5" />
                   </button>
@@ -404,11 +398,10 @@ export default function ShopDetails() {
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
-                      selectedCategory === cat
+                    className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${selectedCategory === cat
                         ? 'bg-[#056839] text-white shadow-2xs'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
+                      }`}
                   >
                     {cat === 'all' ? 'All Products' : cat}
                   </button>
@@ -500,7 +493,7 @@ export default function ShopDetails() {
       {/* 2. DESKTOP VIEW (Visible on md: breakpoints & above) */}
       {/* ────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex w-full py-6 flex-col gap-6 animate-fade-in max-w-7xl mx-auto">
-        
+
         {/* Desktop Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
           <Link to="/" className="hover:text-[#056839] transition-colors">Home</Link>
@@ -569,7 +562,7 @@ export default function ShopDetails() {
 
         {/* Desktop Main Grid */}
         <div className="grid grid-cols-4 gap-8 mt-2">
-          
+
           {/* Desktop Left Sidebar */}
           <aside className="flex flex-col gap-6">
             <div className="bg-white border border-slate-100 rounded-2xl p-5 flex flex-col gap-3 shadow-2xs">
@@ -611,18 +604,16 @@ export default function ShopDetails() {
               <button
                 type="button"
                 onClick={() => setActiveTab('catalog')}
-                className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer border-none bg-transparent ${
-                  activeTab === 'catalog' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
-                }`}
+                className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer border-none bg-transparent ${activeTab === 'catalog' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
+                  }`}
               >
                 Catalog ({shopProducts.length})
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('about')}
-                className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer border-none bg-transparent ${
-                  activeTab === 'about' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
-                }`}
+                className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer border-none bg-transparent ${activeTab === 'about' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
+                  }`}
               >
                 About Seller
               </button>
@@ -649,9 +640,8 @@ export default function ShopDetails() {
                       key={cat}
                       type="button"
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-                        selectedCategory === cat ? 'bg-[#056839] border-[#056839] text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${selectedCategory === cat ? 'bg-[#056839] border-[#056839] text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
                     >
                       {cat === 'all' ? 'All Catalog Items' : cat}
                     </button>

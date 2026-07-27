@@ -1,29 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useBazaar } from '../context/BazaarContext';
-import { useAuth } from '../context/AuthContext';
-import { useImageModal } from '../context/ImageModalContext';
-import ProductCard from '../components/ProductCard';
 import {
-  ArrowLeft,
-  ShoppingBag,
-  Heart,
-  Share2,
-  ChevronRight,
-  ChevronLeft,
-  Star,
-  ShieldCheck,
-  Store,
-  PhoneCall,
   Activity,
-  Droplets,
-  Battery,
-  PackageOpen,
-  Check,
-  Sparkles,
+  ArrowLeft,
   Award,
-  CheckCircle2
+  Battery,
+  Check,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Droplets,
+  Heart,
+  PackageOpen,
+  PhoneCall,
+  Share2,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Star,
+  Store
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
+import { useAuth } from '../context/AuthContext';
+import { useBazaar } from '../context/BazaarContext';
+import { useImageModal } from '../context/ImageModalContext';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -124,7 +124,7 @@ export default function ProductDetails() {
         title: product.name,
         text: `Check out ${product.name} on Meena Bazaar`,
         url: window.location.href,
-      }).catch(() => {});
+      }).catch(() => { });
     } else {
       navigator.clipboard.writeText(window.location.href);
       setCopied(true);
@@ -153,12 +153,12 @@ export default function ProductDetails() {
 
   return (
     <div className="w-full flex flex-col items-center">
-      
+
       {/* ────────────────────────────────────────────────────────── */}
       {/* 1. MOBILE VIEW (Visible on screens below md: breakpoint) */}
       {/* ────────────────────────────────────────────────────────── */}
       <div className="md:hidden w-full space-y-4 pb-28 pt-2">
-        
+
         {/* Mobile Navigation Sub-Bar: Back Button & Breadcrumbs & Share Button */}
         <div className="flex items-center justify-between gap-2 py-1">
           <button
@@ -254,9 +254,8 @@ export default function ProductDetails() {
                   key={idx}
                   type="button"
                   onClick={() => setActiveImageIndex(idx)}
-                  className={`w-14 h-14 aspect-square rounded-2xl overflow-hidden border-2 cursor-pointer transition-all bg-slate-50 flex-shrink-0 ${
-                    activeImageIndex === idx ? 'border-[#056839] ring-2 ring-[#056839]/20' : 'border-slate-100'
-                  }`}
+                  className={`w-14 h-14 aspect-square rounded-2xl overflow-hidden border-2 cursor-pointer transition-all bg-slate-50 flex-shrink-0 ${activeImageIndex === idx ? 'border-[#056839] ring-2 ring-[#056839]/20' : 'border-slate-100'
+                    }`}
                 >
                   <img src={img} alt={`Thumb ${idx + 1}`} className="w-full h-full object-cover" />
                 </button>
@@ -429,11 +428,10 @@ export default function ProductDetails() {
           <button
             type="button"
             onClick={() => toggleSaveProduct(product.id)}
-            className={`py-3 px-4 rounded-2xl border font-extrabold text-xs flex items-center justify-center gap-2 transition-all flex-1 cursor-pointer ${
-              saved
+            className={`py-3 px-4 rounded-2xl border font-extrabold text-xs flex items-center justify-center gap-2 transition-all flex-1 cursor-pointer ${saved
                 ? 'bg-rose-50 border-rose-200 text-rose-600'
                 : 'bg-slate-50 border-slate-200/80 text-slate-800 hover:bg-slate-100'
-            }`}
+              }`}
           >
             <Heart className={`w-4 h-4 ${saved ? 'fill-rose-600 text-rose-600' : ''}`} />
             <span>{saved ? 'Saved' : 'Add to Saved'}</span>
@@ -458,7 +456,7 @@ export default function ProductDetails() {
       {/* 2. DESKTOP VIEW (Visible on md: breakpoints & above) */}
       {/* ────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex w-full py-6 flex-col gap-8 animate-fade-in max-w-7xl mx-auto">
-        
+
         {/* Desktop Breadcrumb Navigation */}
         <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
           <Link to="/" className="hover:text-[#056839] transition-colors">Home</Link>
@@ -472,7 +470,7 @@ export default function ProductDetails() {
 
         {/* Main product display split columns */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-          
+
           {/* LEFT COLUMN: Gallery */}
           <div className="flex flex-col gap-4">
             <div
@@ -516,9 +514,9 @@ export default function ProductDetails() {
                 </>
               )}
 
-              <img 
-                src={activeImage} 
-                alt={product.name} 
+              <img
+                src={activeImage}
+                alt={product.name}
                 className="w-full h-full object-cover transition-all duration-300"
               />
             </div>
@@ -527,8 +525,8 @@ export default function ProductDetails() {
             {images.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-1 mt-1">
                 {images.map((img, idx) => (
-                  <button 
-                    key={idx} 
+                  <button
+                    key={idx}
                     type="button"
                     className={`w-16 h-16 rounded-xl bg-slate-50 border-2 overflow-hidden flex-shrink-0 cursor-pointer transition-all ${activeImageIndex === idx ? 'border-[#056839]' : 'border-slate-100 hover:border-slate-200'}`}
                     onClick={() => setActiveImageIndex(idx)}
@@ -545,7 +543,7 @@ export default function ProductDetails() {
             <div>
               <span className="text-[11px] font-extrabold text-[#056839] uppercase tracking-widest font-sans">{product.brand || 'Local Brand'}</span>
               <h1 className="font-display text-2xl md:text-3.5xl font-black tracking-tight text-slate-900 mt-1 leading-tight">{product.name}</h1>
-              
+
               <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold mt-2.5 tabular-nums">
                 <span className="flex items-center gap-1"><Star className="w-4 h-4 text-amber-500 fill-amber-500" /> {product.rating || '4.5'} ({product.reviewsCount || '120'} Reviews)</span>
                 <span>&bull;</span>
@@ -566,7 +564,7 @@ export default function ProductDetails() {
               )}
             </div>
 
-            {/* Available at store box */}
+            {/* Available at Shop box */}
             {shop && (
               <div className="p-5 border border-slate-100 rounded-2xl bg-white flex justify-between items-center shadow-2xs">
                 <div className="flex flex-col gap-1">
@@ -604,9 +602,9 @@ export default function ProductDetails() {
 
             {/* CTA Buttons (Desktop) */}
             <div className="flex gap-3 mt-4">
-              <button 
+              <button
                 type="button"
-                onClick={() => openWhatsApp(product.id)} 
+                onClick={() => openWhatsApp(product.id)}
                 className="flex-1 py-3.5 bg-[#056839] hover:bg-emerald-800 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm border-none"
               >
                 <svg className="w-4.5 h-4.5 fill-current text-white" viewBox="0 0 24 24">
@@ -615,9 +613,9 @@ export default function ProductDetails() {
                 <span>Order on WhatsApp</span>
               </button>
 
-              <button 
+              <button
                 type="button"
-                onClick={() => toggleSaveProduct(product.id)} 
+                onClick={() => toggleSaveProduct(product.id)}
                 className={`px-6 py-3.5 border border-slate-200 hover:bg-slate-50 font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors ${saved ? 'text-rose-500 bg-rose-50/20' : 'text-slate-700 bg-white'}`}
               >
                 <Heart className={`w-4 h-4 ${saved ? 'fill-rose-500 text-rose-500' : ''}`} />
@@ -631,21 +629,21 @@ export default function ProductDetails() {
         {/* Desktop Tabs description and specifications */}
         <section className="mt-8 flex flex-col gap-6">
           <div className="flex border-b border-slate-100 gap-6">
-            <button 
+            <button
               type="button"
               onClick={() => setActiveTab('desc')}
               className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer border-none bg-transparent ${activeTab === 'desc' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
             >
               Description
             </button>
-            <button 
+            <button
               type="button"
               onClick={() => setActiveTab('specs')}
               className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer border-none bg-transparent ${activeTab === 'specs' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
             >
               Specifications
             </button>
-            <button 
+            <button
               type="button"
               onClick={() => setActiveTab('reviews')}
               className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer border-none bg-transparent ${activeTab === 'reviews' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
@@ -659,9 +657,9 @@ export default function ProductDetails() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-2 flex flex-col gap-3">
                   <p>{readMore ? product.description : `${(product.description || '').substring(0, 160)}...`}</p>
-                  <button 
+                  <button
                     type="button"
-                    onClick={() => setReadMore(!readMore)} 
+                    onClick={() => setReadMore(!readMore)}
                     className="w-fit text-xs font-bold text-[#056839] hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-none"
                   >
                     {readMore ? 'Read Less' : 'Read More'}
@@ -707,7 +705,7 @@ export default function ProductDetails() {
                     <strong className="text-slate-800">Amit Saxena</strong>
                     <span className="text-amber-500 font-bold flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-amber-500" /> 5.0</span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-2 font-normal">"Excellent product quality. Contacted the merchant via WhatsApp and collected it from the store in Gandhi Market."</p>
+                  <p className="text-xs text-slate-500 mt-2 font-normal">"Excellent product quality. Contacted the merchant via WhatsApp and collected it from the Shop in Gandhi Market."</p>
                 </div>
                 <div>
                   <div className="flex justify-between items-center text-xs">

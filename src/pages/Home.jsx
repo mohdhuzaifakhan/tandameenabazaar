@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useBazaar } from '../context/BazaarContext';
-import ProductCard from '../components/ProductCard';
-import ShopCardClean from '../components/ShopCardClean';
 import {
-  ShoppingBag,
-  Search,
-  SlidersHorizontal,
-  CheckCircle2,
+  Armchair,
   ArrowRight,
-  Store,
+  BookOpen,
+  CheckCircle2,
+  ChevronRight,
   LayoutGrid,
+  PackageOpen,
+  Search,
   ShieldCheck,
   Shirt,
+  ShoppingBag,
+  SlidersHorizontal,
   Smartphone,
   Sparkles,
-  Armchair,
-  BookOpen,
-  ChevronRight,
-  PackageOpen
+  Store
 } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
+import ShopCardClean from '../components/ShopCardClean';
+import { useBazaar } from '../context/BazaarContext';
 
 export default function Home() {
   const { categories, products, shops, savedProductIds } = useBazaar();
@@ -69,12 +69,12 @@ export default function Home() {
 
   return (
     <div className="w-full flex flex-col items-center">
-      
+
       {/* ────────────────────────────────────────────────────────── */}
       {/* 1. MOBILE VIEW (Visible on screens below md: breakpoint) */}
       {/* ────────────────────────────────────────────────────────── */}
       <div className="md:hidden w-full space-y-5 pb-20 pt-2">
-        
+
         {/* Mobile Search Input */}
         <form onSubmit={handleSearchSubmit} className="relative flex items-center gap-2">
           <div className="relative flex-1">
@@ -127,11 +127,11 @@ export default function Home() {
             <img src="/hero_shopping_bags.png" alt="Shopping Illustration" className="w-full h-auto object-contain max-h-[155px]" />
           </div>
 
-          <div className="relative z-10 flex items-center justify-center gap-1.5 mt-3 pt-1">
+          {/* <div className="relative z-10 flex items-center justify-center gap-1.5 mt-3 pt-1">
             <span className="w-2 h-2 rounded-full bg-[#056839]" />
             <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
             <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-          </div>
+          </div> */}
         </div>
 
         {/* Mobile Stats Row */}
@@ -215,7 +215,7 @@ export default function Home() {
               <PackageOpen className="w-8 h-8 text-slate-300 mx-auto" />
               <h3 className="text-xs font-bold text-slate-800">No live products listed yet</h3>
               <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
-                Sign in to your store dashboard to list your products and receive WhatsApp leads.
+                Sign in to your Shop dashboard to list your products and receive WhatsApp leads.
               </p>
               <Link to="/login" className="px-4 py-2 bg-[#056839] text-white font-bold text-xs rounded-xl inline-block">
                 Merchant Login
@@ -258,32 +258,32 @@ export default function Home() {
       {/* 2. DESKTOP VIEW (Visible on md: breakpoints & above) */}
       {/* ────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex w-full py-6 flex-col gap-10 animate-fade-in max-w-7xl mx-auto">
-        
+
         {/* Desktop Hero Banner Section */}
         <section className="relative overflow-hidden rounded-3xl bg-[#f0fdf4] px-8 py-12 lg:px-12 lg:py-14 text-slate-800 border border-emerald-100/70 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xs">
           <div className="relative z-10 max-w-xl flex flex-col gap-4 text-left items-start">
-            
+
             {/* Badge */}
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/80 text-[#056839] text-[10px] font-extrabold uppercase tracking-wider font-sans">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#056839]" />
               <span>LOCAL &bull; VERIFIED &bull; TRUSTED</span>
             </span>
-            
+
             {/* Main Headline */}
             <h1 className="font-display text-4xl lg:text-5xl font-black tracking-tight leading-[1.12] text-slate-900">
               Discover the Best <br />
               <span className="text-[#056839] font-serif italic">Shops &amp; Products</span> <br />
               in Your City
             </h1>
-            
+
             <p className="text-sm text-slate-600 max-w-md font-medium leading-relaxed">
               Verified local shops. Direct WhatsApp orders. Fast &amp; reliable Rampur marketplace.
             </p>
 
             {/* Action Callouts */}
             <div className="flex flex-wrap justify-start gap-3 mt-1 w-full">
-              <Link 
-                to="/shops" 
+              <Link
+                to="/shops"
                 className="px-6 py-3 rounded-xl bg-[#056839] hover:bg-emerald-800 text-white font-bold transition-all flex items-center justify-center gap-2 text-xs tracking-wide shadow-sm"
               >
                 <span>Explore Shops</span>
@@ -372,9 +372,9 @@ export default function Home() {
               const Icon = color.icon;
 
               return (
-                <Link 
-                  key={cat.id} 
-                  to={`/shops?category=${cat.id}`} 
+                <Link
+                  key={cat.id}
+                  to={`/shops?category=${cat.id}`}
                   className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-emerald-300 transition-all text-center group flex-shrink-0 shadow-2xs"
                 >
                   <div className={`w-11 h-11 rounded-full flex items-center justify-center text-lg ${color.bg} transition-transform group-hover:scale-110 flex-shrink-0`}>
@@ -408,7 +408,7 @@ export default function Home() {
               <PackageOpen className="w-10 h-10 text-slate-300 mx-auto" />
               <h3 className="text-sm font-bold text-slate-800">No live products listed yet</h3>
               <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                Are you a merchant? Sign in to your store dashboard to list your products and receive WhatsApp leads.
+                Are you a merchant? Sign in to your Shop dashboard to list your products and receive WhatsApp leads.
               </p>
               <Link to="/login" className="px-5 py-2.5 bg-[#056839] hover:bg-emerald-800 text-white font-bold text-xs rounded-xl inline-block transition-colors">
                 Merchant Login

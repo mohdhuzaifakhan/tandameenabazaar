@@ -567,4 +567,36 @@ export const BazaarProvider = ({ children }) => {
   );
 };
 
-export const useBazaar = () => useContext(BazaarContext);
+const defaultBazaarContext = {
+  products: [],
+  shops: [],
+  categories: [],
+  markets: [],
+  savedProductIds: [],
+  currentUser: null,
+  isProductSaved: () => false,
+  toggleSaveProduct: () => {},
+  clearSavedProducts: () => {},
+  createShop: async () => ({}),
+  updateShopDetails: async () => {},
+  addProduct: async () => {},
+  updateProduct: async () => {},
+  deleteProduct: async () => {},
+  toggleShopVerification: async () => {},
+  deleteShop: async () => {},
+  addCategory: async () => {},
+  updateCategory: async () => {},
+  deleteCategory: async () => {},
+  addMarket: async () => {},
+  updateMarket: async () => {},
+  deleteMarket: async () => {},
+  login: () => {},
+  logout: () => {},
+  generateWhatsAppLink: () => '',
+  openWhatsApp: () => {}
+};
+
+export const useBazaar = () => {
+  const ctx = useContext(BazaarContext);
+  return ctx || defaultBazaarContext;
+};

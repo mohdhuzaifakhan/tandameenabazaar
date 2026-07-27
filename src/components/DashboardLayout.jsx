@@ -1,19 +1,18 @@
-import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  ShoppingBag,
-  LayoutDashboard,
-  Store,
-  Tags,
   Eye,
   Home,
+  LayoutDashboard,
   LogOut,
   Menu,
-  TrendingUp,
-  MessageSquare
+  ShoppingBag,
+  Store,
+  Tags,
+  TrendingUp
 } from 'lucide-react';
-import { useBazaar } from '../context/BazaarContext';
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useBazaar } from '../context/BazaarContext';
 
 export default function DashboardLayout({ children, title, role }) {
   const { logout: bazaarLogout, shops } = useBazaar();
@@ -36,8 +35,12 @@ export default function DashboardLayout({ children, title, role }) {
   const isBottomNavActive = (path) => location.pathname === path;
 
   // Find logged in merchant shop
-  const userShop =
-    shops.find((s) => s.ownerUid === userProfile?.uid || s.id === userProfile?.shopId) || shops[0];
+  const userShop = shops.find(
+    (s) =>
+      (userProfile?.uid && s.ownerUid === userProfile.uid) ||
+      (userProfile?.shopId && s.id === userProfile.shopId) ||
+      (userProfile?.email && s.ownerEmail && s.ownerEmail.toLowerCase() === userProfile.email.toLowerCase())
+  );
 
   // Mobile Bottom Navigation Items configuration
   const adminNavItems = [
@@ -65,12 +68,11 @@ export default function DashboardLayout({ children, title, role }) {
 
   return (
     <div className="min-h-screen flex bg-[#f8fafc] font-sans text-slate-800">
-      
+
       {/* 1. Sidebar Navigation (Left Panel) */}
       <aside
-        className={`fixed inset-y-0 left-0 w-64 bg-emerald-950 text-slate-200 flex flex-col justify-between z-50 transition-transform duration-300 lg:translate-x-0 lg:static lg:flex-shrink-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 w-64 bg-emerald-950 text-slate-200 flex flex-col justify-between z-50 transition-transform duration-300 lg:translate-x-0 lg:static lg:flex-shrink-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div>
           {/* Logo Brand Area */}
@@ -79,9 +81,6 @@ export default function DashboardLayout({ children, title, role }) {
               <ShoppingBag className="w-5 h-5 text-[#056839] stroke-[2.2]" />
             </div>
             <div className="flex flex-col leading-none">
-              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest font-sans">
-                Digital
-              </span>
               <span className="font-display text-base font-extrabold text-white mt-0.5 tracking-tight">
                 Meena Bazaar
               </span>
@@ -206,10 +205,10 @@ export default function DashboardLayout({ children, title, role }) {
 
       {/* 2. Main Content Display Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        
+
         {/* Top Header Bar */}
         <header className="sticky top-0 z-30 h-16 bg-emerald-950 text-white px-4 md:px-6 flex items-center justify-between gap-3 shadow-md border-b border-emerald-900/40">
-          
+
           {/* Left: Hamburger (mobile only) + Page Title */}
           <div className="flex items-center gap-3 min-w-0">
             <button
@@ -238,7 +237,7 @@ export default function DashboardLayout({ children, title, role }) {
 
           {/* Right: WhatsApp Channel Badge + Avatar */}
           <div className="flex items-center gap-3 flex-shrink-0">
-            <a
+            {/* <a
               href="https://wa.me/"
               target="_blank"
               rel="noreferrer"
@@ -247,7 +246,7 @@ export default function DashboardLayout({ children, title, role }) {
             >
               <MessageSquare className="w-3.5 h-3.5 text-[#25D366]" />
               <span className="hidden sm:inline">WhatsApp Channel</span>
-            </a>
+            </a> */}
 
             {/* Avatar */}
             <div className="flex items-center gap-2">
@@ -278,17 +277,15 @@ export default function DashboardLayout({ children, title, role }) {
             const isActive = isBottomNavActive(item.path);
 
             const content = (
-              <div className="flex flex-col items-center justify-center gap-0.5 relative py-1 px-3">
+              <div className="flex flex-col items-center justify-center gap-1 relative py-1 px-1 min-w-0 w-full text-center">
                 <Icon
-                  className={`w-5 h-5 transition-all duration-200 ${
-                    isActive ? 'text-[#056839] stroke-[2.4] scale-105' : 'text-slate-400 stroke-[1.8]'
-                  }`}
+                  className={`w-4 h-4 transition-all duration-200 flex-shrink-0 ${isActive ? 'text-[#056839] stroke-[2.4] scale-105' : 'text-slate-400 stroke-[1.8]'
+                    }`}
                   fill="none"
                 />
                 <span
-                  className={`text-[11px] tracking-tight transition-colors ${
-                    isActive ? 'text-[#056839] font-extrabold' : 'text-slate-500 font-medium'
-                  }`}
+                  className={`text-[10px] tracking-tight transition-colors whitespace-nowrap truncate max-w-full block leading-none ${isActive ? 'text-[#056839] font-extrabold' : 'text-slate-500 font-medium'
+                    }`}
                 >
                   {item.label}
                 </span>

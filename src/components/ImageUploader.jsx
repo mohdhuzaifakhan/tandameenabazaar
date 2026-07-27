@@ -1,25 +1,25 @@
-import React, { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useImageModal } from '../context/ImageModalContext';
-import { DEFAULT_STORE_LOGO, DEFAULT_COVER_BANNER } from '../utils/defaultAssets';
+import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 
 // Preset sample graphics for quick selection
 const PRESET_LOGOS = [
-  { name: 'Default Store Logo', url: DEFAULT_STORE_LOGO }
+  { name: 'Default Shop Logo', url: DEFAULT_STORE_LOGO }
 ];
 
 const PRESET_BANNERS = [
   { name: 'Default Cover Header', url: DEFAULT_COVER_BANNER }
 ];
 
-export default function ImageUploader({ 
-  value = "", 
+export default function ImageUploader({
+  value = "",
   onChange,
   values = [], // For multi-image mode
   onImagesChange, // For multi-image mode
-  multiple = false, 
-  label = "Product Image", 
-  aspectRatio = "square", 
-  placeholder = "Upload file or paste image URL..." 
+  multiple = false,
+  label = "Product Image",
+  aspectRatio = "square",
+  placeholder = "Upload file or paste image URL..."
 }) {
   const { openImageModal } = useImageModal();
   const [uploading, setUploading] = useState(false);
@@ -164,22 +164,20 @@ export default function ImageUploader({
           <button
             type="button"
             onClick={() => setActiveMode('upload')}
-            className={`px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
-              activeMode === 'upload' ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${activeMode === 'upload' ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             <i className="fa-solid fa-cloud-arrow-up mr-1"></i> Upload {multiple ? 'Files' : 'File'}
           </button>
           <button
             type="button"
             onClick={() => setActiveMode('url')}
-            className={`px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
-              activeMode === 'url' ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${activeMode === 'url' ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             <i className="fa-solid fa-link mr-1"></i> Image URL
           </button>
-          <button
+          {/* <button
             type="button"
             onClick={() => setActiveMode('presets')}
             className={`px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
@@ -187,7 +185,7 @@ export default function ImageUploader({
             }`}
           >
             <i className="fa-solid fa-wand-magic-sparkles mr-1"></i> Presets
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -200,21 +198,20 @@ export default function ImageUploader({
 
       {/* Multi-Image Gallery Grid or Single Preview */}
       <div className="space-y-3">
-        
+
         {/* Thumbnails Display */}
         {imageList.length > 0 && (
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
             {imageList.map((imgUrl, idx) => (
-              <div 
-                key={idx} 
-                className={`relative rounded-xl border overflow-hidden group bg-slate-50 flex items-center justify-center cursor-zoom-in ${
-                  idx === 0 ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200'
-                } ${aspectRatio === 'banner' ? 'h-20' : 'h-24'}`}
+              <div
+                key={idx}
+                className={`relative rounded-xl border overflow-hidden group bg-slate-50 flex items-center justify-center cursor-zoom-in ${idx === 0 ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200'
+                  } ${aspectRatio === 'banner' ? 'h-20' : 'h-24'}`}
                 onClick={() => openImageModal(imgUrl, label || 'Image Preview')}
                 title="Click to zoom image"
               >
                 <img src={imgUrl} alt={`Uploaded ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                
+
                 {/* Cover badge for first image */}
                 {idx === 0 && (
                   <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-emerald-600 text-white font-extrabold text-[8px] rounded uppercase tracking-wider">
@@ -259,7 +256,7 @@ export default function ImageUploader({
                 onChange={handleFileChange}
                 className="hidden"
               />
-              
+
               <button
                 type="button"
                 disabled={uploading}
@@ -282,21 +279,28 @@ export default function ImageUploader({
           )}
 
           {activeMode === 'url' && (
-            <form onSubmit={handleAddUrl} className="flex gap-2">
+            <div className="flex gap-2">
               <input
                 type="url"
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddUrl(e);
+                  }
+                }}
                 placeholder={placeholder}
                 className="flex-1 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs outline-none focus:border-emerald-500 font-mono"
               />
               <button
-                type="submit"
+                type="button"
+                onClick={handleAddUrl}
                 className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl cursor-pointer"
               >
                 Add Image
               </button>
-            </form>
+            </div>
           )}
 
           {activeMode === 'presets' && (

@@ -3,7 +3,7 @@
 export const BAZAAR_DATA = {
   cities: ["Rampur", "Moradabad", "Bareilly"],
   currentCity: "Rampur",
-  
+
   categories: [
     { id: "electronics", name: "Electronics", icon: "fa-laptop", image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=300" },
     { id: "fashion", name: "Fashion", icon: "fa-shirt", image: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=300" },
@@ -86,7 +86,7 @@ export const BAZAAR_DATA = {
       productsCount: 200,
       bannerImage: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=1200",
       logoImage: "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=200",
-      description: "Complete household grocery store supplying fresh items, spices, pulses, packaged goods, and personal care products.",
+      description: "Complete household grocery Shop supplying fresh items, spices, pulses, packaged goods, and personal care products.",
       highlights: ["Fresh Stock", "Home Delivery Available", "Bulk Rates"]
     },
     {

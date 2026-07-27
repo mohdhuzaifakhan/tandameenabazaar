@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBazaar } from '../context/BazaarContext';
 import { DEFAULT_PRODUCT_IMAGE } from '../utils/defaultAssets';
@@ -31,15 +30,15 @@ export default function ShopProductCard({ product }) {
   const imageUrl = (product.images && product.images.length > 0 ? product.images[0] : product.image) || DEFAULT_PRODUCT_IMAGE;
 
   return (
-    <div 
+    <div
       onClick={handleCardClick}
       className="relative bg-white rounded-2xl border border-slate-100 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer p-3 flex flex-col justify-between h-full group"
     >
       <div>
-        
+
         {/* Image Canvas with 4:3 Aspect Ratio (Full Width) */}
         <div className="relative aspect-[4/3] bg-slate-50/50 rounded-xl overflow-hidden flex items-center justify-center">
-          
+
           {/* Discount Badge */}
           {hasDiscount && (
             <span className="absolute top-2.5 left-2.5 bg-red-500 text-white font-extrabold text-[8px] uppercase tracking-wider px-2 py-0.5 rounded z-10">
@@ -48,7 +47,7 @@ export default function ShopProductCard({ product }) {
           )}
 
           {/* Wishlist Button Overlay */}
-          <button 
+          <button
             onClick={handleSaveClick}
             className={`absolute top-2.5 right-2.5 w-7.5 h-7.5 rounded-full bg-white/90 flex items-center justify-center text-[10px] hover:scale-105 hover:bg-red-50 transition-all cursor-pointer z-10 ${saved ? 'text-red-500' : 'text-slate-400'}`}
             title="Save Product"
@@ -57,10 +56,10 @@ export default function ShopProductCard({ product }) {
           </button>
 
           {/* Product Image */}
-          <img 
-            src={imageUrl} 
-            alt={product.name || 'Product'} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+          <img
+            src={imageUrl}
+            alt={product.name || 'Product'}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         </div>
 
@@ -70,7 +69,7 @@ export default function ShopProductCard({ product }) {
           <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider leading-none">
             {product.brand || 'LOCAL BRAND'}
           </span>
-          
+
           {/* Title */}
           <h4 className="font-display text-sm font-bold text-slate-900 line-clamp-1 mt-1 leading-snug group-hover:text-emerald-700 transition-colors">
             {product.name}
@@ -82,8 +81,8 @@ export default function ShopProductCard({ product }) {
             <span className="text-slate-800 font-bold">{product.rating || '4.8'}</span>
             <span className="text-slate-400 font-medium">({product.reviewsCount || '120'} Reviews)</span>
           </div>
-          
-          {/* Store Info Label */}
+
+          {/* Shop Info Label */}
           <div className="text-[10px] text-emerald-700 font-bold mt-2 flex items-center gap-1">
             <i className="fa-solid fa-circle-check text-emerald-600 text-[10px]"></i>
             <span>In Stock</span>
@@ -105,7 +104,7 @@ export default function ShopProductCard({ product }) {
         </div>
 
         {/* WhatsApp Direct Order Button */}
-        <button 
+        <button
           onClick={handleWhatsAppClick}
           className="w-8 h-8 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center text-sm transition-colors cursor-pointer border-none"
           title="Order on WhatsApp"
