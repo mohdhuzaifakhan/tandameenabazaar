@@ -8,7 +8,8 @@ export default function ShopCreateForm({
   handleCreateShop,
   creating,
   categories = [],
-  markets = []
+  markets = [],
+  cities = []
 }) {
   return (
     <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm space-y-6">
@@ -35,7 +36,21 @@ export default function ShopCreateForm({
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1">City / Region *</label>
+            <select
+              required
+              value={newStoreForm.city || 'Rampur'}
+              onChange={(e) => setNewStoreForm({ ...newStoreForm, city: e.target.value })}
+              className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500 bg-slate-50 font-medium cursor-pointer"
+            >
+              {cities.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+
           <div>
             <label className="text-xs font-bold text-slate-700 block mb-1">Business Category *</label>
             <select

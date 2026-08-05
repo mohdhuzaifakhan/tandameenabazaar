@@ -27,7 +27,8 @@ export default function ShopDashboard() {
     updateProduct,
     deleteProduct,
     categories,
-    markets
+    markets,
+    cities
   } = useBazaar();
 
   const [toastMessage, setToastMessage] = useState(null); // { type: 'success'|'error', text: '' }
@@ -59,6 +60,7 @@ export default function ShopDashboard() {
 
   const [newStoreForm, setNewStoreForm] = useState({
     name: '',
+    city: 'Rampur',
     category: '',
     market: '',
     phone: '',
@@ -130,6 +132,7 @@ export default function ShopDashboard() {
   // ── Shop Form State ──
   const [storeForm, setStoreForm] = useState({
     name: shop?.name || '',
+    city: shop?.city || 'Rampur',
     category: shop?.category || 'Electronics',
     market: shop?.market || 'Main Market',
     phone: shop?.phone || '',
@@ -147,6 +150,7 @@ export default function ShopDashboard() {
     if (shop) {
       setStoreForm({
         name: shop.name || '',
+        city: shop.city || 'Rampur',
         category: shop.category || 'Electronics',
         market: shop.market || 'Main Market',
         phone: shop.phone || '',
@@ -337,6 +341,7 @@ export default function ShopDashboard() {
               creating={creating}
               categories={categories}
               markets={markets}
+              cities={cities}
             />
           )
         ) : (
@@ -423,6 +428,7 @@ export default function ShopDashboard() {
                 savingStore={savingStore}
                 categories={categories}
                 markets={markets}
+                cities={cities}
               />
             )}
           </>
@@ -448,6 +454,7 @@ export default function ShopDashboard() {
         creating={creating}
         categories={categories}
         markets={markets}
+        cities={cities}
       />
 
       {/* Product Add / Edit Modal */}

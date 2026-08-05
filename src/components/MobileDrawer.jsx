@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useBazaar } from '../context/BazaarContext';
 
 export default function MobileDrawer({ isOpen, onClose }) {
   const { userProfile, logout } = useAuth();
+  const { currentCity, setCurrentCity, cities } = useBazaar();
   const location = useLocation();
 
   if (!isOpen) return null;
@@ -44,6 +46,41 @@ export default function MobileDrawer({ isOpen, onClose }) {
 
         {/* Drawer Body (Navigation Links) */}
         <div className="flex-1 overflow-y-auto py-5 flex flex-col gap-1">
+
+          {/* City Selection Card */}
+          <div className="mx-4 mb-4 p-3 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <i className="fa-solid fa-location-dot text-[#056839]"></i> Active City
+              </span>
+              <span className="text-[10px] font-bold text-[#056839] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                {currentCity}
+              </span>
+            </div>
+
+            <select
+              value={currentCity}
+              onChange={(e) => {
+                const val = e.target.value;
+                setCurrentCity(val);
+                if (location.pathname === '/shops') {
+                  const newParams = new URLSearchParams(location.search);
+                  if (val && val !== 'All Cities') {
+                    newParams.set('city', val);
+                  } else {
+                    newParams.delete('city');
+                  }
+                  window.history.replaceState(null, '', `#/shops?${newParams.toString()}`);
+                }
+              }}
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-extrabold text-slate-800 outline-none focus:border-[#056839] cursor-pointer"
+            >
+              <option value="All Cities">All Cities</option>
+              {cities.map((city) => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
+          </div>
 
           {/* User Profile Banner if logged in */}
           {userProfile && (

@@ -66,7 +66,11 @@ export const BazaarProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(() => safeGetItem(STORAGE_KEYS.USER_PROFILE, { role: 'guest' }));
 
   // Active City
-  const [currentCity, setCurrentCity] = useState(BAZAAR_DATA.currentCity || APP_CONFIG.DEFAULT_CITY);
+  const [currentCity, setCurrentCity] = useState(() => safeGetItem(STORAGE_KEYS.CITY, APP_CONFIG.DEFAULT_CITY));
+
+  useEffect(() => {
+    safeSetItem(STORAGE_KEYS.CITY, currentCity);
+  }, [currentCity]);
 
   // ── REAL FIREBASE FIRESTORE SYNC (DYNAMIC REAL-TIME DATA) ──
   useEffect(() => {
@@ -186,6 +190,7 @@ export const BazaarProvider = ({ children }) => {
     const newShop = {
       id: shopId,
       name: shopData.name,
+      city: shopData.city || currentCity || 'Rampur',
       category: categoryId,
       categoryName: categoryName,
       market: shopData.market || 'Main Market',

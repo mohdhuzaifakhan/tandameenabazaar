@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
 import QRCode from 'qrcode';
+import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_STORE_LOGO } from '../../utils/defaultAssets';
 
 export default function ShopQRCodeTab({ shop, showToast }) {
@@ -180,14 +180,14 @@ export default function ShopQRCodeTab({ shop, showToast }) {
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       {/* Printable Area Wrapper */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-6 md:p-8 shadow-xs">
-        
+      <div className="border-slate-200/90 md:p-8 shadow-xs">
+
         {/* Top Control Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 print:hidden">
           <div>
             <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
               <i className="fa-solid fa-qrcode text-[#056839]"></i>
-              Shop QR Code &amp; Printable Standee
+              Shop QR Code
             </h2>
             <p className="text-xs text-slate-500 font-medium mt-1">
               Customers can scan this QR code using their camera app to open your shop page directly.
@@ -214,14 +214,14 @@ export default function ShopQRCodeTab({ shop, showToast }) {
               <span>{generatingDownload ? 'Generating...' : 'Download QR'}</span>
             </button>
 
-            <button
+            {/* <button
               type="button"
               onClick={handlePrint}
               className="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-[#056839] border border-emerald-200 text-xs font-black rounded-xl transition-all flex items-center gap-2 cursor-pointer"
             >
               <i className="fa-solid fa-print"></i>
               <span>Print Poster</span>
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -235,7 +235,7 @@ export default function ShopQRCodeTab({ shop, showToast }) {
             {/* Poster Header */}
             <div className="w-full bg-[#056839] text-white py-5 px-4 flex flex-col items-center">
               <span className="text-[11px] font-black uppercase tracking-widest text-emerald-200">
-                Digital Meena Bazaar
+                Meena Bazaar
               </span>
               <h3 className="text-lg md:text-xl font-black text-white mt-0.5 tracking-tight">
                 Scan to Shop Online

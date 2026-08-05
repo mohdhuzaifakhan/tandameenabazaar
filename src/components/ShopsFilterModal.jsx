@@ -3,6 +3,9 @@ import React from 'react';
 export default function ShopsFilterModal({
   isOpen,
   onClose,
+  cities = [],
+  selectedCity = '',
+  setSelectedCity,
   categories = [],
   markets = [],
   selectedCategory,
@@ -17,7 +20,7 @@ export default function ShopsFilterModal({
 }) {
   if (!isOpen) return null;
 
-  const activeCount = (selectedCategory ? 1 : 0) + (selectedMarket ? 1 : 0);
+  const activeCount = (selectedCity && selectedCity !== 'All Cities' ? 1 : 0) + (selectedCategory ? 1 : 0) + (selectedMarket ? 1 : 0);
 
   return (
     <div className="fixed inset-0 z-[70] bg-slate-950/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
@@ -34,7 +37,7 @@ export default function ShopsFilterModal({
             </div>
             <div className="min-w-0">
               <h3 className="text-base sm:text-lg font-black text-slate-900 leading-tight truncate">Filter Storefronts</h3>
-              <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">Refine shops by category, market &amp; ratings</p>
+              <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">Refine shops by city, category &amp; market</p>
             </div>
           </div>
 
@@ -61,6 +64,68 @@ export default function ShopsFilterModal({
 
         {/* Scrollable Modal Content Body */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1 min-h-0">
+
+          {/* City Selection Grid */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                <i className="fa-solid fa-city text-indigo-600"></i> 1. City / Region
+              </span>
+              {selectedCity && selectedCity !== 'All Cities' && (
+                <span className="text-[11px] text-indigo-600 font-extrabold">
+                  {selectedCity}
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCity('All Cities');
+                  updateFilters('city', 'All Cities');
+                }}
+                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-1 min-w-0 ${
+                  selectedCity === 'All Cities' || !selectedCity
+                    ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20 shadow-2xs'
+                    : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100'
+                }`}
+              >
+                <span className={`text-xs font-extrabold truncate ${selectedCity === 'All Cities' || !selectedCity ? 'text-indigo-900' : 'text-slate-700'}`}>
+                  All Cities
+                </span>
+                {(selectedCity === 'All Cities' || !selectedCity) && (
+                  <i className="fa-solid fa-circle-check text-indigo-600 text-xs flex-shrink-0"></i>
+                )}
+              </button>
+
+              {cities.map((city) => {
+                const isSelected = selectedCity === city;
+                return (
+                  <button
+                    key={city}
+                    type="button"
+                    onClick={() => {
+                      setSelectedCity(city);
+                      updateFilters('city', city);
+                    }}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-1 min-w-0 ${
+                      isSelected
+                        ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20 shadow-2xs'
+                        : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className={`text-xs font-extrabold truncate ${isSelected ? 'text-indigo-900' : 'text-slate-700'}`}>
+                      {city}
+                    </span>
+                    {isSelected && (
+                      <i className="fa-solid fa-circle-check text-indigo-600 text-xs flex-shrink-0"></i>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Category Selection Grid */}
           <div className="space-y-3">

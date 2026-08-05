@@ -5,7 +5,7 @@ export const APP_CONFIG = {
   BRAND_TITLE: 'Meena Bazaar',
   SLOGAN: 'Discover Local Shops & Products',
   DEFAULT_CITY: 'Rampur',
-  CITIES: ['Rampur', 'Moradabad', 'Bareilly'],
+  CITIES: ['Rampur', 'Moradabad', 'Bareilly', 'Sambhal', 'Amroha', 'Bijnor', 'Shahjahanpur', 'Delhi NCR'],
   SUPPORT_EMAIL: 'mohdhuzaifa8126195456@gmail.com',
   ADMIN_EMAIL: import.meta.env.VITE_ADMIN_EMAIL || '',
 };
@@ -18,6 +18,7 @@ export const STORAGE_KEYS = {
   SAVED_PRODUCTS: 'meena_bazaar_saved_products_v3',
   USER_PROFILE: 'meena_bazaar_user_v3',
   AUTH_USER: 'meena_bazaar_auth_user_v3',
+  CITY: 'meena_bazaar_city_v3',
 };
 
 export const FIRESTORE_COLLECTIONS = {

@@ -22,7 +22,7 @@ import ShopCardClean from '../components/ShopCardClean';
 import { useBazaar } from '../context/BazaarContext';
 
 export default function Home() {
-  const { categories, products, shops, savedProductIds } = useBazaar();
+  const { categories, products, shops, savedProductIds, currentCity } = useBazaar();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
@@ -33,8 +33,14 @@ export default function Home() {
     }
   };
 
-  // Only shops verified by Admin are published to public users
-  const verifiedShops = shops.filter((s) => s.verified !== false);
+  // Only shops verified by Admin and matching active city are published to public users
+  const verifiedShops = shops.filter((s) => {
+    if (s.verified === false) return false;
+    if (!currentCity || currentCity === 'All Cities') return true;
+    if (s.city) return s.city === currentCity;
+    return currentCity === 'Rampur';
+  });
+
   const verifiedShopIds = new Set(verifiedShops.map((s) => s.id));
 
   // Only products from verified shops
@@ -107,11 +113,11 @@ export default function Home() {
             <h1 className="text-xl font-black text-slate-900 leading-[1.15] tracking-tight">
               Discover the Best <br />
               <span className="text-[#056839] font-serif italic font-normal">Shops &amp; Products</span> <br />
-              in Your City
+              in {currentCity === 'All Cities' ? 'Your Region' : currentCity}
             </h1>
 
             <p className="text-[10.5px] text-slate-600 font-medium leading-relaxed">
-              Verified local shops. Direct WhatsApp orders. Fast &amp; reliable Rampur marketplace.
+              Verified local shops. Direct WhatsApp orders. Fast &amp; reliable {currentCity === 'All Cities' ? 'local' : currentCity} marketplace.
             </p>
 
             <Link

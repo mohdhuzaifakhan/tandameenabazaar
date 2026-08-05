@@ -10,22 +10,30 @@ export default function ShopCreateWizardModal({
   handleCreateShop,
   creating,
   categories = [],
-  markets = []
+  markets = [],
+  cities = []
 }) {
   if (!showCreateWizard) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto animate-fade-in border border-slate-100">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full border border-slate-100 shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+        >
+          <i className="fa-solid fa-xmark text-lg"></i>
+        </button>
 
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-          <div>
-            <span className="text-[10px] text-emerald-600 font-extrabold tracking-widest uppercase">MERCHANT ONBOARDING</span>
-            <h3 className="text-xl font-black text-slate-900">Create Your Storefront</h3>
+        <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#056839] flex items-center justify-center text-lg font-bold">
+            <i className="fa-solid fa-store"></i>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 cursor-pointer">
-            <i className="fa-solid fa-xmark text-lg"></i>
-          </button>
+          <div>
+            <h2 className="text-lg font-black text-slate-900">Launch Storefront Wizard</h2>
+            <p className="text-xs text-slate-500 font-medium">Setup your Shop profile to start listing products on Meena Bazaar.</p>
+          </div>
         </div>
 
         <form onSubmit={handleCreateShop} className="space-y-4">
@@ -42,7 +50,21 @@ export default function ShopCreateWizardModal({
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="text-xs font-bold text-slate-700 block mb-1">City / Region *</label>
+              <select
+                required
+                value={newStoreForm.city || 'Rampur'}
+                onChange={(e) => setNewStoreForm({ ...newStoreForm, city: e.target.value })}
+                className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500 bg-slate-50 font-medium cursor-pointer"
+              >
+                {cities.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">Business Category *</label>
               <select

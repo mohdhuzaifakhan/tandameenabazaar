@@ -7,7 +7,8 @@ export default function ShopSettingsTab({
   handleSaveStoreProfile,
   savingStore,
   categories = [],
-  markets = []
+  markets = [],
+  cities = []
 }) {
   return (
     <div className="max-w-4xl bg-white rounded-xl p-2 mx-auto md:p-8 space-y-6">
@@ -30,6 +31,19 @@ export default function ShopSettingsTab({
               onChange={(e) => setStoreForm({ ...storeForm, name: e.target.value })}
               className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500 bg-slate-50"
             />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1.5">City / Region *</label>
+            <select
+              value={storeForm.city || 'Rampur'}
+              onChange={(e) => setStoreForm({ ...storeForm, city: e.target.value })}
+              className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500 bg-slate-50 font-medium cursor-pointer"
+            >
+              {cities.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </div>
 
           <div>

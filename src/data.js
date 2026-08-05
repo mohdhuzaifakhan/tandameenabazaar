@@ -1,7 +1,7 @@
 // Digital Meena Bazaar - Mock Database
 
 export const BAZAAR_DATA = {
-  cities: ["Rampur", "Moradabad", "Bareilly"],
+  cities: ["Rampur", "Moradabad", "Bareilly", "Sambhal", "Amroha", "Bijnor", "Shahjahanpur", "Delhi NCR"],
   currentCity: "Rampur",
 
   categories: [
@@ -22,7 +22,9 @@ export const BAZAAR_DATA = {
     "Nai Sadak",
     "Civil Lines",
     "Mandi Samiti",
-    "Bada Bazaar"
+    "Bada Bazaar",
+    "Brass Market Moradabad",
+    "Civil Lines Bareilly"
   ],
 
   shops: [
@@ -31,6 +33,7 @@ export const BAZAAR_DATA = {
       name: "Sharma Mobile Store",
       slug: "sharma-mobile-store",
       verified: true,
+      city: "Rampur",
       category: "mobile-acc",
       categoryName: "Mobile & Accessories",
       market: "Gandhi Market",
@@ -46,6 +49,50 @@ export const BAZAAR_DATA = {
       logoImage: "https://images.unsplash.com/photo-1616469829941-c7200edec809?w=200",
       description: "Your one-stop destination for all mobile phones, accessories and gadgets. Best quality products at the best prices.",
       highlights: ["100+ Products", "Best Prices", "Genuine Products"]
+    },
+    {
+      id: "moradabad-brass-gallery",
+      name: "Royal Brass & Handicrafts",
+      slug: "royal-brass-handicrafts",
+      verified: true,
+      city: "Moradabad",
+      category: "furniture",
+      categoryName: "Home & Decor",
+      market: "Brass Market Moradabad",
+      address: "Brass City Market, Moradabad, Uttar Pradesh - 244001",
+      phone: "+919876500111",
+      whatsapp: "919876500111",
+      hours: "10:00 AM - 9:00 PM",
+      statusText: "Open Today",
+      rating: 4.8,
+      reviewsCount: 94,
+      productsCount: 65,
+      bannerImage: "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=1200",
+      logoImage: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=200",
+      description: "Authentic handcrafted Moradabad brass artifacts, home decor items, lamps, and brass giftware.",
+      highlights: ["Pure Brassware", "Export Quality", "Wholesale & Retail"]
+    },
+    {
+      id: "bareilly-boutique",
+      name: "Jhumka Bridal & Sarees",
+      slug: "jhumka-bridal-sarees",
+      verified: true,
+      city: "Bareilly",
+      category: "fashion",
+      categoryName: "Fashion & Sarees",
+      market: "Civil Lines Bareilly",
+      address: "Main Road, Civil Lines, Bareilly, Uttar Pradesh - 243001",
+      phone: "+919876500222",
+      whatsapp: "919876500222",
+      hours: "10:30 AM - 8:30 PM",
+      statusText: "Open Today",
+      rating: 4.7,
+      reviewsCount: 112,
+      productsCount: 140,
+      bannerImage: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200",
+      logoImage: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=200",
+      description: "Exclusive designer bridal sarees, Zardozi dupattas, and designer lehengas in Bareilly.",
+      highlights: ["Authentic Zardozi", "Bridal Wear", "Custom Fitting"]
     },
     {
       id: "khan-footwear",

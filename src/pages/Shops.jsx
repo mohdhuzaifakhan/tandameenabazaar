@@ -5,7 +5,7 @@ import { useBazaar } from '../context/BazaarContext';
 import { DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 
 export default function Shops() {
-  const { shops, categories, markets } = useBazaar();
+  const { shops, categories, markets, cities, currentCity, setCurrentCity } = useBazaar();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -21,12 +21,20 @@ export default function Shops() {
     setSearchQuery(searchParams.get('search') || '');
     setSelectedCategory(searchParams.get('category') || '');
     setSelectedMarket(searchParams.get('market') || '');
+
+    const urlCity = searchParams.get('city');
+    if (urlCity && urlCity !== currentCity) {
+      setCurrentCity(urlCity);
+    }
   }, [searchParams]);
 
   // Update query params helper
   const updateFilters = (key, value) => {
+    if (key === 'city') {
+      setCurrentCity(value || 'All Cities');
+    }
     const newParams = new URLSearchParams(searchParams);
-    if (value) {
+    if (value && value !== 'All Cities') {
       newParams.set(key, value);
     } else {
       newParams.delete(key);
@@ -39,6 +47,7 @@ export default function Shops() {
     setSearchQuery('');
     setSelectedCategory('');
     setSelectedMarket('');
+    setCurrentCity('All Cities');
   };
 
   // Filtered and Sorted Shops list - Only verified shops are published to public users
@@ -59,15 +68,18 @@ export default function Shops() {
 
     const matchesMarket = !selectedMarket || shop.market === selectedMarket;
 
-    return matchesSearch && matchesCategory && matchesMarket;
+    const matchesCity = !currentCity || currentCity === 'All Cities' ||
+      (shop.city ? shop.city === currentCity : (currentCity === 'Rampur'));
+
+    return matchesSearch && matchesCategory && matchesMarket && matchesCity;
   });
 
   if (sortBy === 'rating') {
     filteredShops = [...filteredShops].sort((a, b) => (b.rating || 0) - (a.rating || 0));
   }
 
-  const isFiltered = Boolean(searchQuery || selectedCategory || selectedMarket);
-  const activeFilterCount = (selectedCategory ? 1 : 0) + (selectedMarket ? 1 : 0);
+  const isFiltered = Boolean(searchQuery || selectedCategory || selectedMarket || (currentCity && currentCity !== 'All Cities'));
+  const activeFilterCount = (selectedCategory ? 1 : 0) + (selectedMarket ? 1 : 0) + (currentCity && currentCity !== 'All Cities' ? 1 : 0);
 
   const categoryObj = categories.find(c => c.id === selectedCategory);
   const categoryName = categoryObj ? categoryObj.name : selectedCategory;
@@ -126,7 +138,7 @@ export default function Shops() {
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-            Discover trusted local shops in Rampur
+            Discover trusted local shops in {currentCity && currentCity !== 'All Cities' ? currentCity : 'your city'}
           </p>
         </div>
       </div>
@@ -181,6 +193,18 @@ export default function Shops() {
       {isFiltered && (
         <div className="flex items-center gap-2 flex-wrap text-xs pt-0.5">
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active:</span>
+          {currentCity && currentCity !== 'All Cities' && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-200/70 font-bold text-xs">
+              City: {currentCity}
+              <button
+                type="button"
+                onClick={() => { updateFilters('city', 'All Cities'); }}
+                className="hover:text-rose-600 ml-0.5 cursor-pointer"
+              >
+                <i className="fa-solid fa-xmark text-[11px]"></i>
+              </button>
+            </span>
+          )}
           {selectedCategory && (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-[#056839] border border-emerald-200/70 font-bold text-xs">
               Category: {categoryName}
@@ -334,6 +358,9 @@ export default function Shops() {
       <ShopsFilterModal
         isOpen={showFilterModal}
         onClose={() => setShowFilterModal(false)}
+        cities={cities}
+        selectedCity={currentCity}
+        setSelectedCity={setCurrentCity}
         categories={categories}
         markets={markets}
         selectedCategory={selectedCategory}
