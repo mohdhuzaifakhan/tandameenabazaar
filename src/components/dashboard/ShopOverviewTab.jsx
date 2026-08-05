@@ -6,7 +6,8 @@ export default function ShopOverviewTab({
   onViewAllProducts,
   onAddFirstProduct,
   shop,
-  onEditProfile
+  onEditProfile,
+  onViewQRCode
 }) {
   return (
     <div className="space-y-6">
@@ -127,13 +128,25 @@ export default function ShopOverviewTab({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={onEditProfile}
-              className="w-full mt-6 py-3 bg-[#056839] hover:bg-emerald-800 active:scale-95 text-white text-xs font-black rounded-xl transition-all shadow-md shadow-emerald-900/10 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <i className="fa-solid fa-pen-to-square"></i> Edit Shop Profile
-            </button>
+            <div className="mt-6 flex flex-col gap-2">
+              {onViewQRCode && (
+                <button
+                  type="button"
+                  onClick={onViewQRCode}
+                  className="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-[#056839] border border-emerald-200 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <i className="fa-solid fa-qrcode text-xs"></i> Get Store QR Code
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={onEditProfile}
+                className="w-full py-3 bg-[#056839] hover:bg-emerald-800 active:scale-95 text-white text-xs font-black rounded-xl transition-all shadow-md shadow-emerald-900/10 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <i className="fa-solid fa-pen-to-square"></i> Edit Shop Profile
+              </button>
+            </div>
           </div>
         )}
 

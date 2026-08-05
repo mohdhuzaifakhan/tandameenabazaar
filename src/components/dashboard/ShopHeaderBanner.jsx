@@ -1,7 +1,7 @@
 import React from 'react';
 import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../../utils/defaultAssets';
 
-export default function ShopHeaderBanner({ shop, onOpenSettings, onAddProduct }) {
+export default function ShopHeaderBanner({ shop, onOpenSettings, onAddProduct, onOpenQRCode }) {
   if (!shop) return null;
 
   return (
@@ -79,7 +79,18 @@ export default function ShopHeaderBanner({ shop, onOpenSettings, onAddProduct })
         </div>
 
         {/* Right Side: Action Buttons */}
-        <div className="grid grid-cols-2 gap-2.5 sm:flex sm:items-center sm:gap-3 w-full md:w-auto mt-2 sm:mt-0 pt-2 md:pt-0 border-t md:border-0 border-slate-100">
+        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto mt-2 sm:mt-0 pt-2 md:pt-0 border-t md:border-0 border-slate-100">
+          {onOpenQRCode && (
+            <button
+              type="button"
+              onClick={onOpenQRCode}
+              className="px-3.5 py-2.5 bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-[#056839] border border-emerald-200 font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs whitespace-nowrap"
+            >
+              <i className="fa-solid fa-qrcode text-xs text-[#056839]"></i>
+              <span>Get QR Code</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onOpenSettings}

@@ -29,6 +29,18 @@ export default function ShopNavTabs({ activeTab, setActiveTab, catalogCount = 0 
 
       <button
         type="button"
+        onClick={() => setActiveTab('qrcode')}
+        className={`px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs font-bold rounded-xl transition-all inline-flex items-center gap-2 cursor-pointer whitespace-nowrap flex-shrink-0 ${activeTab === 'qrcode'
+          ? 'bg-emerald-950 text-white font-black shadow-xs'
+          : 'text-slate-600 hover:bg-slate-100 bg-white border border-slate-200/60'
+          }`}
+      >
+        <i className="fa-solid fa-qrcode text-xs"></i>
+        <span className="whitespace-nowrap">Shop QR Code</span>
+      </button>
+
+      <button
+        type="button"
         onClick={() => setActiveTab('store')}
         className={`px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs font-bold rounded-xl transition-all inline-flex items-center gap-2 cursor-pointer whitespace-nowrap flex-shrink-0 ${activeTab === 'store'
           ? 'bg-emerald-950 text-white font-black shadow-xs'

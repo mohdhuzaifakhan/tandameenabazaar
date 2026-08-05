@@ -10,6 +10,7 @@ import ShopHeaderBanner from '../components/dashboard/ShopHeaderBanner';
 import ShopNavTabs from '../components/dashboard/ShopNavTabs';
 import ShopOverviewTab from '../components/dashboard/ShopOverviewTab';
 import ShopProductsTab from '../components/dashboard/ShopProductsTab';
+import ShopQRCodeTab from '../components/dashboard/ShopQRCodeTab';
 import ShopSettingsTab from '../components/dashboard/ShopSettingsTab';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
@@ -367,6 +368,7 @@ export default function ShopDashboard() {
               shop={shop}
               onOpenSettings={() => setActiveTab('store')}
               onAddProduct={openAddModal}
+              onOpenQRCode={() => setActiveTab('qrcode')}
             />
 
             {/* Navigation Tabs */}
@@ -385,6 +387,7 @@ export default function ShopDashboard() {
                 onAddFirstProduct={openAddModal}
                 shop={shop}
                 onEditProfile={() => setActiveTab('store')}
+                onViewQRCode={() => setActiveTab('qrcode')}
               />
             )}
 
@@ -403,7 +406,15 @@ export default function ShopDashboard() {
               />
             )}
 
-            {/* Tab 3: Shop Profile Settings */}
+            {/* Tab 3: Shop QR Code */}
+            {activeTab === 'qrcode' && (
+              <ShopQRCodeTab
+                shop={shop}
+                showToast={showToast}
+              />
+            )}
+
+            {/* Tab 4: Shop Profile Settings */}
             {activeTab === 'store' && (
               <ShopSettingsTab
                 storeForm={storeForm}
