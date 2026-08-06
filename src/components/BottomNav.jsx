@@ -1,21 +1,22 @@
-import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, Store, Heart, User } from 'lucide-react';
-import { useBazaar } from '../context/BazaarContext';
+import { Home, LayoutGrid, Search, User } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useBazaar } from '../context/BazaarContext';
 
 export default function BottomNav({ onOpenSearch }) {
   const location = useLocation();
-  const navigate = useNavigate();
   const { savedProductIds } = useBazaar();
-  const { currentUser } = useAuth();
+  const { userProfile, currentUser } = useAuth();
 
-  const profilePath =
-    currentUser && currentUser.role !== 'guest'
-      ? currentUser.role === 'admin'
-        ? '/dashboard/admin'
-        : '/dashboard/shop'
-      : '/login';
+  const profile = userProfile || currentUser;
+
+  const profilePath = profile
+    ? profile.role === 'admin'
+      ? '/dashboard/admin'
+      : profile.role === 'shop_owner'
+        ? '/dashboard/shop'
+        : '/dashboard/customer'
+    : '/login';
 
   const isProfileActive =
     location.pathname === '/login' || location.pathname.startsWith('/dashboard');
@@ -32,25 +33,25 @@ export default function BottomNav({ onOpenSearch }) {
       id: 'search',
       label: 'Search',
       icon: Search,
-      path: '/shops',
+      path: '/categories',
       onClick: onOpenSearch,
       active: location.pathname === '/search',
     },
     {
-      id: 'shops',
-      label: 'Shops',
-      icon: Store,
-      path: '/shops',
-      active: location.pathname === '/shops',
+      id: 'categories',
+      label: 'Categories',
+      icon: LayoutGrid,
+      path: '/categories',
+      active: location.pathname === '/categories',
     },
-    {
-      id: 'saved',
-      label: 'Saved',
-      icon: Heart,
-      path: '/saved',
-      badge: savedProductIds.length,
-      active: location.pathname === '/saved',
-    },
+    // {
+    //   id: 'saved',
+    //   label: 'Saved',
+    //   icon: Heart,
+    //   path: '/saved',
+    //   badge: savedProductIds.length,
+    //   active: location.pathname === '/saved',
+    // },
     {
       id: 'profile',
       label: 'Profile',
@@ -61,7 +62,7 @@ export default function BottomNav({ onOpenSearch }) {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-100/90 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-100/90 md:hidden">
       <div className="flex items-center justify-around h-14 max-w-md mx-auto px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -70,20 +71,18 @@ export default function BottomNav({ onOpenSearch }) {
           const content = (
             <div className="flex flex-col items-center justify-center gap-0.5 relative py-1 px-3">
               <Icon
-                className={`w-5 h-5 transition-all duration-200 ${
-                  isActive ? 'text-[#056839] stroke-[2.4] scale-105' : 'text-slate-400 stroke-[1.8]'
-                }`}
+                className={`w-5 h-5 transition-all duration-200 ${isActive ? 'text-[#056839] stroke-[2.4] scale-105' : 'text-slate-400 stroke-[1.8]'
+                  }`}
                 fill="none"
               />
               <span
-                className={`text-[11px] tracking-tight transition-colors ${
-                  isActive ? 'text-[#056839] font-extrabold' : 'text-slate-500 font-medium'
-                }`}
+                className={`text-[11px] tracking-tight transition-colors ${isActive ? 'text-[#056839] font-extrabold' : 'text-slate-500 font-medium'
+                  }`}
               >
                 {item.label}
               </span>
               {item.badge > 0 && (
-                <span className="absolute -top-1 right-2 bg-[#056839] text-white font-extrabold text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-xs">
+                <span className="absolute -top-1 right-2 bg-[#056839] text-white font-extrabold text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center">
                   {item.badge}
                 </span>
               )}

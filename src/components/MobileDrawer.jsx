@@ -3,9 +3,11 @@ import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 
 export default function MobileDrawer({ isOpen, onClose }) {
-  const { userProfile, logout } = useAuth();
+  const { userProfile, currentUser, logout } = useAuth();
   const { currentCity, setCurrentCity, cities } = useBazaar();
   const location = useLocation();
+
+  const activeUser = userProfile || currentUser;
 
   if (!isOpen) return null;
 
@@ -82,24 +84,24 @@ export default function MobileDrawer({ isOpen, onClose }) {
             </select>
           </div>
 
-          {/* User Profile Banner if logged in */}
-          {userProfile && (
-            <div className="mx-4 mb-4 p-3 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-3">
-              {userProfile.photoURL ? (
+          {/* User Profile Summary */}
+          {activeUser && (
+            <div className="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-100/80 mb-4 flex items-center gap-3">
+              {activeUser.photoURL ? (
                 <img
-                  src={userProfile.photoURL}
-                  alt={userProfile.displayName}
+                  src={activeUser.photoURL}
+                  alt={activeUser.displayName}
                   className="w-9 h-9 rounded-full object-cover border border-emerald-500"
                 />
               ) : (
                 <div className="w-9 h-9 rounded-full bg-emerald-700 text-white font-bold flex items-center justify-center text-xs">
-                  {userProfile.displayName ? userProfile.displayName[0].toUpperCase() : 'U'}
+                  {activeUser.displayName ? activeUser.displayName[0].toUpperCase() : 'U'}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <span className="font-extrabold text-xs text-slate-900 block truncate">{userProfile.displayName}</span>
+                <span className="font-extrabold text-xs text-slate-900 block truncate">{activeUser.displayName}</span>
                 <span className="text-[10px] text-emerald-700 font-bold uppercase">
-                  {userProfile.role === 'admin' ? 'Admin' : (userProfile.role === 'shop_owner' ? 'Merchant' : 'Customer')}
+                  {activeUser.role === 'admin' ? 'Admin' : (activeUser.role === 'shop_owner' ? 'Merchant' : 'Customer')}
                 </span>
               </div>
             </div>
@@ -110,9 +112,9 @@ export default function MobileDrawer({ isOpen, onClose }) {
               <i className="fa-solid fa-house text-sm w-4 text-center"></i>
               <span>Home</span>
             </Link>
-            <Link to="/shops" className={`flex items-center gap-3 py-2.5 text-xs font-bold transition-all ${isActive('/shops')}`} onClick={onClose}>
-              <i className="fa-solid fa-store text-sm w-4 text-center"></i>
-              <span>Shops Directory</span>
+            <Link to="/categories" className={`flex items-center gap-3 py-2.5 text-xs font-bold transition-all ${isActive('/categories')}`} onClick={onClose}>
+              <i className="fa-solid fa-layer-group text-sm w-4 text-center"></i>
+              <span>Explore Products</span>
             </Link>
             <Link to="/saved" className={`flex items-center gap-3 py-2.5 text-xs font-bold transition-all ${isActive('/saved')}`} onClick={onClose}>
               <i className="fa-solid fa-heart text-sm w-4 text-center"></i>
@@ -132,18 +134,18 @@ export default function MobileDrawer({ isOpen, onClose }) {
 
           {/* User Account / Dashboard Actions */}
           <div className="px-4 space-y-2">
-            {userProfile ? (
+            {activeUser ? (
               <>
                 <Link
-                  to={userProfile.role === 'admin' ? '/dashboard/admin' : (userProfile.role === 'shop_owner' ? '/dashboard/shop' : '/dashboard/customer')}
+                  to={activeUser.role === 'admin' ? '/dashboard/admin' : (activeUser.role === 'shop_owner' ? '/dashboard/shop' : '/dashboard/customer')}
                   className="w-full py-2.5 px-4 bg-[#056839] text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-md"
                   onClick={onClose}
                 >
-                  <i className={userProfile.role === 'shop_owner' ? 'fa-solid fa-store' : 'fa-solid fa-user'}></i>
+                  <i className={activeUser.role === 'shop_owner' ? 'fa-solid fa-store' : 'fa-solid fa-user'}></i>
                   <span>
-                    {userProfile.role === 'admin'
+                    {activeUser.role === 'admin'
                       ? 'Admin Panel'
-                      : (userProfile.role === 'shop_owner' ? 'My Shop Dashboard' : 'Customer Account')}
+                      : (activeUser.role === 'shop_owner' ? 'My Shop Dashboard' : 'Customer Account')}
                   </span>
                 </Link>
 

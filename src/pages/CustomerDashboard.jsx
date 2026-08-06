@@ -7,7 +7,6 @@ import {
   CreditCard,
   Headphones,
   Heart,
-  Home as HomeIcon,
   LogOut,
   Mail,
   MapPin,
@@ -531,40 +530,6 @@ export default function CustomerDashboard() {
         </div>
 
       </div>
-
-      {/* --- 6. BOTTOM FLOATING NAVIGATION BAR (EXACT FROM SCREENSHOT) --- */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-2 px-6 flex justify-between items-center z-50 max-w-lg mx-auto">
-        {/* 1. Home */}
-        <Link to="/" className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900">
-          <HomeIcon className="w-5 h-5 stroke-[1.8]" />
-          <span className="text-[10px] font-semibold">Home</span>
-        </Link>
-
-        {/* 2. Search */}
-        <Link to="/shops" className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900">
-          <Search className="w-5 h-5 stroke-[1.8]" />
-          <span className="text-[10px] font-semibold">Search</span>
-        </Link>
-
-        {/* 3. Shops */}
-        <Link to="/shops" className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900">
-          <Store className="w-5 h-5 stroke-[1.8]" />
-          <span className="text-[10px] font-semibold">Shops</span>
-        </Link>
-
-        {/* 4. Saved */}
-        <Link to="/saved" className="flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-900">
-          <Heart className="w-5 h-5 stroke-[1.8]" />
-          <span className="text-[10px] font-semibold">Saved</span>
-        </Link>
-
-        {/* 5. Profile (Active) */}
-        <Link to="/dashboard/customer" className="flex flex-col items-center gap-0.5 text-[#056839] font-bold">
-          <User className="w-5 h-5 text-[#056839] stroke-[2.2]" />
-          <span className="text-[10px] font-extrabold text-[#056839]">Profile</span>
-        </Link>
-      </div>
-
     </div>
   );
 }

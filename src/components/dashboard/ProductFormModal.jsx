@@ -112,6 +112,19 @@ export default function ProductFormModal({
             </select>
           </div>
 
+          <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-xl border border-amber-200/80">
+            <input
+              type="checkbox"
+              id="dealOfDayCheck"
+              checked={productForm.isDealOfDay || false}
+              onChange={(e) => setProductForm({ ...productForm, isDealOfDay: e.target.checked })}
+              className="w-4 h-4 text-emerald-600 rounded cursor-pointer accent-[#056839]"
+            />
+            <label htmlFor="dealOfDayCheck" className="text-xs font-extrabold text-slate-800 cursor-pointer select-none">
+              Mark as "Best Deal of the Day" (Featured on Home Screen)
+            </label>
+          </div>
+
           <div>
             <label className="text-xs font-bold text-slate-700 block mb-1">Highlights (comma separated)</label>
             <input

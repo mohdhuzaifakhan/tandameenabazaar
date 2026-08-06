@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 import BottomNav from './BottomNav';
 
 export default function Footer({ onOpenDrawer }) {
-  const { savedProductIds, currentUser } = useBazaar();
+  const { savedProductIds } = useBazaar();
+  const { userProfile, currentUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -19,18 +21,21 @@ export default function Footer({ onOpenDrawer }) {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/shops?search=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/categories?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
       setSearchQuery('');
     }
   };
 
-  const profilePath =
-    currentUser && currentUser.role !== 'guest'
-      ? currentUser.role === 'admin'
-        ? '/dashboard/admin'
-        : '/dashboard/shop'
-      : '/login';
+  const profile = userProfile || currentUser;
+
+  const profilePath = profile
+    ? profile.role === 'admin'
+      ? '/dashboard/admin'
+      : profile.role === 'shop_owner'
+        ? '/dashboard/shop'
+        : '/dashboard/customer'
+    : '/login';
 
   const isProfileActive =
     location.pathname === '/login' ||
@@ -85,7 +90,7 @@ export default function Footer({ onOpenDrawer }) {
                 <span>+91 8433043426</span>
               </a>
               <a
-                href="https://wa.me/918433043426?text=Hello Unifiedstack, I have a query about Digital Meena Bazaar."
+                href="https://wa.me/918433043426?text=Hello Unifiedstack, I have a query about Meena Bazaar."
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-2 hover:text-emerald-650 transition-colors"
@@ -100,7 +105,7 @@ export default function Footer({ onOpenDrawer }) {
 
         {/* Copyright */}
         <div className="max-w-7xl mx-auto border-t border-slate-100 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] text-slate-450 font-semibold">
-          <span>&copy; 2026 Digital Meena Bazaar. All rights reserved.</span>
+          <span>&copy; 2026 Meena Bazaar. All rights reserved.</span>
           <span className="flex items-center gap-1.5">
             Powered by <strong className="text-slate-700">Unifiedstack</strong> Solutions
           </span>
@@ -109,7 +114,7 @@ export default function Footer({ onOpenDrawer }) {
 
       {/* ── Mobile Footer (simple copyright only) ── */}
       <footer className="md:hidden w-full border-t border-slate-100 bg-slate-50 py-4 px-4 pb-24 text-center text-[10px] text-slate-400 font-semibold">
-        &copy; 2026 Digital Meena Bazaar &bull; Powered by <strong className="text-slate-600">Unifiedstack</strong>
+        &copy; 2026 Meena Bazaar &bull; Developed by <strong className="text-slate-600">Unifiedstack</strong>
       </footer>
 
       {/* ── Mobile Search Overlay ── */}
@@ -152,7 +157,7 @@ export default function Footer({ onOpenDrawer }) {
                 <button
                   key={tag}
                   onClick={() => {
-                    navigate(`/shops?search=${tag}`);
+                    navigate(`/categories?search=${tag}`);
                     setSearchOpen(false);
                     setSearchQuery('');
                   }}

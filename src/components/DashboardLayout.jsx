@@ -3,6 +3,7 @@ import {
   Home,
   LayoutDashboard,
   LogOut,
+  Megaphone,
   Menu,
   ShoppingBag,
   Store,
@@ -128,6 +129,17 @@ export default function DashboardLayout({ children, title, role }) {
                     >
                       <Tags className="w-4 h-4 text-center" />
                       <span>Categories &amp; Locations</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/dashboard/admin/banners"
+                      className={`flex items-center gap-3 py-2.5 text-xs font-semibold rounded-lg transition-all ${isActive(
+                        '/dashboard/admin/banners'
+                      )}`}
+                    >
+                      <Megaphone className="w-4 h-4 text-center" />
+                      <span>Banner Ads</span>
                     </Link>
                   </li>
                   <li>

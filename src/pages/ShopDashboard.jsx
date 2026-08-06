@@ -204,7 +204,8 @@ export default function ShopDashboard() {
     name: '', brand: '', price: '', originalPrice: '',
     category: 'electronics', categoryName: 'Electronics',
     description: '', image: '', highlights: '',
-    stockStatus: 'In Stock', status: 'Active'
+    stockStatus: 'In Stock', status: 'Active',
+    isDealOfDay: false
   });
 
   const openAddModal = () => {
@@ -215,7 +216,8 @@ export default function ShopDashboard() {
       description: '',
       images: [],
       highlights: 'Original Warranty, Local Shop Delivery',
-      stockStatus: 'In Stock', status: 'Active'
+      stockStatus: 'In Stock', status: 'Active',
+      isDealOfDay: false
     });
     setShowProductModal(true);
   };
@@ -234,7 +236,8 @@ export default function ShopDashboard() {
       images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []),
       highlights: product.highlights ? product.highlights.join(', ') : '',
       stockStatus: product.stockStatus || 'In Stock',
-      status: product.status || 'Active'
+      status: product.status || 'Active',
+      isDealOfDay: product.isDealOfDay || false
     });
     setShowProductModal(true);
   };
@@ -259,6 +262,7 @@ export default function ShopDashboard() {
       highlights: highlightsArr,
       stockStatus: productForm.stockStatus || 'In Stock',
       status: productForm.status || 'Active',
+      isDealOfDay: productForm.isDealOfDay || false,
       shopId: shop?.id || '',
       shopName: shop?.name || ''
     };

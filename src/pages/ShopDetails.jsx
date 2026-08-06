@@ -96,7 +96,13 @@ export default function ShopDetails() {
 
   const handleWhatsAppContact = () => {
     const whatsappNum = (shop.whatsapp || shop.phone || '').replace(/[^0-9]/g, '');
-    const text = `Hello ${shop.name}, I found your Shop on Meena Bazaar and would like to inquire about your catalog.`;
+    const text = ` *SHOP INQUIRY - MEENA BAZAAR*\n\n` +
+      `• *Shop Name:* ${shop.name}\n` +
+      `• *Location:* ${shop.market || 'Local Market'}, ${shop.city || 'Rampur'}\n` +
+      `• *Category:* ${shop.categoryName || shop.category || 'Local Shop'}\n` +
+      (shop.address ? `• *Address:* ${shop.address}\n` : '') +
+      ` *Hello ${shop.name}, I found your shop on Meena Bazaar and would like to inquire about your products and services.*`;
+
     window.open(`https://wa.me/${whatsappNum}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -123,12 +129,12 @@ export default function ShopDetails() {
   const shopLogo = shop.image || shop.logoImage || DEFAULT_STORE_LOGO;
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 flex flex-col items-center">
 
       {/* ────────────────────────────────────────────────────────── */}
       {/* 1. MOBILE VIEW (Visible on screens below md: breakpoint) */}
       {/* ────────────────────────────────────────────────────────── */}
-      <div className="md:hidden w-full space-y-4 pb-20 pt-2">
+      <div className="md:hidden w-full space-y-4 pb-20 pt-3">
 
         {/* Mobile Navigation Sub-Bar: Back Button & Breadcrumbs & Share Button */}
         <div className="flex items-center justify-between gap-2 py-1">
@@ -399,8 +405,8 @@ export default function ShopDetails() {
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
                     className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${selectedCategory === cat
-                        ? 'bg-[#056839] text-white shadow-2xs'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-[#056839] text-white shadow-2xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                       }`}
                   >
                     {cat === 'all' ? 'All Products' : cat}

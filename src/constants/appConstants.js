@@ -19,6 +19,7 @@ export const STORAGE_KEYS = {
   USER_PROFILE: 'meena_bazaar_user_v3',
   AUTH_USER: 'meena_bazaar_auth_user_v3',
   CITY: 'meena_bazaar_city_v3',
+  BANNERS: 'meena_bazaar_banners_v3',
 };
 
 export const FIRESTORE_COLLECTIONS = {
@@ -27,6 +28,7 @@ export const FIRESTORE_COLLECTIONS = {
   CATEGORIES: 'categories',
   MARKETS: 'markets',
   USERS: 'users',
+  BANNERS: 'banners',
 };
 
 export const USER_ROLES = {

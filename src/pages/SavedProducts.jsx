@@ -1,155 +1,112 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useBazaar } from '../context/BazaarContext';
+import {
+  Compass,
+  Heart,
+  Sparkles
+} from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
+import { useBazaar } from '../context/BazaarContext';
 
 export default function SavedProducts() {
-  const { savedProductIds, products, toggleSaveProduct, clearSavedProducts, openWhatsApp } = useBazaar();
-  const [searchSavedQuery, setSearchSavedQuery] = useState('');
-  const [sortBy, setSortBy] = useState('recent');
+  const { savedProductIds, products, clearSavedProducts, categories } = useBazaar();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const navigate = useNavigate();
 
   const savedProducts = products.filter(p => savedProductIds.includes(p.id));
 
-  const filteredSaved = savedProducts.filter(p =>
-    p.name.toLowerCase().includes(searchSavedQuery.toLowerCase()) ||
-    p.shopName.toLowerCase().includes(searchSavedQuery.toLowerCase()) ||
-    (p.brand && p.brand.toLowerCase().includes(searchSavedQuery.toLowerCase()))
-  );
+  const filteredSaved = savedProducts.filter(p => {
+    const matchesSearch = !searchQuery.trim() ||
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.shopName && p.shopName.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesCategory = selectedCategory === 'all' ||
+      (p.category && p.category.toLowerCase() === selectedCategory.toLowerCase());
+
+    return matchesSearch && matchesCategory;
+  });
 
   return (
-    <div className="w-full py-3 md:py-6 flex flex-col gap-4 md:gap-6">
+    <div className="w-full min-h-screen bg-[#f8faf9] pb-24 font-sans text-slate-800">
+      <div className="max-w-4xl mx-auto px-2 sm:px-4 space-y-4 pt-2 sm:pt-4">
 
-      {/* ── Mobile Header ── */}
-      <div className="flex items-center justify-between md:hidden">
-        <div>
-          <h1 className="text-lg font-black text-slate-900 tracking-tight">Saved</h1>
-          <p className="text-[11px] text-slate-400 font-medium">
-            {savedProducts.length > 0 ? `${savedProducts.length} item${savedProducts.length !== 1 ? 's' : ''} bookmarked` : 'Nothing saved yet'}
-          </p>
-        </div>
+        {/* --- 3. CATEGORY FILTER PILLS STRIP (IF ITEMS EXIST) --- */}
         {savedProducts.length > 0 && (
-          <button
-            onClick={clearSavedProducts}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-100 bg-red-50 text-red-500 font-bold text-[11px] cursor-pointer"
-          >
-            <i className="fa-solid fa-trash-can text-[10px]"></i> Clear
-          </button>
-        )}
-      </div>
-
-      {/* ── Desktop Header ── */}
-      <section className="hidden md:flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-lg">
-            <i className="fa-solid fa-heart"></i>
-          </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Saved Products</h1>
-            <p className="text-xs text-slate-500 mt-0.5">Products you have bookmarked to review or order later.</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-xs font-bold text-slate-400">{savedProducts.length} Items Saved</span>
-          {savedProducts.length > 0 && (
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
             <button
-              onClick={clearSavedProducts}
-              className="px-3.5 py-1.5 border border-red-200 hover:bg-red-50 text-red-500 font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+              onClick={() => setSelectedCategory('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-colors cursor-pointer shrink-0 ${selectedCategory === 'all' ? 'bg-[#056839] text-white' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                }`}
             >
-              <i className="fa-solid fa-trash-can"></i> Clear All
+              All Items ({savedProducts.length})
             </button>
-          )}
-        </div>
-      </section>
 
-      {/* ── Empty State ── */}
-      {savedProducts.length === 0 && (
-        <div className="flex flex-col items-center justify-center text-center py-16 px-6">
-          {/* Big heart illustration */}
-          <div className="relative mb-6">
-            <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
-              <i className="fa-regular fa-heart text-red-300 text-4xl"></i>
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-              <i className="fa-solid fa-plus text-emerald-600 text-xs"></i>
-            </div>
+            {categories.map(cat => {
+              const count = savedProducts.filter(p => p.category?.toLowerCase() === cat.name.toLowerCase()).length;
+              if (count === 0) return null;
+
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.name)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-colors cursor-pointer shrink-0 ${selectedCategory.toLowerCase() === cat.name.toLowerCase()
+                    ? 'bg-[#056839] text-white'
+                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                    }`}
+                >
+                  {cat.name} ({count})
+                </button>
+              );
+            })}
           </div>
-          <h3 className="text-base font-black text-slate-900 mb-1">Nothing saved yet</h3>
-          <p className="text-xs text-slate-500 leading-relaxed max-w-[260px] mb-6">
-            Tap the heart icon on any product to save it here for later.
-          </p>
-          <Link
-            to="/shops"
-            className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-2xl transition-colors"
-          >
-            Browse Shops &amp; Products
-          </Link>
-        </div>
-      )}
+        )}
 
-      {/* ── Search + Sort Bar (only when items exist) ── */}
-      {savedProducts.length > 0 && (
-        <div className="flex items-center gap-2">
-          {/* Search */}
-          <div className="relative flex-1">
-            <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
-            <input
-              type="text"
-              placeholder="Search saved items..."
-              value={searchSavedQuery}
-              onChange={(e) => setSearchSavedQuery(e.target.value)}
-              className="w-full pl-8 pr-4 py-2.5 border border-slate-200 rounded-2xl text-xs outline-none focus:border-emerald-500 bg-white"
-            />
-            {searchSavedQuery && (
-              <button
-                onClick={() => setSearchSavedQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 border-none bg-transparent cursor-pointer"
-              >
-                <i className="fa-solid fa-xmark text-xs"></i>
-              </button>
-            )}
+        {/* --- 4. SAVED PRODUCTS GRID / EMPTY STATE --- */}
+        {filteredSaved.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {filteredSaved.map(prod => (
+              <ProductCard key={prod.id} product={prod} />
+            ))}
           </div>
-          {/* Sort */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-3 py-2.5 border border-slate-200 rounded-2xl text-[11px] font-bold text-slate-600 bg-white outline-none cursor-pointer flex-shrink-0"
-          >
-            <option value="recent">Recent</option>
-            <option value="name">Name</option>
-          </select>
-        </div>
-      )}
+        ) : savedProducts.length > 0 ? (
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 text-center space-y-2">
+            <p className="text-xs font-bold text-slate-600">No saved items match your filter.</p>
+            <button
+              onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
+              className="text-xs font-extrabold text-[#056839] hover:underline"
+            >
+              Clear Filter
+            </button>
+          </div>
+        ) : (
+          /* EXACT MATCHING EMPTY WISHLIST STATE */
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-12 text-center space-y-4">
+            <div className="relative w-20 h-20 rounded-full bg-[#f4fbf7] text-[#056839] flex items-center justify-center mx-auto border border-emerald-100">
+              <Heart className="w-10 h-10 text-[#056839] stroke-[2]" />
+              <Sparkles className="w-4 h-4 text-emerald-400 absolute top-2 right-2" />
+              <Sparkles className="w-3 h-3 text-emerald-400 absolute bottom-3 left-2" />
+            </div>
 
-      {/* ── Products Grid ── */}
-      {savedProducts.length > 0 && (
-        <>
-          {filteredSaved.length === 0 ? (
-            <div className="text-center py-10 text-xs text-slate-400 font-semibold">
-              No saved items match your search.
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-              {filteredSaved.map(prod => (
-                <ProductCard key={prod.id} product={prod} />
-              ))}
-            </div>
-          )}
-
-          {/* Tip banner */}
-          <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mt-2">
-            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0 mt-0.5">
-              <i className="fa-solid fa-heart text-sm"></i>
-            </div>
             <div>
-              <p className="text-xs font-bold text-slate-800">Saved items stay in your browser</p>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                Compare products and place WhatsApp orders directly anytime.
+              <h3 className="text-lg font-black text-slate-900">Your Saved List is Empty</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto font-medium mt-1">
+                Browse products from local shops and tap the heart icon to save items here!
               </p>
             </div>
-          </div>
-        </>
-      )}
 
+            <div>
+              <Link
+                to="/shops"
+                className="px-6 py-3 rounded-2xl bg-[#056839] hover:bg-emerald-800 text-white font-extrabold text-xs inline-flex items-center gap-2 transition-all cursor-pointer"
+              >
+                <Compass className="w-4 h-4" /> Explore Local Marketplace
+              </Link>
+            </div>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }

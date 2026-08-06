@@ -1,460 +1,418 @@
 import {
-  Armchair,
   ArrowRight,
-  BookOpen,
-  CheckCircle2,
-  ChevronRight,
-  LayoutGrid,
-  PackageOpen,
-  Search,
-  ShieldCheck,
-  Shirt,
-  ShoppingBag,
-  SlidersHorizontal,
-  Smartphone,
-  Sparkles,
-  Store
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import CategoryFilterBar from '../components/CategoryFilterBar';
 import ProductCard from '../components/ProductCard';
-import ShopCardClean from '../components/ShopCardClean';
 import { useBazaar } from '../context/BazaarContext';
 
 export default function Home() {
-  const { categories, products, shops, savedProductIds, currentCity } = useBazaar();
-  const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
+  const { products, shops, banners } = useBazaar();
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/shops?search=${encodeURIComponent(searchQuery.trim())}`);
+  // Dynamic Special Offer & New Arrival Banners from Admin / Database (sorted latest first)
+  const activeSpecialOffers = banners
+    .filter(b => b.type === 'special_offer' && b.active !== false)
+    .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+
+  const activeNewArrivals = banners
+    .filter(b => b.type === 'new_arrival' && b.active !== false)
+    .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [currentNewArrivalIndex, setCurrentNewArrivalIndex] = useState(0);
+
+  // Bounds-check slide index for Special Offers
+  useEffect(() => {
+    if (currentSlideIndex >= activeSpecialOffers.length) {
+      setCurrentSlideIndex(0);
+    }
+  }, [activeSpecialOffers.length, currentSlideIndex]);
+
+  // Bounds-check slide index for New Arrivals
+  useEffect(() => {
+    if (currentNewArrivalIndex >= activeNewArrivals.length) {
+      setCurrentNewArrivalIndex(0);
+    }
+  }, [activeNewArrivals.length, currentNewArrivalIndex]);
+
+  // Special Offers Auto-play slider timer (4.5 seconds)
+  useEffect(() => {
+    if (activeSpecialOffers.length <= 1) return;
+    const slideTimer = setInterval(() => {
+      setCurrentSlideIndex(prev => (prev + 1) % activeSpecialOffers.length);
+    }, 4500);
+    return () => clearInterval(slideTimer);
+  }, [activeSpecialOffers.length]);
+
+  // New Arrivals Auto-play slider timer (5 seconds)
+  useEffect(() => {
+    if (activeNewArrivals.length <= 1) return;
+    const slideTimer = setInterval(() => {
+      setCurrentNewArrivalIndex(prev => (prev + 1) % activeNewArrivals.length);
+    }, 5000);
+    return () => clearInterval(slideTimer);
+  }, [activeNewArrivals.length]);
+
+  const nextSlide = () => {
+    if (activeSpecialOffers.length > 0) {
+      setCurrentSlideIndex(prev => (prev + 1) % activeSpecialOffers.length);
     }
   };
 
-  // Only shops verified by Admin and matching active city are published to public users
-  const verifiedShops = shops.filter((s) => {
-    if (s.verified === false) return false;
-    if (!currentCity || currentCity === 'All Cities') return true;
-    if (s.city) return s.city === currentCity;
-    return currentCity === 'Rampur';
+  const prevSlide = () => {
+    if (activeSpecialOffers.length > 0) {
+      setCurrentSlideIndex(prev => (prev - 1 + activeSpecialOffers.length) % activeSpecialOffers.length);
+    }
+  };
+
+  const nextNewArrivalSlide = () => {
+    if (activeNewArrivals.length > 0) {
+      setCurrentNewArrivalIndex(prev => (prev + 1) % activeNewArrivals.length);
+    }
+  };
+
+  const prevNewArrivalSlide = () => {
+    if (activeNewArrivals.length > 0) {
+      setCurrentNewArrivalIndex(prev => (prev - 1 + activeNewArrivals.length) % activeNewArrivals.length);
+    }
+  };
+
+
+
+  // Dynamic daily countdown timer for "Best Deals of the Day" (Counts down to midnight)
+  const calculateTimeUntilMidnight = () => {
+    const now = new Date();
+    const midnight = new Date();
+    midnight.setHours(23, 59, 59, 999);
+    const diff = Math.max(0, midnight - now);
+
+    return {
+      hours: Math.floor(diff / (1000 * 60 * 60)),
+      minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+      seconds: Math.floor((diff % (1000 * 60)) / 1000)
+    };
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calculateTimeUntilMidnight);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeUntilMidnight());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Only products from verified shops or published products
+  const verifiedShopIds = new Set(shops.filter(s => s.verified !== false).map(s => s.id));
+  const publicProducts = products.filter(p => verifiedShopIds.has(p.shopId) || !p.shopId);
+
+  // Filter products by selected category
+  const filteredProducts = publicProducts.filter(p => {
+    return selectedCategory === 'all' ||
+      (p.category && p.category.toLowerCase() === selectedCategory.toLowerCase());
   });
 
-  const verifiedShopIds = new Set(verifiedShops.map((s) => s.id));
+  // Featured products list (sorted by rating / featured tag)
+  const featuredProducts = [...filteredProducts]
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+    .slice(0, 4);
 
-  // Only products from verified shops
-  const publicProducts = products.filter((p) => verifiedShopIds.has(p.shopId));
+  // Best Deals of the Day (prioritize products flagged isDealOfDay by admin/seller, then highest discount percentage)
+  const dealProducts = [...publicProducts]
+    .sort((a, b) => {
+      if (a.isDealOfDay && !b.isDealOfDay) return -1;
+      if (!a.isDealOfDay && b.isDealOfDay) return 1;
 
-  // Featured products list from verified shops
-  const featuredProducts = (
-    publicProducts.filter((p) => p.isFeatured).length > 0
-      ? publicProducts.filter((p) => p.isFeatured)
-      : publicProducts
-  ).slice(0, 8);
-
-  // Popular verified shops list
-  const popularShops = (
-    verifiedShops.filter((s) => (s.rating || 0) >= 4.0).length > 0
-      ? verifiedShops.filter((s) => (s.rating || 0) >= 4.0)
-      : verifiedShops
-  ).slice(0, 5);
-
-  // Category Colors Map matching mockup
-  const categoryColors = [
-    { bg: 'bg-rose-100/90 text-rose-600', count: '95 Shops', icon: Shirt },
-    { bg: 'bg-sky-100/90 text-sky-600', count: '180 Shops', icon: Smartphone },
-    { bg: 'bg-purple-100/90 text-purple-600', count: '120 Shops', icon: Sparkles },
-    { bg: 'bg-emerald-100/90 text-emerald-700', count: '140 Shops', icon: Armchair },
-    { bg: 'bg-amber-100/90 text-amber-600', count: '124 Shops', icon: BookOpen },
-    { bg: 'bg-rose-100/90 text-rose-600', count: '85 Shops', icon: ShoppingBag },
-    { bg: 'bg-[#eefdf5] text-[#056839]', count: '110 Shops', icon: Store },
-    { bg: 'bg-indigo-100/90 text-indigo-600', count: '60 Shops', icon: LayoutGrid },
-    { bg: 'bg-slate-100/90 text-slate-600', count: 'More', icon: ChevronRight }
-  ];
+      const discountA = a.originalPrice && a.originalPrice > a.price ? (a.originalPrice - a.price) / a.originalPrice : 0;
+      const discountB = b.originalPrice && b.originalPrice > b.price ? (b.originalPrice - b.price) / b.originalPrice : 0;
+      return discountB - discountA;
+    })
+    .filter(p => p.isDealOfDay || (p.originalPrice && p.originalPrice > p.price))
+    .slice(0, 4);
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full min-h-screen bg-[#f8faf9] pb-16 font-sans text-slate-800">
+      <div className="max-w-4xl mx-auto px-2 sm:px-4 space-y-4 pt-2 sm:pt-4">
 
-      {/* ────────────────────────────────────────────────────────── */}
-      {/* 1. MOBILE VIEW (Visible on screens below md: breakpoint) */}
-      {/* ────────────────────────────────────────────────────────── */}
-      <div className="md:hidden w-full space-y-5 pb-20 pt-2">
+        {/* --- 3. HORIZONTALLY SCROLLABLE CATEGORIES ROW (REUSABLE COMPONENT) --- */}
+        <CategoryFilterBar selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
 
-        {/* Mobile Search Input */}
-        <form onSubmit={handleSearchSubmit} className="relative flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search for shops, products, categories..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs text-slate-800 placeholder:text-slate-400 font-medium outline-none focus:border-[#056839]"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate('/shops')}
-            className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 flex items-center justify-center flex-shrink-0 cursor-pointer"
-          >
-            <SlidersHorizontal className="w-4 h-4 stroke-[2]" />
-          </button>
-        </form>
+        {/* --- 4. HERO ADVERTISEMENT SLIDER BANNER (DYNAMIC MULTI-OFFER CAROUSEL) --- */}
+        {activeSpecialOffers.length > 0 && (() => {
+          const activeOffer = activeSpecialOffers[currentSlideIndex] || activeSpecialOffers[0];
+          if (!activeOffer) return null;
 
-        {/* Mobile Hero Banner */}
-        <div className="relative overflow-hidden rounded-[24px] bg-[#eefdf5] border border-emerald-100 p-5 flex flex-col justify-between min-h-[210px] shadow-2xs">
-          <div className="relative z-10 max-w-[200px] flex flex-col gap-2">
-            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#d5f3e2] text-[#056839] text-[9px] font-extrabold uppercase tracking-wider w-fit">
-              <CheckCircle2 className="w-3 h-3 text-[#056839]" />
-              <span>LOCAL &bull; VERIFIED &bull; TRUSTED</span>
+          return (
+            <div className={`${activeOffer.bgColor || 'bg-[#eaf5ef]'} ${activeOffer.borderColor || 'border-emerald-100/90'} rounded-3xl border p-4 sm:p-7 relative overflow-hidden flex flex-row items-center justify-between gap-3 min-h-[165px] sm:min-h-[220px] transition-colors duration-500 group`}>
+
+              {/* Left Arrow Button */}
+              {activeSpecialOffers.length > 1 && (
+                <button
+                  type="button"
+                  onClick={prevSlide}
+                  className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-slate-800 flex items-center justify-center border border-slate-200/60 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  title="Previous Offer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+              )}
+
+              {/* Right Arrow Button */}
+              {activeSpecialOffers.length > 1 && (
+                <button
+                  type="button"
+                  onClick={nextSlide}
+                  className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-slate-800 flex items-center justify-center border border-slate-200/60 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  title="Next Offer"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              )}
+
+              {/* Left Text Content Block */}
+              <div className="space-y-1.5 sm:space-y-3 z-10 flex-1 min-w-0 text-left pl-3 sm:pl-6">
+                <span className={`text-[9px] sm:text-[10px] font-black ${activeOffer.tagColor || 'text-[#056839]'} uppercase tracking-widest block`}>
+                  {activeOffer.tag}
+                </span>
+
+                <h2 className="text-base sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                  {activeOffer.title}
+                </h2>
+
+                <p className="text-[10.5px] sm:text-xs text-slate-600 font-medium truncate">
+                  {activeOffer.subtitle}
+                </p>
+
+                <div className="flex items-center gap-2 pt-0.5">
+                  <span className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full ${activeOffer.btnBg || 'bg-[#056839]'} text-white font-black text-[10px] sm:text-xs`}>
+                    {activeOffer.discount}
+                  </span>
+                  <Link
+                    to={(activeOffer.link || '/categories').replace('/shops', '/categories')}
+                    className="px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-full bg-white border border-slate-200/80 text-slate-900 font-extrabold text-[10px] sm:text-xs inline-flex items-center gap-1 sm:gap-2 hover:bg-slate-50 transition-colors"
+                  >
+                    <span>Shop Now</span>
+                    <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-900" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Product Display Image Canvas */}
+              <div className="relative shrink-0 w-28 h-28 sm:w-52 sm:h-52 flex items-center justify-center pr-2 sm:pr-4">
+                <div className="absolute inset-0 rounded-full bg-white/60 backdrop-blur-xs border border-white"></div>
+                <img
+                  src={activeOffer.image}
+                  alt={activeOffer.title}
+                  className="w-24 h-24 sm:w-44 sm:h-44 object-contain z-10 hover:scale-105 transition-transform rounded-xl"
+                />
+                {/* Floating Discount Badge */}
+                <span className={`absolute top-0 right-1 sm:right-2 ${activeOffer.btnBg || 'bg-[#056839]'} text-white font-black text-[8px] sm:text-[10px] px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg z-20`}>
+                  {activeOffer.discount}
+                </span>
+              </div>
+
+              {/* Carousel Indicator Dots */}
+              {activeSpecialOffers.length > 1 && (
+                <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex items-center gap-1 sm:gap-1.5 z-30">
+                  {activeSpecialOffers.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setCurrentSlideIndex(idx)}
+                      className={`transition-all rounded-full cursor-pointer border-none ${currentSlideIndex === idx
+                        ? 'w-4 sm:w-5 h-1.5 sm:h-2 bg-slate-900'
+                        : 'w-1.5 sm:w-2 h-1.5 sm:h-2 bg-slate-400/60 hover:bg-slate-600'
+                        }`}
+                      title={`Go to offer ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+
             </div>
+          );
+        })()}
 
-            <h1 className="text-xl font-black text-slate-900 leading-[1.15] tracking-tight">
-              Discover the Best <br />
-              <span className="text-[#056839] font-serif italic font-normal">Shops &amp; Products</span> <br />
-              in {currentCity === 'All Cities' ? 'Your Region' : currentCity}
-            </h1>
+        {/* --- 5. TRUST BADGES STRIP --- */}
+        {/* <div className="bg-white rounded-2xl border border-slate-200/80 p-3 grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#056839] flex items-center justify-center shrink-0">
+            <Tag className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="font-extrabold text-xs text-slate-900 block leading-none">Best Prices</span>
+            <span className="text-[10px] text-slate-500 font-medium">On all products</span>
+          </div>
+        </div>
 
-            <p className="text-[10.5px] text-slate-600 font-medium leading-relaxed">
-              Verified local shops. Direct WhatsApp orders. Fast &amp; reliable {currentCity === 'All Cities' ? 'local' : currentCity} marketplace.
-            </p>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#056839] flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="font-extrabold text-xs text-slate-900 block leading-none">Verified Sellers</span>
+            <span className="text-[10px] text-slate-500 font-medium">100% trusted</span>
+          </div>
+        </div>
 
-            <Link
-              to="/shops"
-              className="mt-1 px-4 py-2 rounded-xl bg-[#056839] hover:bg-emerald-800 text-white font-bold text-[11px] inline-flex items-center gap-1.5 transition-all shadow-xs w-fit"
-            >
-              <span>Explore Shops</span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#056839] flex items-center justify-center shrink-0">
+            <Truck className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="font-extrabold text-xs text-slate-900 block leading-none">Fast Delivery</span>
+            <span className="text-[10px] text-slate-500 font-medium">Quick & safe</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#056839] flex items-center justify-center shrink-0">
+            <RotateCcw className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="font-extrabold text-xs text-slate-900 block leading-none">Easy Returns</span>
+            <span className="text-[10px] text-slate-500 font-medium">Hassle free</span>
+          </div>
+        </div>
+      </div> */}
+
+        {/* --- 6. FEATURED PRODUCTS SECTION --- */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-base font-black text-slate-900 tracking-tight">Featured Products</h3>
+            <Link to="/categories" className="text-xs font-bold text-[#056839] hover:underline flex items-center gap-1">
+              <span>View All</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="absolute right-0 bottom-2 w-[165px] pointer-events-none">
-            <img src="/hero_shopping_bags.png" alt="Shopping Illustration" className="w-full h-auto object-contain max-h-[155px]" />
-          </div>
-
-          {/* <div className="relative z-10 flex items-center justify-center gap-1.5 mt-3 pt-1">
-            <span className="w-2 h-2 rounded-full bg-[#056839]" />
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-          </div> */}
-        </div>
-
-        {/* Mobile Stats Row */}
-        <div className="grid grid-cols-4 gap-2">
-          <div className="bg-white rounded-2xl border border-slate-100 p-2 flex flex-col items-center text-center">
-            <div className="w-8 h-8 rounded-xl bg-emerald-100/90 text-[#056839] flex items-center justify-center mb-1">
-              <ShoppingBag className="w-4 h-4" />
-            </div>
-            <span className="font-extrabold text-xs text-slate-900">1,500+</span>
-            <span className="text-[9px] text-slate-400 font-semibold">Products</span>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-100 p-2 flex flex-col items-center text-center">
-            <div className="w-8 h-8 rounded-xl bg-emerald-100/90 text-[#056839] flex items-center justify-center mb-1">
-              <Store className="w-4 h-4" />
-            </div>
-            <span className="font-extrabold text-xs text-slate-900">200+</span>
-            <span className="text-[9px] text-slate-400 font-semibold">Shops</span>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-100 p-2 flex flex-col items-center text-center">
-            <div className="w-8 h-8 rounded-xl bg-orange-100/90 text-orange-600 flex items-center justify-center mb-1">
-              <LayoutGrid className="w-4 h-4" />
-            </div>
-            <span className="font-extrabold text-xs text-slate-900">15+</span>
-            <span className="text-[9px] text-slate-400 font-semibold">Categories</span>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-100 p-2 flex flex-col items-center text-center">
-            <div className="w-8 h-8 rounded-xl bg-sky-100/90 text-sky-600 flex items-center justify-center mb-1">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-            <span className="font-extrabold text-xs text-slate-900">100%</span>
-            <span className="text-[9px] text-slate-400 font-semibold">Local</span>
-          </div>
-        </div>
-
-        {/* Mobile Shop by Categories */}
-        <section className="space-y-2.5">
-          <div className="flex items-center justify-between">
-            <h2 className="font-extrabold text-sm text-slate-900">Shop by Categories</h2>
-            <Link to="/shops" className="text-xs font-bold text-[#056839] flex items-center gap-0.5">
-              <span>View All</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-
-          <div className="flex items-center justify-between gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            {categories.slice(0, 5).map((cat, idx) => {
-              const color = categoryColors[idx % categoryColors.length];
-              const Icon = color.icon;
-              return (
-                <Link
-                  key={cat.id}
-                  to={`/shops?category=${cat.id}`}
-                  className="flex flex-col items-center justify-center bg-white border border-slate-100 rounded-2xl p-2 min-w-[70px] flex-1"
-                >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color.bg} mb-1`}>
-                    <Icon className="w-4.5 h-4.5" />
-                  </div>
-                  <span className="text-[11px] font-bold text-slate-900 text-center truncate w-full">{cat.name}</span>
-                  <span className="text-[9px] text-slate-400 font-medium text-center truncate w-full">{color.count}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Mobile Featured Products */}
-        <section className="space-y-2.5">
-          <div className="flex items-center justify-between">
-            <h2 className="font-extrabold text-sm text-slate-900">Featured Products</h2>
-            <Link to="/shops" className="text-xs font-bold text-[#056839] flex items-center gap-0.5">
-              <span>View All</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-
-          {featuredProducts.length === 0 ? (
-            <div className="bg-white rounded-2xl p-6 text-center border border-slate-100 space-y-2">
-              <PackageOpen className="w-8 h-8 text-slate-300 mx-auto" />
-              <h3 className="text-xs font-bold text-slate-800">No live products listed yet</h3>
-              <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
-                Sign in to your Shop dashboard to list your products and receive WhatsApp leads.
-              </p>
-              <Link to="/login" className="px-4 py-2 bg-[#056839] text-white font-bold text-xs rounded-xl inline-block">
-                Merchant Login
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-2.5">
-              {featuredProducts.slice(0, 4).map((prod) => (
-                <div key={prod.id} className="h-full">
-                  <ProductCard product={prod} />
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Mobile Nearby Top Rated Shops */}
-        <section className="space-y-2.5">
-          <div className="flex items-center justify-between">
-            <h2 className="font-extrabold text-sm text-slate-900">Nearby Top Rated Shops</h2>
-            <Link to="/shops" className="text-xs font-bold text-[#056839] flex items-center gap-0.5">
-              <span>View All</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2.5">
-            {popularShops.slice(0, 4).map((shop) => (
-              <div key={shop.id} className="h-full">
-                <ShopCardClean shop={shop} />
-              </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {featuredProducts.map(prod => (
+              <ProductCard key={prod.id} product={prod} />
             ))}
           </div>
-        </section>
-
-      </div>
-
-
-      {/* ────────────────────────────────────────────────────────── */}
-      {/* 2. DESKTOP VIEW (Visible on md: breakpoints & above) */}
-      {/* ────────────────────────────────────────────────────────── */}
-      <div className="hidden md:flex w-full py-6 flex-col gap-10 animate-fade-in max-w-7xl mx-auto">
-
-        {/* Desktop Hero Banner Section */}
-        <section className="relative overflow-hidden rounded-3xl bg-[#f0fdf4] px-8 py-12 lg:px-12 lg:py-14 text-slate-800 border border-emerald-100/70 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xs">
-          <div className="relative z-10 max-w-xl flex flex-col gap-4 text-left items-start">
-
-            {/* Badge */}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/80 text-[#056839] text-[10px] font-extrabold uppercase tracking-wider font-sans">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#056839]" />
-              <span>LOCAL &bull; VERIFIED &bull; TRUSTED</span>
-            </span>
-
-            {/* Main Headline */}
-            <h1 className="font-display text-4xl lg:text-5xl font-black tracking-tight leading-[1.12] text-slate-900">
-              Discover the Best <br />
-              <span className="text-[#056839] font-serif italic">Shops &amp; Products</span> <br />
-              in Your City
-            </h1>
-
-            <p className="text-sm text-slate-600 max-w-md font-medium leading-relaxed">
-              Verified local shops. Direct WhatsApp orders. Fast &amp; reliable Rampur marketplace.
-            </p>
-
-            {/* Action Callouts */}
-            <div className="flex flex-wrap justify-start gap-3 mt-1 w-full">
-              <Link
-                to="/shops"
-                className="px-6 py-3 rounded-xl bg-[#056839] hover:bg-emerald-800 text-white font-bold transition-all flex items-center justify-center gap-2 text-xs tracking-wide shadow-sm"
-              >
-                <span>Explore Shops</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Desktop Hero Graphic */}
-          <div className="relative z-10 flex items-center justify-center w-full lg:w-[420px] flex-shrink-0">
-            <div className="relative w-full aspect-[4/3] max-w-[400px] bg-white/90 backdrop-blur-xs rounded-3xl border border-slate-100 p-4 flex items-center justify-center shadow-xs">
-              <img
-                src="/hero_shopping_bags.png"
-                alt="Shopping Banner Illustration"
-                className="w-full h-full object-contain drop-shadow-md max-h-[240px]"
-              />
-
-              {/* Floating Badge */}
-              <div className="absolute bottom-4 left-6 bg-white/95 border border-slate-100 px-3.5 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold text-slate-800 shadow-xs">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span className="font-semibold text-slate-900">Verified Hub &bull; Trusted</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Desktop Stats Bar Strip */}
-        <div className="grid grid-cols-4 gap-4">
-          <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3 shadow-2xs">
-            <div className="w-10 h-10 rounded-xl bg-emerald-100/90 text-[#056839] flex items-center justify-center text-sm flex-shrink-0">
-              <ShoppingBag className="w-5 h-5 stroke-[2]" />
-            </div>
-            <div className="leading-tight">
-              <strong className="font-display text-sm font-extrabold text-slate-900 block tabular-nums">1,500+</strong>
-              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Products</span>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3 shadow-2xs">
-            <div className="w-10 h-10 rounded-xl bg-emerald-100/90 text-[#056839] flex items-center justify-center text-sm flex-shrink-0">
-              <Store className="w-5 h-5 stroke-[2]" />
-            </div>
-            <div className="leading-tight">
-              <strong className="font-display text-sm font-extrabold text-slate-900 block tabular-nums">200+</strong>
-              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Shops</span>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3 shadow-2xs">
-            <div className="w-10 h-10 rounded-xl bg-orange-100/90 text-orange-600 flex items-center justify-center text-sm flex-shrink-0">
-              <LayoutGrid className="w-5 h-5 stroke-[2]" />
-            </div>
-            <div className="leading-tight">
-              <strong className="font-display text-sm font-extrabold text-slate-900 block tabular-nums">15+</strong>
-              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Categories</span>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3 shadow-2xs">
-            <div className="w-10 h-10 rounded-xl bg-sky-100/90 text-sky-600 flex items-center justify-center text-sm flex-shrink-0">
-              <ShieldCheck className="w-5 h-5 stroke-[2]" />
-            </div>
-            <div className="leading-tight">
-              <strong className="font-display text-sm font-extrabold text-slate-900 block tabular-nums">100%</strong>
-              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Local</span>
-            </div>
-          </div>
         </div>
 
-        {/* Desktop Shop by Categories Section */}
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-2 min-w-0">
-            <div className="min-w-0 flex-1">
-              <h2 className="font-display text-xl md:text-2xl font-bold text-slate-900 leading-snug truncate tracking-tight">Shop by Categories</h2>
-              <p className="text-xs text-slate-500 font-medium truncate">Explore curated marketplace categories</p>
-            </div>
-            <Link to="/shops" className="text-xs font-bold text-[#056839] hover:underline flex items-center gap-1 flex-shrink-0 whitespace-nowrap tracking-wide">
-              <span>View All Categories</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+        {/* --- 7. NEW ARRIVAL PROMOTION BANNER CAROUSEL (MULTI-SLIDE DYNAMIC FROM DATABASE) --- */}
+        {activeNewArrivals.length > 0 && (() => {
+          const currentArrival = activeNewArrivals[currentNewArrivalIndex] || activeNewArrivals[0];
+          if (!currentArrival) return null;
 
-          <div className="grid grid-cols-5 lg:grid-cols-9 gap-3">
-            {categories.slice(0, 9).map((cat, idx) => {
-              const color = categoryColors[idx % categoryColors.length];
-              const Icon = color.icon;
+          return (
+            <div className={`${currentArrival.bgColor || 'bg-[#f4efe8]'} ${currentArrival.borderColor || 'border-amber-200/60'} rounded-3xl border p-4 sm:p-7 relative overflow-hidden flex flex-row items-center justify-between gap-3 min-h-[140px] sm:min-h-[180px] transition-colors duration-500 group`}>
 
-              return (
-                <Link
-                  key={cat.id}
-                  to={`/shops?category=${cat.id}`}
-                  className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-emerald-300 transition-all text-center group flex-shrink-0 shadow-2xs"
+              {/* Left Arrow Button */}
+              {activeNewArrivals.length > 1 && (
+                <button
+                  type="button"
+                  onClick={prevNewArrivalSlide}
+                  className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-slate-800 flex items-center justify-center border border-slate-200/60 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  title="Previous New Arrival"
                 >
-                  <div className={`w-11 h-11 rounded-full flex items-center justify-center text-lg ${color.bg} transition-transform group-hover:scale-110 flex-shrink-0`}>
-                    <Icon className="w-5 h-5 stroke-[2]" />
-                  </div>
-                  <div className="flex flex-col leading-none w-full min-w-0">
-                    <span className="font-display text-xs font-bold text-slate-800 group-hover:text-[#056839] transition-colors truncate block">{cat.name}</span>
-                    <span className="text-[10px] text-slate-400 font-semibold mt-1 truncate block">{color.count}</span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+              )}
 
-        {/* Desktop Featured Products Section */}
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-2 min-w-0">
-            <div className="min-w-0 flex-1">
-              <h2 className="font-display text-xl md:text-2xl font-bold text-slate-900 leading-snug truncate tracking-tight">Featured Products</h2>
-              <p className="text-xs text-slate-500 font-medium truncate">Handpicked products from trusted local shops</p>
-            </div>
-            <Link to="/shops" className="text-xs font-bold text-[#056839] hover:underline flex items-center gap-1 flex-shrink-0 whitespace-nowrap tracking-wide">
-              <span>View All Products</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+              {/* Right Arrow Button */}
+              {activeNewArrivals.length > 1 && (
+                <button
+                  type="button"
+                  onClick={nextNewArrivalSlide}
+                  className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-slate-800 flex items-center justify-center border border-slate-200/60 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  title="Next New Arrival"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              )}
 
-          {featuredProducts.length === 0 ? (
-            <div className="bg-white rounded-2xl p-10 text-center border border-slate-100 space-y-3">
-              <PackageOpen className="w-10 h-10 text-slate-300 mx-auto" />
-              <h3 className="text-sm font-bold text-slate-800">No live products listed yet</h3>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                Are you a merchant? Sign in to your Shop dashboard to list your products and receive WhatsApp leads.
-              </p>
-              <Link to="/login" className="px-5 py-2.5 bg-[#056839] hover:bg-emerald-800 text-white font-bold text-xs rounded-xl inline-block transition-colors">
-                Merchant Login
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-4 gap-4">
-              {featuredProducts.map((prod) => (
-                <div key={prod.id} className="h-full">
-                  <ProductCard product={prod} />
+              {/* Left Text Content Block */}
+              <div className="space-y-1.5 sm:space-y-2 z-10 flex-1 min-w-0 text-left pl-3 sm:pl-6">
+                <span className={`text-[9px] sm:text-[10px] font-black ${currentArrival.tagColor || 'text-amber-800'} uppercase tracking-widest block`}>
+                  {currentArrival.tag || 'NEW ARRIVAL'}
+                </span>
+                <h2 className="text-base sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                  {currentArrival.title}
+                </h2>
+                <p className="text-[10.5px] sm:text-xs text-slate-600 font-medium truncate">
+                  {currentArrival.subtitle}
+                </p>
+                <div className="pt-1">
+                  <Link
+                    to={(currentArrival.link || '/categories').replace('/shops', '/categories')}
+                    className={`px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-xl ${currentArrival.btnBg || 'bg-[#056839]'} text-white font-extrabold text-[10px] sm:text-xs inline-flex items-center gap-1 sm:gap-2 hover:bg-emerald-800 transition-colors`}
+                  >
+                    Explore Now
+                  </Link>
                 </div>
-              ))}
-            </div>
-          )}
-        </section>
+              </div>
 
-        {/* Desktop Nearby Top Rated Shops Section */}
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-2 min-w-0">
-            <div className="min-w-0 flex-1">
-              <h2 className="font-display text-xl md:text-2xl font-bold text-slate-900 leading-snug truncate tracking-tight">Nearby Top Rated Shops</h2>
-              <p className="text-xs text-slate-500 font-medium truncate">Top rated shops near you in Rampur</p>
+              {/* Right Image Canvas */}
+              <div className="relative shrink-0 w-28 h-24 sm:w-56 sm:h-40 flex items-center justify-center pr-2 sm:pr-4">
+                <img
+                  src={currentArrival.image}
+                  alt={currentArrival.title}
+                  className="w-full h-full object-cover rounded-xl sm:rounded-2xl shadow-2xs"
+                />
+              </div>
+
+              {/* Carousel Indicator Dots */}
+              {activeNewArrivals.length > 1 && (
+                <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex items-center gap-1 sm:gap-1.5 z-30">
+                  {activeNewArrivals.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setCurrentNewArrivalIndex(idx)}
+                      className={`transition-all rounded-full cursor-pointer border-none ${currentNewArrivalIndex === idx
+                        ? 'w-4 sm:w-5 h-1.5 sm:h-2 bg-slate-900'
+                        : 'w-1.5 sm:w-2 h-1.5 sm:h-2 bg-slate-400/60 hover:bg-slate-600'
+                        }`}
+                      title={`Go to arrival banner ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+
             </div>
-            <Link to="/shops" className="text-xs font-bold text-[#056839] hover:underline flex items-center gap-1 flex-shrink-0 whitespace-nowrap tracking-wide">
+          );
+        })()}
+
+        {/* --- 8. BEST DEALS OF THE DAY SECTION --- */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-2 px-1 flex-wrap sm:flex-nowrap">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight whitespace-nowrap">
+                Best Deals of the Day
+              </h3>
+
+              {/* Compact Countdown Timer Pill */}
+              <div className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-black text-slate-700 bg-slate-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg border border-slate-200/80">
+                <span className="bg-slate-900 text-white px-1 py-0.5 rounded leading-none">{String(timeLeft.hours).padStart(2, '0')}</span>
+                <span>:</span>
+                <span className="bg-slate-900 text-white px-1 py-0.5 rounded leading-none">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                <span>:</span>
+                <span className="bg-slate-900 text-white px-1 py-0.5 rounded leading-none">{String(timeLeft.seconds).padStart(2, '0')}</span>
+              </div>
+            </div>
+
+            <Link to="/categories" className="text-xs font-bold text-[#056839] hover:underline flex items-center gap-1 shrink-0 ml-auto sm:ml-0">
               <span>View All</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-4 lg:grid-cols-5 gap-4">
-            {popularShops.map((shop) => (
-              <div key={shop.id} className="h-full">
-                <ShopCardClean shop={shop} />
-              </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {dealProducts.map(prod => (
+              <ProductCard key={prod.id} product={prod} />
             ))}
           </div>
-        </section>
+        </div>
 
       </div>
-
-    </div>
+    </div >
   );
 }

@@ -8,13 +8,11 @@ export default function ShopQRCodeTab({ shop, showToast }) {
   const [generatingDownload, setGeneratingDownload] = useState(false);
   const posterRef = useRef(null);
 
-  if (!shop) return null;
-
-  const shopUrl = `${window.location.origin}/shop/${shop.id}`;
+  const shopUrl = shop?.id ? `${window.location.origin}/shop/${shop.id}` : '';
 
   useEffect(() => {
     let isMounted = true;
-    if (shop?.id) {
+    if (shop?.id && shopUrl) {
       QRCode.toDataURL(
         shopUrl,
         {
@@ -37,6 +35,8 @@ export default function ShopQRCodeTab({ shop, showToast }) {
       isMounted = false;
     };
   }, [shop?.id, shopUrl]);
+
+  if (!shop) return null;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shopUrl);

@@ -1,22 +1,29 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  ShoppingBag,
-  Heart,
-  Bell,
-  Search,
-  MapPin,
+  Check,
   ChevronDown,
+  Heart,
   LogIn,
   LogOut,
-  Check
+  MapPin,
+  Search,
+  ShoppingBag
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 
-export default function Header({ onOpenDrawer }) {
+export default function Header({ onOpenDrawer: _onOpenDrawer }) {
   const { savedProductIds, currentCity, setCurrentCity, cities } = useBazaar();
-  const { userProfile, logout: authLogout } = useAuth();
+  const { userProfile, currentUser, logout: authLogout } = useAuth();
+  const activeUser = userProfile || currentUser;
+  const profilePath = activeUser
+    ? activeUser.role === 'admin'
+      ? '/dashboard/admin'
+      : activeUser.role === 'shop_owner'
+        ? '/dashboard/shop'
+        : '/dashboard/customer'
+    : '/login';
   const [searchQuery, setSearchQuery] = useState('');
   const [showDesktopDropdown, setShowDesktopDropdown] = useState(false);
   const [showMobileDropdown, setShowMobileDropdown] = useState(false);
@@ -58,7 +65,7 @@ export default function Header({ onOpenDrawer }) {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/shops?search=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/categories?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -75,7 +82,7 @@ export default function Header({ onOpenDrawer }) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-100/80 bg-white/95 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-3">
-        
+
         {/* Brand Logo with display typography */}
         <Link to="/" className="flex items-center gap-2 flex-shrink-0 group">
           <div className="w-9 h-9 rounded-2xl bg-[#056839] text-white flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
@@ -123,9 +130,8 @@ export default function Header({ onOpenDrawer }) {
                   <button
                     type="button"
                     onClick={() => handleSelectCity('All Cities')}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold flex items-center justify-between transition-colors cursor-pointer ${
-                      currentCity === 'All Cities' ? 'bg-[#056839] text-white' : 'text-slate-700 hover:bg-slate-50'
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold flex items-center justify-between transition-colors cursor-pointer ${currentCity === 'All Cities' ? 'bg-[#056839] text-white' : 'text-slate-700 hover:bg-slate-50'
+                      }`}
                   >
                     <span>All Cities</span>
                     {currentCity === 'All Cities' && <Check className="w-3.5 h-3.5 text-white" />}
@@ -136,9 +142,8 @@ export default function Header({ onOpenDrawer }) {
                       key={city}
                       type="button"
                       onClick={() => handleSelectCity(city)}
-                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold flex items-center justify-between transition-colors cursor-pointer ${
-                        currentCity === city ? 'bg-[#056839] text-white' : 'text-slate-700 hover:bg-slate-50'
-                      }`}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold flex items-center justify-between transition-colors cursor-pointer ${currentCity === city ? 'bg-[#056839] text-white' : 'text-slate-700 hover:bg-slate-50'
+                        }`}
                     >
                       <span>{city}</span>
                       {currentCity === city && <Check className="w-3.5 h-3.5 text-white" />}
@@ -154,42 +159,27 @@ export default function Header({ onOpenDrawer }) {
         <div className="hidden md:flex items-center gap-6">
           <nav className="flex items-center gap-6 text-xs font-semibold">
             <Link to="/" className={isActive('/')}>Home</Link>
-            <Link to="/shops" className={isActive('/shops')}>Shops</Link>
-            <Link to="/shops" className={isActive('/categories')}>Categories</Link>
+            {/* <Link to="/shops" className={isActive('/shops')}>Shops</Link> */}
+            <Link to="/categories" className={isActive('/categories')}>Categories</Link>
             <Link to="/saved" className={isActive('/saved')}>Saved</Link>
           </nav>
-
-          {/* Saved wishlist button */}
-          <Link
-            to="/saved"
-            className="relative w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-colors border border-slate-200/60"
-            title="Saved Wishlist"
-          >
-            <Heart className="w-4 h-4 text-slate-700" />
-            {savedProductIds.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#056839] text-white font-extrabold text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
-                {savedProductIds.length}
-              </span>
-            )}
-          </Link>
-
           {/* User profile avatar / Merchant Login */}
-          {userProfile ? (
+          {activeUser ? (
             <div className="flex items-center gap-2">
               <Link
-                to={userProfile.role === 'admin' ? '/dashboard/admin' : (userProfile.role === 'shop_owner' ? '/dashboard/shop' : '/dashboard/customer')}
+                to={profilePath}
                 className="flex items-center gap-2"
-                title={userProfile.role === 'admin' ? 'Admin Panel' : (userProfile.role === 'shop_owner' ? 'Shop Dashboard' : 'Customer Account')}
+                title={activeUser.role === 'admin' ? 'Admin Panel' : (activeUser.role === 'shop_owner' ? 'Shop Dashboard' : 'Customer Account')}
               >
-                {userProfile.photoURL ? (
+                {activeUser.photoURL ? (
                   <img
-                    src={userProfile.photoURL}
-                    alt={userProfile.displayName}
+                    src={activeUser.photoURL}
+                    alt={activeUser.displayName}
                     className="w-9 h-9 rounded-full object-cover border-2 border-[#056839]"
                   />
                 ) : (
                   <div className="w-9 h-9 rounded-full bg-[#056839] text-white font-bold flex items-center justify-center text-xs border-2 border-[#056839]">
-                    {userProfile.displayName ? userProfile.displayName[0].toUpperCase() : 'U'}
+                    {activeUser.displayName ? activeUser.displayName[0].toUpperCase() : 'U'}
                   </div>
                 )}
               </Link>
@@ -235,9 +225,8 @@ export default function Header({ onOpenDrawer }) {
                   <button
                     type="button"
                     onClick={() => handleSelectCity('All Cities')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold flex items-center justify-between ${
-                      currentCity === 'All Cities' ? 'bg-[#056839] text-white' : 'text-slate-700 hover:bg-slate-50'
-                    }`}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold flex items-center justify-between ${currentCity === 'All Cities' ? 'bg-[#056839] text-white' : 'text-slate-700 hover:bg-slate-50'
+                      }`}
                   >
                     <span>All Cities</span>
                     {currentCity === 'All Cities' && <Check className="w-3 h-3 text-white" />}
@@ -248,9 +237,8 @@ export default function Header({ onOpenDrawer }) {
                       key={city}
                       type="button"
                       onClick={() => handleSelectCity(city)}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold flex items-center justify-between ${
-                        currentCity === city ? 'bg-[#056839] text-white' : 'text-slate-700 hover:bg-slate-50'
-                      }`}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold flex items-center justify-between ${currentCity === city ? 'bg-[#056839] text-white' : 'text-slate-700 hover:bg-slate-50'
+                        }`}
                     >
                       <span>{city}</span>
                       {currentCity === city && <Check className="w-3 h-3 text-white" />}
@@ -274,14 +262,14 @@ export default function Header({ onOpenDrawer }) {
             )}
           </Link>
 
-          <button
+          {/* <button
             type="button"
             className="w-8 h-8 rounded-2xl border border-slate-200/80 bg-white flex items-center justify-center text-slate-700 relative border-none cursor-pointer"
             title="Notifications"
           >
             <Bell className="w-4 h-4 text-slate-700 stroke-[2]" />
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#056839] border border-white" />
-          </button>
+          </button> */}
         </div>
 
       </div>

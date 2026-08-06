@@ -1,29 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
-import { BazaarProvider } from './context/BazaarContext';
-import { AuthProvider } from './context/AuthContext';
-import { ImageModalProvider } from './context/ImageModalContext';
-import Header from './components/Header';
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import Footer from './components/Footer';
+import Header from './components/Header';
 import MobileDrawer from './components/MobileDrawer';
+import { AuthProvider } from './context/AuthContext';
+import { BazaarProvider } from './context/BazaarContext';
+import { ImageModalProvider } from './context/ImageModalContext';
 
+import AboutUs from './pages/AboutUs';
+import Categories from './pages/Categories';
+import ContactUs from './pages/ContactUs';
 import Home from './pages/Home';
-import Shops from './pages/Shops';
-import ShopDetails from './pages/ShopDetails';
+import Login from './pages/Login';
 import ProductDetails from './pages/ProductDetails';
 import SavedProducts from './pages/SavedProducts';
-import AboutUs from './pages/AboutUs';
-import ContactUs from './pages/ContactUs';
-import Login from './pages/Login';
+import ShopDetails from './pages/ShopDetails';
+import Shops from './pages/Shops';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
+import AdminBanners from './pages/AdminBanners';
+import AdminCategoriesMarkets from './pages/AdminCategoriesMarkets';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminShopDetails from './pages/AdminShopDetails';
+import AdminShops from './pages/AdminShops';
 import CustomerDashboard from './pages/CustomerDashboard';
 import ShopDashboard from './pages/ShopDashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminShops from './pages/AdminShops';
-import AdminCategoriesMarkets from './pages/AdminCategoriesMarkets';
-import AdminShopDetails from './pages/AdminShopDetails';
 
 // Global ScrollToTop helper for route changes
 function ScrollToTop() {
@@ -43,7 +45,7 @@ function PublicLayout() {
   return (
     <>
       <Header onOpenDrawer={() => setDrawerOpen(true)} />
-      <main className="max-w-7xl mx-auto px-4 md:px-6 w-full" style={{ minHeight: '80vh', paddingBottom: '40px' }}>
+      <main className="max-w-7xl mx-auto w-full" style={{ minHeight: '80vh', paddingBottom: '40px' }}>
         <Outlet />
       </main>
       <Footer onOpenDrawer={() => setDrawerOpen(true)} />
@@ -64,6 +66,7 @@ export default function App() {
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/shops" element={<Shops />} />
+                <Route path="/categories" element={<Categories />} />
                 <Route path="/shop/:id" element={<ShopDetails />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/saved" element={<SavedProducts />} />
@@ -113,6 +116,14 @@ export default function App() {
                 element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <AdminCategoriesMarkets />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/admin/banners"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminBanners />
                   </ProtectedRoute>
                 }
               />

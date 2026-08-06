@@ -1,9 +1,9 @@
 import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { APP_CONFIG, FIRESTORE_COLLECTIONS, STORAGE_KEYS } from '../constants/appConstants';
 import { BAZAAR_DATA } from '../data';
 import { db, isFirebaseConfigured } from '../firebase';
-import { STORAGE_KEYS, FIRESTORE_COLLECTIONS, APP_CONFIG } from '../constants/appConstants';
-import { DEFAULT_STORE_LOGO, DEFAULT_COVER_BANNER, DEFAULT_PRODUCT_IMAGE } from '../utils/defaultAssets';
+import { DEFAULT_COVER_BANNER, DEFAULT_PRODUCT_IMAGE, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 
 const BazaarContext = createContext();
 
@@ -25,6 +25,57 @@ const DEFAULT_MARKETS = [
   { id: "civil-lines", name: "Civil Lines", city: "Rampur", area: "Civil Lines", description: "Premium commercial market area for boutiques and showrooms" },
   { id: "mandi-samiti", name: "Mandi Samiti", city: "Rampur", area: "Station Road", description: "Wholesale and retail hub for groceries and fresh produce" },
   { id: "bada-bazaar", name: "Bada Bazaar", city: "Rampur", area: "Central Rampur", description: "Historic market for jewellery, bridal wear, and handicrafts" }
+];
+
+const DEFAULT_BANNERS = [
+  {
+    id: 'banner-1',
+    type: 'special_offer',
+    tag: 'SPECIAL OFFER',
+    title: 'Smartwatch Series 9',
+    subtitle: 'Advanced. Stylish. Connected.',
+    discount: '20% OFF',
+    image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&q=80',
+    bgColor: 'bg-[#eaf5ef]',
+    borderColor: 'border-emerald-100/90',
+    tagColor: 'text-[#056839]',
+    btnBg: 'bg-[#056839]',
+    link: '/categories',
+    active: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'banner-2',
+    type: 'special_offer',
+    tag: 'MEGA DEAL',
+    title: 'Wireless Headphones Pro',
+    subtitle: 'Noise Cancelling. Pure Sound.',
+    discount: '30% OFF',
+    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80',
+    bgColor: 'bg-[#eef2ff]',
+    borderColor: 'border-indigo-100',
+    tagColor: 'text-indigo-700',
+    btnBg: 'bg-indigo-700',
+    link: '/categories',
+    active: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'banner-3',
+    type: 'new_arrival',
+    tag: 'NEW ARRIVAL',
+    title: 'Summer Collection 2025',
+    subtitle: 'Explore the latest trends',
+    discount: '25% OFF',
+    image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&q=80',
+    bgColor: 'bg-[#f4efe8]',
+    borderColor: 'border-amber-200/60',
+    tagColor: 'text-amber-800',
+    btnBg: 'bg-[#056839]',
+    link: '/categories',
+    active: true,
+    createdAt: new Date().toISOString()
+  }
 ];
 
 export const BazaarProvider = ({ children }) => {
@@ -58,6 +109,9 @@ export const BazaarProvider = ({ children }) => {
 
   // Dynamic Markets / Locations State
   const [markets, setMarkets] = useState(() => safeGetItem(STORAGE_KEYS.MARKETS, DEFAULT_MARKETS));
+
+  // Dynamic Advertisements / Banners State
+  const [banners, setBanners] = useState(() => safeGetItem(STORAGE_KEYS.BANNERS, DEFAULT_BANNERS));
 
   // Saved Products Wishlist State
   const [savedProductIds, setSavedProductIds] = useState(() => safeGetItem(STORAGE_KEYS.SAVED_PRODUCTS, []));
@@ -126,11 +180,27 @@ export const BazaarProvider = ({ children }) => {
       }
     }, (err) => console.warn("Firestore markets snapshot error:", err));
 
+    // 5. Sync Dynamic Advertisements / Banners Collection
+    const bannersUnsub = onSnapshot(collection(db, FIRESTORE_COLLECTIONS.BANNERS), (snapshot) => {
+      const loadedBanners = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(b => !b.deleted);
+      if (loadedBanners.length > 0) {
+        setBanners(loadedBanners);
+      } else {
+        // Seed default banners if collection is empty
+        DEFAULT_BANNERS.forEach(banner => {
+          setDoc(doc(db, FIRESTORE_COLLECTIONS.BANNERS, banner.id), banner, { merge: true }).catch(err => console.warn("Error seeding banner:", err));
+        });
+      }
+    }, (err) => console.warn("Firestore banners snapshot error:", err));
+
     return () => {
       shopsUnsub();
       productsUnsub();
       categoriesUnsub();
       marketsUnsub();
+      bannersUnsub();
     };
   }, []);
 
@@ -152,12 +222,103 @@ export const BazaarProvider = ({ children }) => {
   }, [markets]);
 
   useEffect(() => {
+    safeSetItem(STORAGE_KEYS.BANNERS, banners);
+  }, [banners]);
+
+  useEffect(() => {
     safeSetItem(STORAGE_KEYS.SAVED_PRODUCTS, savedProductIds);
   }, [savedProductIds]);
 
   useEffect(() => {
     safeSetItem(STORAGE_KEYS.USER_PROFILE, currentUser);
   }, [currentUser]);
+
+  // --- BANNER ACTIONS (ADMIN ONLY) ---
+  const addBanner = async (bannerData) => {
+    const id = bannerData.id || `banner-${Date.now()}`;
+    const nowIso = new Date().toISOString();
+    const newBanner = {
+      id,
+      type: bannerData.type || 'special_offer',
+      tag: bannerData.tag || 'SPECIAL OFFER',
+      title: bannerData.title || 'New Offer',
+      subtitle: bannerData.subtitle || '',
+      discount: bannerData.discount || '15% OFF',
+      image: bannerData.image || DEFAULT_PRODUCT_IMAGE,
+      bgColor: bannerData.bgColor || 'bg-[#eaf5ef]',
+      borderColor: bannerData.borderColor || 'border-emerald-100/90',
+      tagColor: bannerData.tagColor || 'text-[#056839]',
+      btnBg: bannerData.btnBg || 'bg-[#056839]',
+      link: bannerData.link || '/categories',
+      active: bannerData.active !== false,
+      createdAt: nowIso,
+      updatedAt: nowIso
+    };
+
+    setBanners(prev => {
+      const updatedList = [newBanner, ...prev];
+      safeSetItem(STORAGE_KEYS.BANNERS, updatedList);
+      return updatedList;
+    });
+
+    if (isFirebaseConfigured) {
+      try {
+        await setDoc(doc(db, FIRESTORE_COLLECTIONS.BANNERS, id), newBanner, { merge: true });
+      } catch (e) {
+        console.warn("Error adding banner to Firestore:", e);
+      }
+    }
+    return newBanner;
+  };
+
+  const updateBanner = async (bannerId, updatedData) => {
+    const nowIso = new Date().toISOString();
+    let fullUpdatedDoc = null;
+
+    setBanners(prev => {
+      const updatedList = prev.map(b => {
+        if (b.id === bannerId) {
+          fullUpdatedDoc = { ...b, ...updatedData, updatedAt: nowIso };
+          return fullUpdatedDoc;
+        }
+        return b;
+      });
+      safeSetItem(STORAGE_KEYS.BANNERS, updatedList);
+      return updatedList;
+    });
+
+    if (isFirebaseConfigured && fullUpdatedDoc) {
+      try {
+        await setDoc(doc(db, FIRESTORE_COLLECTIONS.BANNERS, bannerId), fullUpdatedDoc, { merge: true });
+      } catch (e) {
+        console.warn("Error updating banner in Firestore:", e);
+      }
+    }
+  };
+
+  const toggleBannerActive = async (bannerId) => {
+    const banner = banners.find(b => b.id === bannerId);
+    if (!banner) return;
+
+    const updatedActive = !(banner.active !== false);
+    await updateBanner(bannerId, { active: updatedActive });
+  };
+
+  const deleteBanner = async (bannerId) => {
+    setBanners(prev => {
+      const updatedList = prev.filter(b => b.id !== bannerId);
+      safeSetItem(STORAGE_KEYS.BANNERS, updatedList);
+      return updatedList;
+    });
+
+    if (isFirebaseConfigured) {
+      try {
+        await setDoc(doc(db, FIRESTORE_COLLECTIONS.BANNERS, bannerId), { deleted: true, updatedAt: new Date().toISOString() }, { merge: true });
+      } catch (e) {
+        console.warn("Error deleting banner in Firestore:", e);
+      }
+    }
+  };
 
   // Actions
   const isProductSaved = (productId) => savedProductIds.includes(productId);
@@ -521,9 +682,43 @@ export const BazaarProvider = ({ children }) => {
   };
 
   const generateWhatsAppLink = (product, shop) => {
-    const shopPhone = shop ? (shop.whatsapp || shop.phone) : "";
-    const cleanPhone = (shopPhone || "").replace(/[^0-9]/g, '');
-    const text = `Hello,\n\nI found your product on Meena Bazaar.\n\nProduct:\n${product.name}\n\nPrice:\n₹${product.price?.toLocaleString('en-IN')}\n\nIs it available?`;
+    if (!product) return '';
+    const rawPhone = shop ? (shop.whatsapp || shop.phone) : (product.shopWhatsapp || product.shopPhone || '');
+    let cleanPhone = (rawPhone || "").replace(/[^0-9]/g, '');
+
+    // Format 10-digit Indian numbers with '91' country code for WhatsApp link compatibility
+    if (cleanPhone.length === 10) {
+      cleanPhone = `91${cleanPhone}`;
+    }
+    // Fallback to central marketplace support line if no phone is specified
+    if (!cleanPhone) {
+      cleanPhone = '918433043426';
+    }
+
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const productUrl = `${baseUrl}/product/${product.id}`;
+
+    // Only include a photo link if it's a real hosted URL (not a base64 data URI)
+    const rawImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || '');
+    const hostedImg = rawImg && rawImg.startsWith('http') ? rawImg : '';
+
+    const hasDiscount = Boolean(product.originalPrice && product.originalPrice > product.price);
+    const discountText = hasDiscount
+      ? ` (MRP: ₹${product.originalPrice?.toLocaleString('en-IN')} - ${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF)`
+      : '';
+
+    const text = ` *NEW ORDER INQUIRY - MEENA BAZAAR*\n\n` +
+      `  *Product Details:*\n` +
+      `• *Item Name:* ${product.name}\n` +
+      `• *Selling Price:* ₹${product.price?.toLocaleString('en-IN')}${discountText}\n` +
+      (product.brand ? `• *Brand:* ${product.brand}\n` : '') +
+      (product.categoryName || product.category ? `• *Category:* ${product.categoryName || product.category}\n` : '') +
+      `• *Availability:* ${product.stockStatus || 'In Stock'}\n` +
+      `• *Product ID:* ${product.id}\n\n` +
+      (shop ? ` *Store Info:*\n• *Shop Name:* ${shop.name}\n• *Location:* ${shop.market || 'Local Market'}, ${shop.city || 'Rampur'}\n\n` : '') +
+      (hostedImg ? ` *Product Photo:*\n${hostedImg}\n\n` : '') +
+      ` *Hello! I want to order this product from your shop on Meena Bazaar. Please confirm availability and delivery details.*`;
+
     return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
   };
 
@@ -532,7 +727,9 @@ export const BazaarProvider = ({ children }) => {
     if (!product) return;
     const shop = shops.find(s => s.id === product.shopId);
     const link = generateWhatsAppLink(product, shop);
-    window.open(link, "_blank");
+    if (link) {
+      window.open(link, "_blank", "noopener,noreferrer");
+    }
   };
 
   return (
@@ -542,6 +739,7 @@ export const BazaarProvider = ({ children }) => {
       setCurrentCity,
       categories,
       markets,
+      banners,
       products,
       shops,
       savedProductIds,
@@ -562,6 +760,10 @@ export const BazaarProvider = ({ children }) => {
       addMarket,
       updateMarket,
       deleteMarket,
+      addBanner,
+      updateBanner,
+      toggleBannerActive,
+      deleteBanner,
       login,
       logout,
       generateWhatsAppLink,
@@ -577,28 +779,33 @@ const defaultBazaarContext = {
   shops: [],
   categories: [],
   markets: [],
+  banners: [],
   savedProductIds: [],
   currentUser: null,
   isProductSaved: () => false,
-  toggleSaveProduct: () => {},
-  clearSavedProducts: () => {},
+  toggleSaveProduct: () => { },
+  clearSavedProducts: () => { },
   createShop: async () => ({}),
-  updateShopDetails: async () => {},
-  addProduct: async () => {},
-  updateProduct: async () => {},
-  deleteProduct: async () => {},
-  toggleShopVerification: async () => {},
-  deleteShop: async () => {},
-  addCategory: async () => {},
-  updateCategory: async () => {},
-  deleteCategory: async () => {},
-  addMarket: async () => {},
-  updateMarket: async () => {},
-  deleteMarket: async () => {},
-  login: () => {},
-  logout: () => {},
+  updateShopDetails: async () => { },
+  addProduct: async () => { },
+  updateProduct: async () => { },
+  deleteProduct: async () => { },
+  toggleShopVerification: async () => { },
+  deleteShop: async () => { },
+  addCategory: async () => { },
+  updateCategory: async () => { },
+  deleteCategory: async () => { },
+  addMarket: async () => { },
+  updateMarket: async () => { },
+  deleteMarket: async () => { },
+  addBanner: async () => { },
+  updateBanner: async () => { },
+  toggleBannerActive: async () => { },
+  deleteBanner: async () => { },
+  login: () => { },
+  logout: () => { },
   generateWhatsAppLink: () => '',
-  openWhatsApp: () => {}
+  openWhatsApp: () => { }
 };
 
 export const useBazaar = () => {
