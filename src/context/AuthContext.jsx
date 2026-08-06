@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   }, [currentUser, userProfile]);
 
   // Sync user profile from Firestore or local cache
-  const fetchOrSyncUserProfile = async (user) => {
+  const fetchOrSyncUserProfile = async (user, targetRole = 'customer') => {
     if (!user) {
       setUserProfile(null);
       return null;
@@ -72,7 +72,6 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const isUserAdmin = isAdminEmail(user.email);
-      const derivedRole = isUserAdmin ? 'admin' : 'shop_owner';
 
       if (isFirebaseConfigured) {
         const userRef = doc(db, 'users', user.uid);
@@ -81,7 +80,7 @@ export const AuthProvider = ({ children }) => {
         if (userSnap.exists()) {
           // Existing user profile in Firestore
           const data = userSnap.data();
-          const effectiveRole = isUserAdmin ? 'admin' : 'shop_owner';
+          const effectiveRole = isUserAdmin ? 'admin' : (data.role || targetRole || 'customer');
 
           // Ensure Firestore role is up-to-date
           if (data.role !== effectiveRole) {
@@ -95,27 +94,27 @@ export const AuthProvider = ({ children }) => {
           });
 
           const profile = {
+            ...data,
             uid: user.uid,
             email: user.email,
             displayName: user.displayName || data.displayName,
             photoURL: user.photoURL || data.photoURL,
             role: effectiveRole,
             shopId: data.shopId || null,
-            shopName: data.shopName || null,
-            ...data,
-            role: effectiveRole
+            shopName: data.shopName || null
           };
           setUserProfile(profile);
           safeSetItem('meena_bazaar_auth_session_v3', { user, profile });
           return profile;
         } else {
-          // New merchant sign up - Shop in Firestore
+          // New user sign up - save chosen role in Firestore
+          const chosenRole = isUserAdmin ? 'admin' : (targetRole || 'customer');
           const newProfile = {
             uid: user.uid,
             email: user.email,
-            displayName: user.displayName || user.email?.split('@')[0] || 'Merchant',
+            displayName: user.displayName || user.email?.split('@')[0] || (chosenRole === 'shop_owner' ? 'Merchant' : 'Customer'),
             photoURL: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`,
-            role: derivedRole,
+            role: chosenRole,
             shopId: null,
             shopName: null,
             createdAt: serverTimestamp(),
@@ -129,12 +128,13 @@ export const AuthProvider = ({ children }) => {
         }
       } else {
         // Fallback for local demo mode
+        const chosenRole = isUserAdmin ? 'admin' : (targetRole || 'customer');
         const profile = {
           uid: user.uid,
           email: user.email,
-          displayName: user.displayName || user.email?.split('@')[0] || (isUserAdmin ? 'Admin' : 'Merchant'),
+          displayName: user.displayName || user.email?.split('@')[0] || (isUserAdmin ? 'Admin' : (chosenRole === 'shop_owner' ? 'Merchant' : 'Customer User')),
           photoURL: user.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=80',
-          role: derivedRole,
+          role: chosenRole,
           shopId: null,
           shopName: null
         };
@@ -148,9 +148,9 @@ export const AuthProvider = ({ children }) => {
       const fallbackProfile = userProfile || {
         uid: user.uid,
         email: user.email,
-        displayName: user.displayName || 'Merchant',
+        displayName: user.displayName || 'User',
         photoURL: user.photoURL || '',
-        role: isUserAdmin ? 'admin' : 'shop_owner',
+        role: isUserAdmin ? 'admin' : (targetRole || 'customer'),
         shopId: null,
         shopName: null
       };
@@ -159,8 +159,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Google Sign-In Function
-  const signInWithGoogle = async () => {
+  // Google Sign-In Function accepting rolePreference ('customer' | 'shop_owner')
+  const signInWithGoogle = async (rolePreference = 'customer') => {
     setAuthError(null);
     try {
       if (isFirebaseConfigured) {
@@ -174,22 +174,21 @@ export const AuthProvider = ({ children }) => {
         };
         setCurrentUser(minimalUser);
 
-        const profile = await fetchOrSyncUserProfile(user);
-        const isUserAdmin = isAdminEmail(user.email);
-        const finalRole = isUserAdmin ? 'admin' : 'shop_owner';
+        const profile = await fetchOrSyncUserProfile(user, rolePreference);
 
         if (profile) {
-          profile.role = finalRole;
           setUserProfile({ ...profile });
           safeSetItem('meena_bazaar_auth_session_v3', { user: minimalUser, profile });
         }
         return { success: true, user: minimalUser, profile };
       } else {
         // Simulated Google Auth flow for dev environment
+        const chosenRole = rolePreference || 'customer';
+        
         const mockGoogleUser = {
-          uid: 'google-uid-demo',
-          email: ADMIN_EMAIL,
-          displayName: 'Application Admin',
+          uid: `google-uid-${chosenRole}-demo`,
+          email: chosenRole === 'shop_owner' ? 'merchant@meenabazaar.com' : 'customer@meenabazaar.com',
+          displayName: chosenRole === 'shop_owner' ? 'Demo Merchant' : 'Demo Customer',
           photoURL: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=80'
         };
 
@@ -198,7 +197,7 @@ export const AuthProvider = ({ children }) => {
           email: mockGoogleUser.email,
           displayName: mockGoogleUser.displayName,
           photoURL: mockGoogleUser.photoURL,
-          role: 'admin',
+          role: chosenRole,
           shopId: null,
           shopName: null
         };
@@ -257,16 +256,16 @@ export const AuthProvider = ({ children }) => {
           };
           setCurrentUser(minimalUser);
 
-          // If no local profile loaded yet, construct immediate role profile
+          // If no local profile loaded yet, construct immediate temporary profile
           const isUserAdmin = isAdminEmail(user.email);
-          const derivedRole = isUserAdmin ? 'admin' : 'shop_owner';
+          const initialRole = initialSession?.profile?.role || (isUserAdmin ? 'admin' : 'customer');
           if (!userProfile) {
             setUserProfile({
               uid: user.uid,
               email: user.email,
-              displayName: user.displayName || 'Merchant',
+              displayName: user.displayName || (initialRole === 'shop_owner' ? 'Merchant' : 'Customer'),
               photoURL: user.photoURL || '',
-              role: derivedRole,
+              role: initialRole,
               shopId: null,
               shopName: null
             });

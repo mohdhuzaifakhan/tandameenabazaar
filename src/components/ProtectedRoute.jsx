@@ -29,14 +29,16 @@ export default function ProtectedRoute({ children, allowedRoles }) {
 
   // If specific roles are required, verify user's role
   if (allowedRoles && allowedRoles.length > 0) {
-    const userRole = userProfile?.role || 'shop_owner';
+    const userRole = userProfile?.role || 'customer';
 
     if (!allowedRoles.includes(userRole)) {
       // Redirect based on actual role
       if (userRole === 'admin') {
         return <Navigate to="/dashboard/admin" replace />;
-      } else {
+      } else if (userRole === 'shop_owner') {
         return <Navigate to="/dashboard/shop" replace />;
+      } else {
+        return <Navigate to="/dashboard/customer" replace />;
       }
     }
   }

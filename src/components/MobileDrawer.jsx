@@ -98,7 +98,9 @@ export default function MobileDrawer({ isOpen, onClose }) {
               )}
               <div className="flex-1 min-w-0">
                 <span className="font-extrabold text-xs text-slate-900 block truncate">{userProfile.displayName}</span>
-                <span className="text-[10px] text-emerald-700 font-bold uppercase">{userProfile.role || 'Merchant'}</span>
+                <span className="text-[10px] text-emerald-700 font-bold uppercase">
+                  {userProfile.role === 'admin' ? 'Admin' : (userProfile.role === 'shop_owner' ? 'Merchant' : 'Customer')}
+                </span>
               </div>
             </div>
           )}
@@ -128,17 +130,21 @@ export default function MobileDrawer({ isOpen, onClose }) {
 
           <div className="h-px bg-slate-100 my-4 mx-5"></div>
 
-          {/* Merchant / Dashboard Actions */}
+          {/* User Account / Dashboard Actions */}
           <div className="px-4 space-y-2">
             {userProfile ? (
               <>
                 <Link
-                  to={userProfile.role === 'admin' ? '/dashboard/admin' : '/dashboard/shop'}
-                  className="w-full py-2.5 px-4 bg-emerald-600 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-md"
+                  to={userProfile.role === 'admin' ? '/dashboard/admin' : (userProfile.role === 'shop_owner' ? '/dashboard/shop' : '/dashboard/customer')}
+                  className="w-full py-2.5 px-4 bg-[#056839] text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-md"
                   onClick={onClose}
                 >
-                  <i className="fa-solid fa-store"></i>
-                  <span>{userProfile.role === 'admin' ? 'Admin Panel' : 'My Shop Dashboard'}</span>
+                  <i className={userProfile.role === 'shop_owner' ? 'fa-solid fa-store' : 'fa-solid fa-user'}></i>
+                  <span>
+                    {userProfile.role === 'admin'
+                      ? 'Admin Panel'
+                      : (userProfile.role === 'shop_owner' ? 'My Shop Dashboard' : 'Customer Account')}
+                  </span>
                 </Link>
 
                 <button

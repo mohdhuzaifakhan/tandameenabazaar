@@ -32,6 +32,7 @@ export const FIRESTORE_COLLECTIONS = {
 export const USER_ROLES = {
   ADMIN: 'admin',
   MERCHANT: 'shop_owner',
+  CUSTOMER: 'customer',
   GUEST: 'guest',
 };
 

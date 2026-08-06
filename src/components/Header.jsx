@@ -177,9 +177,9 @@ export default function Header({ onOpenDrawer }) {
           {userProfile ? (
             <div className="flex items-center gap-2">
               <Link
-                to={userProfile.role === 'admin' ? '/dashboard/admin' : '/dashboard/shop'}
+                to={userProfile.role === 'admin' ? '/dashboard/admin' : (userProfile.role === 'shop_owner' ? '/dashboard/shop' : '/dashboard/customer')}
                 className="flex items-center gap-2"
-                title="View Dashboard"
+                title={userProfile.role === 'admin' ? 'Admin Panel' : (userProfile.role === 'shop_owner' ? 'Shop Dashboard' : 'Customer Account')}
               >
                 {userProfile.photoURL ? (
                   <img

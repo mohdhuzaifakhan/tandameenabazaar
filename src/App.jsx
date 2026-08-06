@@ -18,6 +18,7 @@ import Login from './pages/Login';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
+import CustomerDashboard from './pages/CustomerDashboard';
 import ShopDashboard from './pages/ShopDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminShops from './pages/AdminShops';
@@ -68,6 +69,14 @@ export default function App() {
                 <Route path="/saved" element={<SavedProducts />} />
                 <Route path="/about" element={<AboutUs />} />
                 <Route path="/contact" element={<ContactUs />} />
+                <Route
+                  path="/dashboard/customer"
+                  element={
+                    <ProtectedRoute allowedRoles={['customer', 'shop_owner', 'admin']}>
+                      <CustomerDashboard />
+                    </ProtectedRoute>
+                  }
+                />
               </Route>
 
               {/* Login Route (standalone) */}
