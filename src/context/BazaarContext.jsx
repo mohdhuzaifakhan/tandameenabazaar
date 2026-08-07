@@ -732,6 +732,20 @@ export const BazaarProvider = ({ children }) => {
     }
   };
 
+  // ── ANALYTICS: derived from live products/shops viewCount ──
+  const topViewedProducts = [...products]
+    .filter(p => (p.viewCount || 0) > 0)
+    .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
+    .slice(0, 8);
+
+  const topVisitedShops = [...shops]
+    .filter(s => (s.viewCount || 0) > 0)
+    .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
+    .slice(0, 8);
+
+  const totalProductViews = products.reduce((sum, p) => sum + (p.viewCount || 0), 0);
+  const totalShopViews = shops.reduce((sum, s) => sum + (s.viewCount || 0), 0);
+
   return (
     <BazaarContext.Provider value={{
       cities: BAZAAR_DATA.cities,
@@ -767,7 +781,12 @@ export const BazaarProvider = ({ children }) => {
       login,
       logout,
       generateWhatsAppLink,
-      openWhatsApp
+      openWhatsApp,
+      // Analytics
+      topViewedProducts,
+      topVisitedShops,
+      totalProductViews,
+      totalShopViews,
     }}>
       {children}
     </BazaarContext.Provider>
@@ -797,7 +816,7 @@ const defaultBazaarContext = {
   deleteCategory: async () => { },
   addMarket: async () => { },
   updateMarket: async () => { },
-  deleteMarket: async () => { },
+  deleteMark: async () => { },
   addBanner: async () => { },
   updateBanner: async () => { },
   toggleBannerActive: async () => { },
@@ -805,7 +824,12 @@ const defaultBazaarContext = {
   login: () => { },
   logout: () => { },
   generateWhatsAppLink: () => '',
-  openWhatsApp: () => { }
+  openWhatsApp: () => { },
+  // Analytics defaults
+  topViewedProducts: [],
+  topVisitedShops: [],
+  totalProductViews: 0,
+  totalShopViews: 0,
 };
 
 export const useBazaar = () => {

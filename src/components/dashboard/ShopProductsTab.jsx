@@ -15,23 +15,23 @@ export default function ShopProductsTab({
     <div className="space-y-6">
 
       {/* Action Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-2xs">
         <div className="flex items-center gap-3 w-full sm:w-auto flex-1 max-w-md">
           <div className="relative w-full">
-            <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
             <input
               type="text"
               placeholder="Search products by title or brand..."
               value={productSearch}
               onChange={(e) => setProductSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500 bg-slate-50"
+              className="w-full pl-9 pr-4 py-2 border border-slate-200/80 rounded-xl text-xs outline-none focus:border-[#056839] bg-slate-50 font-medium"
             />
           </div>
 
           <select
             value={stockFilter}
             onChange={(e) => setStockFilter(e.target.value)}
-            className="px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none bg-slate-50 font-medium cursor-pointer"
+            className="px-3 py-2 border border-slate-200/80 rounded-xl text-xs outline-none bg-slate-50 font-bold text-slate-700 cursor-pointer"
           >
             <option value="all">All Stock Status</option>
             <option value="In Stock">In Stock</option>
@@ -41,22 +41,22 @@ export default function ShopProductsTab({
 
         <button
           onClick={onAddProduct}
-          className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full sm:w-auto px-4 py-2.5 bg-[#056839] hover:bg-emerald-800 text-white font-extrabold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
         >
           <i className="fa-solid fa-plus"></i> Add Product
         </button>
       </div>
 
       {/* Products Container (Responsive Mobile Cards + Desktop Table) */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-2xs overflow-hidden">
 
         {/* Mobile View: Clean Product Cards (sm:hidden) */}
         <div className="block sm:hidden divide-y divide-slate-100">
           {filteredProducts.length === 0 ? (
             <div className="py-12 text-center text-slate-400 p-4">
               <i className="fa-solid fa-box-open text-3xl mb-2 text-slate-300 block"></i>
-              <p className="text-xs mb-3">No products match your search or filter.</p>
-              <button onClick={onAddProduct} className="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer">
+              <p className="text-xs mb-3 font-medium">No products match your search or filter.</p>
+              <button onClick={onAddProduct} className="px-4 py-2 bg-[#056839] text-white font-bold text-xs rounded-xl shadow-sm cursor-pointer">
                 Add New Product
               </button>
             </div>
@@ -64,15 +64,22 @@ export default function ShopProductsTab({
             filteredProducts.map(p => (
               <div key={p.id} className="p-4 flex flex-col gap-3">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <img
-                      src={p.images && p.images.length > 0 ? p.images[0] : 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100'}
+                      src={p.images && p.images.length > 0 ? p.images[0] : (p.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100')}
                       alt={p.name}
                       className="w-14 h-14 rounded-xl object-cover border border-slate-100 flex-shrink-0"
                     />
-                    <div>
-                      <h4 className="font-bold text-xs text-slate-900 leading-snug">{p.name}</h4>
-                      <span className="text-[10px] text-slate-400 font-semibold">{p.categoryName || p.category}</span>
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-xs text-slate-900 leading-snug truncate">{p.name}</h4>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] text-slate-400 font-semibold truncate">{p.categoryName || p.category}</span>
+                        {(p.viewCount || 0) > 0 && (
+                          <span className="text-[9.5px] font-extrabold text-violet-600 bg-violet-50 px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                            <i className="fa-solid fa-eye text-[8.5px]"></i> {(p.viewCount || 0).toLocaleString('en-IN')}
+                          </span>
+                        )}
+                      </div>
                       <div className="mt-1">
                         <span className="font-black text-xs text-slate-900">₹{p.price?.toLocaleString('en-IN')}</span>
                         {p.originalPrice > p.price && (
@@ -116,10 +123,11 @@ export default function ShopProductsTab({
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
+              <tr className="bg-slate-50/80 border-b border-slate-100 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
                 <th className="py-3.5 px-4 whitespace-nowrap">Product Details</th>
                 <th className="py-3.5 px-4 whitespace-nowrap">Category</th>
                 <th className="py-3.5 px-4 whitespace-nowrap">Price</th>
+                <th className="py-3.5 px-4 whitespace-nowrap">Page Views</th>
                 <th className="py-3.5 px-4 whitespace-nowrap">Stock Status</th>
                 <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
               </tr>
@@ -127,37 +135,47 @@ export default function ShopProductsTab({
             <tbody className="divide-y divide-slate-100 text-xs">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="py-12 text-center text-slate-400">
+                  <td colSpan="6" className="py-12 text-center text-slate-400">
                     <i className="fa-solid fa-box-open text-3xl mb-2 text-slate-300 block"></i>
-                    <p className="text-xs mb-3">No products match your search or filter.</p>
-                    <button onClick={onAddProduct} className="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer">
+                    <p className="text-xs mb-3 font-medium">No products match your search or filter.</p>
+                    <button onClick={onAddProduct} className="px-4 py-2 bg-[#056839] text-white font-bold text-xs rounded-xl shadow-sm cursor-pointer">
                       Add New Product
                     </button>
                   </td>
                 </tr>
               ) : (
                 filteredProducts.map(p => (
-                  <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
                         <img
-                          src={p.images && p.images.length > 0 ? p.images[0] : 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100'}
+                          src={p.images && p.images.length > 0 ? p.images[0] : (p.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100')}
                           alt={p.name}
                           className="w-10 h-10 rounded-lg object-cover border border-slate-100 flex-shrink-0"
                         />
                         <div>
                           <span className="font-bold text-slate-900 block">{p.name}</span>
-                          <span className="text-[10px] text-slate-400">{p.brand || 'Merchant Product'}</span>
+                          <span className="text-[10px] text-slate-400 font-medium">{p.brand || 'Merchant Product'}</span>
                         </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-600 font-medium whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-slate-600 font-semibold whitespace-nowrap">
                       {p.categoryName || p.category}
                     </td>
                     <td className="py-3.5 px-4 font-black text-slate-900 whitespace-nowrap">
                       ₹{p.price?.toLocaleString('en-IN')}
                       {p.originalPrice > p.price && (
                         <span className="text-[10px] text-slate-400 line-through block font-normal">₹{p.originalPrice?.toLocaleString('en-IN')}</span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      {(p.viewCount || 0) > 0 ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-violet-50 text-violet-700 font-extrabold text-[11px]">
+                          <i className="fa-solid fa-eye text-violet-400 text-[10px]"></i>
+                          {(p.viewCount || 0).toLocaleString('en-IN')}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300 font-medium text-[11px]">0 views</span>
                       )}
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap">

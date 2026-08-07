@@ -306,11 +306,13 @@ export default function ShopDashboard() {
   };
 
   const totalCatalogValue = shopProducts.reduce((sum, p) => sum + (p.price || 0), 0);
+  const storeVisits = shop?.viewCount || 0;
 
   const stats = [
-    { label: 'Total Products', value: shopProducts.length, icon: 'fa-box', color: 'bg-emerald-50 text-emerald-600', trend: 'Live Catalog' },
-    { label: 'Store Rating', value: `${shop?.rating || 5.0} ★`, icon: 'fa-star', color: 'bg-amber-50 text-amber-500', trend: `${shop?.reviewsCount || 1} Reviews` },
-    { label: 'Inventory Value', value: `₹${totalCatalogValue.toLocaleString('en-IN')}`, icon: 'fa-indian-rupee-sign', color: 'bg-blue-50 text-blue-600', trend: 'Active Items' },
+    { label: 'Total Products', value: shopProducts.length, icon: 'fa-box-open', color: 'bg-emerald-50 text-[#056839]', trend: 'Live Catalog' },
+    { label: 'Store Visits', value: storeVisits.toLocaleString('en-IN'), icon: 'fa-eye', color: 'bg-violet-50 text-violet-600', trend: 'Total Views' },
+    { label: 'Store Rating', value: `${shop?.rating || 5.0} ★`, icon: 'fa-star', color: 'bg-amber-50 text-amber-500', trend: `${shop?.reviewsCount || 0} Reviews` },
+    { label: 'Inventory Value', value: `₹${totalCatalogValue > 1000 ? `${(totalCatalogValue / 1000).toFixed(1)}k` : totalCatalogValue.toLocaleString('en-IN')}`, icon: 'fa-indian-rupee-sign', color: 'bg-blue-50 text-blue-600', trend: 'Active Catalog' },
   ];
 
   return (
@@ -372,13 +374,15 @@ export default function ShopDashboard() {
               </div>
             )}
 
-            {/* Shop Header Banner */}
-            <ShopHeaderBanner
-              shop={shop}
-              onOpenSettings={() => setActiveTab('store')}
-              onAddProduct={openAddModal}
-              onOpenQRCode={() => setActiveTab('qrcode')}
-            />
+            {/* Shop Header Banner — 100% Flush to Screen Edges */}
+            <div className="-mx-3.5 -mt-3.5 sm:-mx-5 sm:-mt-5 md:-mx-6 md:-mt-6">
+              <ShopHeaderBanner
+                shop={shop}
+                onOpenSettings={() => setActiveTab('store')}
+                onAddProduct={openAddModal}
+                onOpenQRCode={() => setActiveTab('qrcode')}
+              />
+            </div>
 
             {/* Navigation Tabs */}
             <ShopNavTabs

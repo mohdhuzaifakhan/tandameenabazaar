@@ -62,6 +62,10 @@ export default function Categories() {
 
   return (
     <div className="w-full min-h-screen bg-[#f8faf9] pb-24 font-sans text-slate-800">
+
+      {/* --- 1. STICKY SCROLLABLE CATEGORIES BAR (spans full width for sticky to work) --- */}
+      <CategoryFilterBar selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
+
       <div className="max-w-4xl mx-auto px-2 sm:px-4 space-y-4 pt-2 sm:pt-4">
 
         {/* Search Active Indicator Pill */}
@@ -81,9 +85,6 @@ export default function Categories() {
             </button>
           </div>
         )}
-
-        {/* --- 1. REUSABLE CATEGORY FILTER BAR --- */}
-        <CategoryFilterBar selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
 
         {/* --- 3. FILTERED PRODUCTS GRID --- */}
         {filteredProducts.length > 0 ? (

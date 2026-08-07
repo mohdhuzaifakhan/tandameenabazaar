@@ -22,6 +22,7 @@ import ProductCard from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 import { useImageModal } from '../context/ImageModalContext';
+import { trackView } from '../utils/trackView';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -47,8 +48,10 @@ export default function ProductDetails() {
       setActiveImageIndex(0);
       setActiveTab('desc');
       setReadMore(false);
+      // Track this product page view (session-debounced, silent on error)
+      trackView('product', product.id);
     }
-  }, [id, product]);
+  }, [id, product?.id]);
 
   if (!product) {
     return (
@@ -272,7 +275,7 @@ export default function ProductDetails() {
           </h1>
 
           {/* Rating & Sold Row */}
-          <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold pt-1">
+          <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold pt-1 flex-wrap">
             <div className="flex items-center gap-1 text-slate-600">
               <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
               <span className="font-bold text-slate-900">{product.rating || '4.5'}</span>
@@ -285,6 +288,20 @@ export default function ProductDetails() {
               <ShoppingBag className="w-3.5 h-3.5 text-slate-400" />
               <span className="font-bold text-slate-800">{product.soldCount || '210'} Sold</span>
             </div>
+
+            {(product.viewCount || 0) > 0 && (
+              <>
+                <span className="text-slate-300">|</span>
+                <div className="flex items-center gap-1 text-violet-600">
+                  <Activity className="w-3.5 h-3.5 text-violet-400" />
+                  <span className="font-bold">
+                    {product.viewCount >= 1000
+                      ? `${(product.viewCount / 1000).toFixed(1)}k`
+                      : product.viewCount} views
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -542,12 +559,24 @@ export default function ProductDetails() {
               <span className="text-[11px] font-extrabold text-[#056839] uppercase tracking-widest font-sans">{product.brand || 'Local Brand'}</span>
               <h1 className="font-display text-2xl md:text-3.5xl font-black tracking-tight text-slate-900 mt-1 leading-tight">{product.name}</h1>
 
-              <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold mt-2.5 tabular-nums">
+              <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold mt-2.5 tabular-nums flex-wrap">
                 <span className="flex items-center gap-1"><Star className="w-4 h-4 text-amber-500 fill-amber-500" /> {product.rating || '4.5'} ({product.reviewsCount || '120'} Reviews)</span>
                 <span>&bull;</span>
                 <span className="text-slate-800">{product.soldCount || '210'} Sold</span>
+                {(product.viewCount || 0) > 0 && (
+                  <>
+                    <span>&bull;</span>
+                    <span className="flex items-center gap-1 text-violet-600 font-bold">
+                      <Activity className="w-3.5 h-3.5 text-violet-400" />
+                      {product.viewCount >= 1000
+                        ? `${(product.viewCount / 1000).toFixed(1)}k`
+                        : product.viewCount} views
+                    </span>
+                  </>
+                )}
               </div>
             </div>
+
 
             {/* Pricing Box */}
             <div className="p-4 bg-emerald-50/60 border border-emerald-100/50 rounded-2xl flex items-baseline gap-2.5 w-fit min-w-[200px]">

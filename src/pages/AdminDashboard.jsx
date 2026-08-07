@@ -7,7 +7,10 @@ import { DEFAULT_PRODUCT_IMAGE, DEFAULT_STORE_LOGO } from '../utils/defaultAsset
 
 export default function AdminDashboard() {
   const { userProfile } = useAuth();
-  const { shops, products, toggleShopVerification, categories, markets } = useBazaar();
+  const {
+    shops, products, toggleShopVerification, categories, markets,
+    topViewedProducts, topVisitedShops, totalProductViews, totalShopViews
+  } = useBazaar();
   const [approvalTab, setApprovalTab] = useState('shops'); // 'shops' | 'products'
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -181,7 +184,176 @@ export default function AdminDashboard() {
               </span>
             </div>
           </Link>
+
+          {/* Card 7: Total Product Views */}
+          <div className="bg-white rounded-2xl p-4 border border-slate-100 flex flex-col justify-between min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <i className="fa-solid fa-eye"></i>
+              </div>
+              <span className="text-xs text-slate-500 font-extrabold truncate text-right">Product Views</span>
+            </div>
+            <div className="mt-3">
+              <span className="text-xl sm:text-2xl font-black text-slate-900 block tracking-tight">
+                {totalProductViews.toLocaleString('en-IN')}
+              </span>
+              <span className="text-[11px] text-violet-600 font-bold flex items-center gap-1 mt-1 truncate">
+                <i className="fa-solid fa-chart-line text-[9px]"></i> Across all products
+              </span>
+            </div>
+          </div>
+
+          {/* Card 8: Total Shop Visits */}
+          <div className="bg-white rounded-2xl p-4 border border-slate-100 flex flex-col justify-between min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <i className="fa-solid fa-store"></i>
+              </div>
+              <span className="text-xs text-slate-500 font-extrabold truncate text-right">Shop Visits</span>
+            </div>
+            <div className="mt-3">
+              <span className="text-xl sm:text-2xl font-black text-slate-900 block tracking-tight">
+                {totalShopViews.toLocaleString('en-IN')}
+              </span>
+              <span className="text-[11px] text-teal-600 font-bold flex items-center gap-1 mt-1 truncate">
+                <i className="fa-solid fa-chart-bar text-[9px]"></i> Across all shops
+              </span>
+            </div>
+          </div>
         </div>
+
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/* ANALYTICS SECTION — Top Viewed Products & Top Visited Shops    */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {(totalProductViews > 0 || totalShopViews > 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+            {/* Top Viewed Products */}
+            <div className="bg-white rounded-2xl border border-slate-100 p-5 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center text-sm">
+                    <i className="fa-solid fa-fire"></i>
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-slate-900 text-sm">Top Viewed Products</h3>
+                    <p className="text-[10px] text-slate-400 font-medium">{totalProductViews.toLocaleString('en-IN')} total views</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-black text-violet-600 bg-violet-50 px-2 py-0.5 rounded-lg">LIVE</span>
+              </div>
+
+              {topViewedProducts.length === 0 ? (
+                <div className="py-8 text-center text-slate-400 text-xs font-medium">
+                  <i className="fa-solid fa-chart-bar text-2xl mb-2 block text-slate-200"></i>
+                  No views recorded yet. Share your product links!
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {topViewedProducts.map((prod, idx) => {
+                    const maxViews = topViewedProducts[0]?.viewCount || 1;
+                    const pct = Math.round(((prod.viewCount || 0) / maxViews) * 100);
+                    const imgSrc = prod.images?.[0] || prod.image || DEFAULT_PRODUCT_IMAGE;
+                    return (
+                      <div key={prod.id} className="flex items-center gap-3">
+                        {/* Rank */}
+                        <span className={`text-[11px] font-black w-5 text-center shrink-0 ${
+                          idx === 0 ? 'text-amber-500' : idx === 1 ? 'text-slate-400' : idx === 2 ? 'text-orange-400' : 'text-slate-300'
+                        }`}>
+                          {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}
+                        </span>
+                        {/* Thumbnail */}
+                        <img
+                          src={imgSrc}
+                          alt={prod.name}
+                          onError={e => { e.target.src = DEFAULT_PRODUCT_IMAGE; }}
+                          className="w-9 h-9 rounded-lg object-cover border border-slate-100 shrink-0"
+                        />
+                        {/* Name + Bar */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-slate-900 truncate leading-none">{prod.name}</p>
+                          <div className="mt-1.5 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-violet-500 transition-all duration-700"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                        {/* Views count */}
+                        <span className="text-xs font-extrabold text-violet-700 bg-violet-50 px-2 py-0.5 rounded-lg shrink-0 tabular-nums">
+                          {(prod.viewCount || 0).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Top Visited Shops */}
+            <div className="bg-white rounded-2xl border border-slate-100 p-5 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm">
+                    <i className="fa-solid fa-trophy"></i>
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-slate-900 text-sm">Top Visited Shops</h3>
+                    <p className="text-[10px] text-slate-400 font-medium">{totalShopViews.toLocaleString('en-IN')} total visits</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-black text-teal-600 bg-teal-50 px-2 py-0.5 rounded-lg">LIVE</span>
+              </div>
+
+              {topVisitedShops.length === 0 ? (
+                <div className="py-8 text-center text-slate-400 text-xs font-medium">
+                  <i className="fa-solid fa-store text-2xl mb-2 block text-slate-200"></i>
+                  No shop visits recorded yet.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {topVisitedShops.map((shop, idx) => {
+                    const maxViews = topVisitedShops[0]?.viewCount || 1;
+                    const pct = Math.round(((shop.viewCount || 0) / maxViews) * 100);
+                    const imgSrc = shop.image || shop.logoImage || DEFAULT_STORE_LOGO;
+                    return (
+                      <div key={shop.id} className="flex items-center gap-3">
+                        {/* Rank */}
+                        <span className={`text-[11px] font-black w-5 text-center shrink-0 ${
+                          idx === 0 ? 'text-amber-500' : idx === 1 ? 'text-slate-400' : idx === 2 ? 'text-orange-400' : 'text-slate-300'
+                        }`}>
+                          {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}
+                        </span>
+                        {/* Logo */}
+                        <img
+                          src={imgSrc}
+                          alt={shop.name}
+                          onError={e => { e.target.src = DEFAULT_STORE_LOGO; }}
+                          className="w-9 h-9 rounded-lg object-cover border border-slate-100 shrink-0"
+                        />
+                        {/* Name + Bar */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-slate-900 truncate leading-none">{shop.name}</p>
+                          <div className="mt-1.5 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-teal-500 transition-all duration-700"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                        {/* Visit count */}
+                        <span className="text-xs font-extrabold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-lg shrink-0 tabular-nums">
+                          {(shop.viewCount || 0).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+          </div>
+        )}
 
         {/* Visitor Analytics Line Chart Card (Derived from real order lead velocity) */}
         {/* <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-xs space-y-4">

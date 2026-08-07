@@ -79,6 +79,13 @@ export default function Header({ onOpenDrawer: _onOpenDrawer }) {
       ? 'text-[#056839] font-bold border-b-2 border-[#056839] pb-1 tracking-wide'
       : 'text-slate-600 hover:text-[#056839] font-semibold tracking-wide transition-colors pb-1';
 
+  // Scroll to top when clicking a nav link you're already on
+  const handleNavClick = (path) => {
+    if (location.pathname === path) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-100/80 bg-white/95 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-3">
@@ -158,10 +165,10 @@ export default function Header({ onOpenDrawer: _onOpenDrawer }) {
         {/* Desktop Right: Navigation links & user controls */}
         <div className="hidden md:flex items-center gap-6">
           <nav className="flex items-center gap-6 text-xs font-semibold">
-            <Link to="/" className={isActive('/')}>Home</Link>
-            {/* <Link to="/shops" className={isActive('/shops')}>Shops</Link> */}
-            <Link to="/categories" className={isActive('/categories')}>Categories</Link>
-            <Link to="/saved" className={isActive('/saved')}>Saved</Link>
+            <Link to="/" className={isActive('/')} onClick={() => handleNavClick('/')}>Home</Link>
+            {/* <Link to="/shops" className={isActive('/shops')} onClick={() => handleNavClick('/shops')}>Shops</Link> */}
+            <Link to="/categories" className={isActive('/categories')} onClick={() => handleNavClick('/categories')}>Categories</Link>
+            <Link to="/saved" className={isActive('/saved')} onClick={() => handleNavClick('/saved')}>Saved</Link>
           </nav>
           {/* User profile avatar / Merchant Login */}
           {activeUser ? (

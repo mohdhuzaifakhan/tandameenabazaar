@@ -38,10 +38,12 @@ h1, h2, h3, h4, h5, h6, p, span, a, button {
 }
 
 /* Hide scrollbar utility */
-.scrollbar-none::-webkit-scrollbar {
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-.scrollbar-none {
+.scrollbar-none,
+.no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }

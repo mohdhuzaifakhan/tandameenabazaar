@@ -1,4 +1,5 @@
 import React from 'react';
+import { Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useImageModal } from '../context/ImageModalContext';
 import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
@@ -80,8 +81,20 @@ export default function ShopCard({ shop }) {
         <div className="shop-card-category">{shop.category || shop.categoryName || 'General Store'}</div>
         
         <div className="shop-card-footer">
-          <div className="shop-rating">
-            <i className="fa-solid fa-star"></i> {shop.rating || 5.0} ({shop.reviewsCount || 0})
+          <div className="flex items-center gap-3">
+            <div className="shop-rating">
+              <i className="fa-solid fa-star"></i> {shop.rating || 5.0} ({shop.reviewsCount || 0})
+            </div>
+            {(shop.viewCount || 0) > 0 && (
+              <div className="flex items-center gap-1 text-slate-500 font-semibold text-[11px]">
+                <Eye className="w-3 h-3 text-violet-500" />
+                <span className="text-violet-600 font-bold">
+                  {shop.viewCount >= 1000
+                    ? `${(shop.viewCount / 1000).toFixed(1)}k`
+                    : shop.viewCount} visits
+                </span>
+              </div>
+            )}
           </div>
           <button 
             type="button"

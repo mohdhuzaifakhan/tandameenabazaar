@@ -107,6 +107,12 @@ export default function BottomNav({ onOpenSearch }) {
               key={item.id}
               to={item.path}
               className="flex-1 flex justify-center items-center h-full"
+              onClick={(e) => {
+                if (location.pathname === item.path) {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
             >
               {content}
             </Link>

@@ -14,15 +14,23 @@ import {
   ShieldCheck,
   Star,
   Store,
-  Zap
+  Zap,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 import { useImageModal } from '../context/ImageModalContext';
 import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
+import { trackView } from '../utils/trackView';
+
+// WhatsApp SVG icon — reusable
+const WhatsAppIcon = ({ className = 'w-4 h-4' }) => (
+  <svg className={`fill-current ${className}`} viewBox="0 0 24 24">
+    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+  </svg>
+);
 
 export default function ShopDetails() {
   const { id } = useParams();
@@ -30,16 +38,37 @@ export default function ShopDetails() {
   const { shops, products, openWhatsApp } = useBazaar();
   const { userProfile } = useAuth();
   const { openImageModal } = useImageModal();
-  const [activeTab, setActiveTab] = useState('catalog'); // 'catalog' | 'about'
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+
+  const [activeTab, setActiveTab] = useState('catalog');
+  const [viewMode, setViewMode] = useState('grid');
   const [inShopSearch, setInShopSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [copied, setCopied] = useState(false);
+  const [stickyVisible, setStickyVisible] = useState(false);
+  const heroRef = useRef(null);
 
-  // Find current shop from real state
+  // Find shop (must be before tracking effect)
   const currentShopId = id || shops[0]?.id || 'sharma-mobiles';
   const shop = shops.find((s) => s.id === currentShopId) || shops[0];
 
+  // Track shop visit (session-debounced)
+  useEffect(() => {
+    if (shop?.id) trackView('shop', shop.id);
+  }, [shop?.id]);
+
+  // Sticky mini-header: show after hero scrolls out of view
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setStickyVisible(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '-64px 0px 0px 0px' }
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [shop?.id]);
+
+  // ── Error states ──
   if (!shop) {
     return (
       <div className="w-full py-16 text-center text-slate-400 space-y-4">
@@ -52,7 +81,6 @@ export default function ShopDetails() {
     );
   }
 
-  // Verification Access Control: If Shop is unverified, only Admin or Shop Owner can view it
   const isOwnerOrAdmin =
     userProfile?.role === 'admin' ||
     userProfile?.uid === shop?.ownerUid ||
@@ -66,25 +94,18 @@ export default function ShopDetails() {
         </div>
         <h2 className="text-xl font-black text-slate-900 tracking-tight">Storefront Under Verification</h2>
         <p className="text-xs text-slate-500 font-medium leading-relaxed">
-          "{shop.name}" is currently under administrative review or has been delisted by Admin.
+          This shop is currently under administrative review or has been delisted.
         </p>
-        <div className="pt-2">
-          <Link
-            to="/shops"
-            className="px-5 py-2.5 bg-[#056839] hover:bg-emerald-800 text-white font-bold text-xs rounded-xl inline-flex items-center gap-2 transition-colors shadow-sm"
-          >
-            <ArrowLeft className="w-4 h-4" /> Explore Verified Stores
-          </Link>
-        </div>
+        <Link to="/shops" className="px-5 py-2.5 bg-[#056839] hover:bg-emerald-800 text-white font-bold text-xs rounded-xl inline-flex items-center gap-2 transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Explore Verified Stores
+        </Link>
       </div>
     );
   }
 
-  // Filter real products for this shop
+  // ── Data ──
   const shopProducts = products.filter((p) => p.shopId === shop.id);
   const rawCategories = ['all', ...new Set(shopProducts.map((p) => p.categoryName || p.category))];
-
-  // Filter products by search and category
   const filteredProducts = shopProducts.filter((p) => {
     const matchesSearch =
       p.name.toLowerCase().includes(inShopSearch.toLowerCase()) ||
@@ -94,25 +115,33 @@ export default function ShopDetails() {
     return matchesSearch && matchesCategory;
   });
 
+  const shopBanner = shop.banner || shop.bannerImage || DEFAULT_COVER_BANNER;
+  const shopLogo   = shop.image  || shop.logoImage  || DEFAULT_STORE_LOGO;
+
+  const viewCount = shop.viewCount || 0;
+  const formatCount = (n) => {
+    if (!n) return null;
+    if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
+    if (n >= 1000)    return `${(n / 1000).toFixed(1)}k`;
+    return String(n);
+  };
+
+  // ── Handlers ──
   const handleWhatsAppContact = () => {
     const whatsappNum = (shop.whatsapp || shop.phone || '').replace(/[^0-9]/g, '');
-    const text = ` *SHOP INQUIRY - MEENA BAZAAR*\n\n` +
+    const text =
+      ` *SHOP INQUIRY - MEENA BAZAAR*\n\n` +
       `• *Shop Name:* ${shop.name}\n` +
       `• *Location:* ${shop.market || 'Local Market'}, ${shop.city || 'Rampur'}\n` +
       `• *Category:* ${shop.categoryName || shop.category || 'Local Shop'}\n` +
       (shop.address ? `• *Address:* ${shop.address}\n` : '') +
-      ` *Hello ${shop.name}, I found your shop on Meena Bazaar and would like to inquire about your products and services.*`;
-
+      ` *Hello ${shop.name}, I found your shop on Meena Bazaar and would like to inquire about your products.*`;
     window.open(`https://wa.me/${whatsappNum}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const handleShareShop = () => {
     if (navigator.share) {
-      navigator.share({
-        title: shop.name,
-        text: `Check out ${shop.name} on Digital Meena Bazaar!`,
-        url: window.location.href,
-      }).catch(() => { });
+      navigator.share({ title: shop.name, text: `Check out ${shop.name} on Meena Bazaar!`, url: window.location.href }).catch(() => {});
     } else {
       navigator.clipboard.writeText(window.location.href);
       setCopied(true);
@@ -125,246 +154,346 @@ export default function ShopDetails() {
     window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
   };
 
-  const shopBanner = shop.banner || shop.bannerImage || DEFAULT_COVER_BANNER;
-  const shopLogo = shop.image || shop.logoImage || DEFAULT_STORE_LOGO;
-
   return (
-    <div className="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 flex flex-col items-center">
+    <div className="w-full">
 
-      {/* ────────────────────────────────────────────────────────── */}
-      {/* 1. MOBILE VIEW (Visible on screens below md: breakpoint) */}
-      {/* ────────────────────────────────────────────────────────── */}
-      <div className="md:hidden w-full space-y-4 pb-20 pt-3">
+      {/* ══════════════════════════════════════════════════════
+          STICKY MINI-HEADER — appears once hero scrolls away
+      ══════════════════════════════════════════════════════ */}
+      <div
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          stickyVisible ? 'translate-y-0 opacity-100 pointer-events-auto' : '-translate-y-full opacity-0 pointer-events-none'
+        }`}
+        style={{ backdropFilter: 'blur(20px)', background: 'rgba(255,255,255,0.92)', borderBottom: '1px solid rgba(0,0,0,0.08)' }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+          {/* Left: back + info */}
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 cursor-pointer flex-shrink-0 hover:bg-slate-200 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 stroke-[2]" />
+            </button>
+            <img src={shopLogo} alt={shop.name} className="w-8 h-8 rounded-xl object-cover flex-shrink-0 border border-slate-200" />
+            <div className="min-w-0">
+              <p className="font-black text-sm text-slate-900 truncate leading-none">{shop.name}</p>
+              <p className="text-[10px] text-slate-400 font-semibold truncate mt-0.5">{shop.category || shop.categoryName || 'General Store'}</p>
+            </div>
+          </div>
 
-        {/* Mobile Navigation Sub-Bar: Back Button & Breadcrumbs & Share Button */}
-        <div className="flex items-center justify-between gap-2 py-1">
+          {/* Right: action buttons */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              onClick={handleWhatsAppContact}
+              className="h-8 px-3 rounded-xl bg-[#056839] hover:bg-emerald-800 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer border-none transition-colors"
+            >
+              <WhatsAppIcon className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Contact</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleShareShop}
+              className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center cursor-pointer transition-colors"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════
+          CINEMATIC HERO — full-width cover with overlay
+      ══════════════════════════════════════════════════════ */}
+      <div ref={heroRef} className="relative w-full overflow-hidden" style={{ height: 'clamp(200px, 26vw, 300px)' }}>
+
+        {/* Cover image — full bleed */}
+        <img
+          src={shopBanner}
+          alt={`${shop.name} cover`}
+          className="absolute inset-0 w-full h-full object-cover cursor-zoom-in"
+          onClick={() => openImageModal(shopBanner, `${shop.name} Storefront Cover`)}
+        />
+
+        {/* Deep gradient overlay — bottom heavy for text legibility */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.10) 35%, rgba(0,0,0,0.55) 68%, rgba(0,0,0,0.88) 100%)',
+          }}
+        />
+
+        {/* ── Top bar: back + share ── */}
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 sm:px-6 pt-4">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="w-8.5 h-8.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-700 cursor-pointer flex-shrink-0"
-            title="Go Back"
+            className="w-9 h-9 rounded-2xl flex items-center justify-center cursor-pointer border-none transition-all"
+            style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', color: '#fff' }}
           >
             <ArrowLeft className="w-4 h-4 stroke-[2]" />
           </button>
 
-          {/* Breadcrumb Trail */}
-          <div className="flex items-center gap-1 text-[10.5px] text-slate-400 font-semibold overflow-x-auto whitespace-nowrap scrollbar-none flex-1 px-1">
-            <Link to="/" className="hover:text-[#056839]">Home</Link>
-            <ChevronRight className="w-3 h-3 text-slate-300 flex-shrink-0" />
-            <Link to="/shops" className="hover:text-[#056839]">Shops</Link>
-            <ChevronRight className="w-3 h-3 text-slate-300 flex-shrink-0" />
-            <span className="text-slate-800 font-bold truncate max-w-[140px]">{shop.name}</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleShareShop}
-            className="w-8.5 h-8.5 rounded-2xl border border-slate-200/80 bg-white flex items-center justify-center text-slate-700 cursor-pointer flex-shrink-0"
-            title="Share Store"
-          >
-            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4 text-slate-700" />}
-          </button>
-        </div>
-
-        {/* Mobile Shop Cover Banner */}
-        <div
-          onClick={() => openImageModal(shopBanner, `${shop.name} Storefront Cover`)}
-          className="h-44 w-full rounded-[24px] bg-slate-900 overflow-hidden relative border border-slate-200/80 cursor-zoom-in group shadow-2xs"
-        >
-          <img src={shopBanner} alt={`${shop.name} Cover`} className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-500" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent" />
-        </div>
-
-        {/* Mobile Floating White Shop Profile Card */}
-        <div className="bg-white border border-slate-100/90 rounded-3xl p-4 sm:p-5 -mt-14 relative z-10 mx-1 sm:mx-3 shadow-xs space-y-4">
-          <div className="flex items-start gap-3.5">
-            {/* Shop Logo Thumbnail */}
-            <div
-              onClick={() => openImageModal(shopLogo, `${shop.name} Logo`)}
-              className="w-18 h-18 rounded-2xl bg-white border border-slate-100 overflow-hidden flex-shrink-0 cursor-zoom-in shadow-2xs"
-            >
-              <img src={shopLogo} alt={shop.name} className="w-full h-full object-cover" />
-            </div>
-
-            {/* Shop Header Details */}
-            <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <h1 className="font-black text-lg text-slate-900 truncate">{shop.name}</h1>
-                {shop.verified !== false && (
-                  <CheckCircle2 className="w-4 h-4 text-[#056839] fill-[#056839]/10 flex-shrink-0" />
-                )}
-              </div>
-
-              <span className="text-[10px] font-black text-[#056839] uppercase tracking-wider block font-sans truncate">
-                {shop.category || shop.categoryName || 'GENERAL STORE'}
-              </span>
-
-              {/* Rating & Address Row with Truncation Protection */}
-              <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold mt-1 min-w-0 max-w-full flex-wrap">
-                <div className="flex items-center gap-1 text-slate-700 font-bold flex-shrink-0">
-                  <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 flex-shrink-0" />
-                  <span>{shop.rating || '4.5'}</span>
-                  <span className="text-slate-400 font-normal">({shop.reviewsCount || '120'} Reviews)</span>
-                </div>
-
-                <span className="text-slate-300 flex-shrink-0">|</span>
-
-                <div className="flex items-center gap-1 text-slate-500 min-w-0 flex-1 overflow-hidden">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                  <span className="truncate text-[11px] font-medium block min-w-0">{shop.market || shop.address || 'Rampur'}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons Row */}
-          <div className="flex gap-2 pt-1">
-            <button
-              type="button"
-              onClick={handleWhatsAppContact}
-              className="flex-1 py-2.5 px-3 rounded-2xl bg-[#056839] hover:bg-emerald-800 text-white font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs border-none whitespace-nowrap"
-            >
-              <svg className="w-4 h-4 fill-current text-white flex-shrink-0" viewBox="0 0 24 24">
-                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
-              </svg>
-              <span>Contact Merchant</span>
-            </button>
-
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleShareShop}
-              className="flex-1 py-2.5 px-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-800 font-extrabold text-xs flex items-center justify-center gap-2 hover:bg-slate-100 transition-all cursor-pointer whitespace-nowrap"
+              className="w-9 h-9 rounded-2xl flex items-center justify-center cursor-pointer border-none"
+              style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', color: '#fff' }}
             >
-              <Share2 className="w-4 h-4 text-slate-700 flex-shrink-0" />
-              <span>Share Store</span>
+              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Trust Badges Bar (4 Pills Row) */}
-        <div className="grid grid-cols-4 gap-1 sm:gap-2 bg-[#f8faf9] border border-emerald-100/60 rounded-2xl p-2.5 sm:p-3 text-center shadow-2xs">
-          <div className="flex flex-col items-center justify-center text-center">
-            <ShieldCheck className="w-4 h-4 text-[#056839] mb-1" />
-            <strong className="text-[9.5px] sm:text-[10.5px] font-extrabold text-slate-900 block leading-tight truncate w-full">Verified Shop</strong>
-            <span className="text-[8px] sm:text-[9.5px] text-slate-400 font-medium block truncate w-full">Trusted &amp; Verified</span>
-          </div>
+        {/* ── Bottom overlay content: logo + info + actions ── */}
+        <div className="absolute bottom-0 left-0 right-0 z-10 px-4 sm:px-6 lg:px-8 pb-5 pt-10">
+          <div className="max-w-7xl mx-auto flex items-end justify-between gap-4">
 
-          <div className="flex flex-col items-center justify-center text-center">
-            <Award className="w-4 h-4 text-[#056839] mb-1" />
-            <strong className="text-[9.5px] sm:text-[10.5px] font-extrabold text-slate-900 block leading-tight truncate w-full">Quality Products</strong>
-            <span className="text-[8px] sm:text-[9.5px] text-slate-400 font-medium block truncate w-full">100% Original</span>
-          </div>
+            {/* LEFT: Logo + text */}
+            <div className="flex items-end gap-4 min-w-0 flex-1">
 
-          <div className="flex flex-col items-center justify-center text-center">
-            <Zap className="w-4 h-4 text-[#056839] mb-1" />
-            <strong className="text-[9.5px] sm:text-[10.5px] font-extrabold text-slate-900 block leading-tight truncate w-full">Fast Response</strong>
-            <span className="text-[8px] sm:text-[9.5px] text-slate-400 font-medium block truncate w-full">Quick Support</span>
-          </div>
+              {/* Shop Logo — elevated ring */}
+              <div
+                onClick={() => openImageModal(shopLogo, `${shop.name} Logo`)}
+                className="flex-shrink-0 cursor-zoom-in rounded-2xl overflow-hidden border-[3px] border-white/30 shadow-xl"
+                style={{ width: 'clamp(52px,7vw,72px)', height: 'clamp(52px,7vw,72px)' }}
+              >
+                <img src={shopLogo} alt={shop.name} className="w-full h-full object-cover" />
+              </div>
 
-          <div className="flex flex-col items-center justify-center text-center">
-            <ShieldCheck className="w-4 h-4 text-[#056839] mb-1" />
-            <strong className="text-[9.5px] sm:text-[10.5px] font-extrabold text-slate-900 block leading-tight truncate w-full">Safe Shopping</strong>
-            <span className="text-[8px] sm:text-[9.5px] text-slate-400 font-medium block truncate w-full">Secure Payments</span>
+              {/* Text block */}
+              <div className="min-w-0 flex-1 pb-0.5">
+                {/* Category label */}
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-emerald-400 block truncate mb-1">
+                  {shop.category || shop.categoryName || 'GENERAL STORE'}
+                </span>
+
+                {/* Shop name */}
+                <h1 className="font-black text-white leading-none tracking-tight truncate"
+                  style={{ fontSize: 'clamp(18px, 3vw, 28px)' }}
+                >
+                  {shop.name}
+                  {shop.verified !== false && (
+                    <CheckCircle2 className="inline w-5 h-5 ml-2 text-emerald-400 fill-emerald-400/20 align-middle flex-shrink-0" />
+                  )}
+                </h1>
+
+                {/* Stats row */}
+                <div className="flex items-center gap-3 mt-2 flex-wrap">
+                  {/* Rating */}
+                  <div className="flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                    <span className="text-white font-bold text-xs">{shop.rating || '4.5'}</span>
+                    <span className="text-white/50 text-[10px] font-medium">({shop.reviewsCount || '0'})</span>
+                  </div>
+
+                  <span className="text-white/30 text-xs">·</span>
+
+                  {/* Location */}
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3 text-white/60" />
+                    <span className="text-white/80 text-xs font-medium truncate max-w-[160px]">{shop.market || shop.city || 'Rampur'}</span>
+                  </div>
+
+                  {/* Products */}
+                  {shopProducts.length > 0 && (
+                    <>
+                      <span className="text-white/30 text-xs">·</span>
+                      <span className="text-white/80 text-xs font-medium">{shopProducts.length} Products</span>
+                    </>
+                  )}
+
+                  {/* Visits */}
+                  {viewCount > 0 && (
+                    <>
+                      <span className="text-white/30 text-xs">·</span>
+                      <div className="flex items-center gap-1">
+                        <Zap className="w-3 h-3 text-violet-400" />
+                        <span className="text-violet-300 text-xs font-bold">{formatCount(viewCount)} visits</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: Action buttons — hidden on tiny screens, shown sm+ */}
+            <div className="hidden sm:flex flex-col gap-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={handleWhatsAppContact}
+                className="h-10 px-5 rounded-2xl font-extrabold text-xs flex items-center gap-2 cursor-pointer border-none transition-all"
+                style={{ background: '#056839', color: '#fff' }}
+              >
+                <WhatsAppIcon className="w-4 h-4" />
+                Contact Merchant
+              </button>
+              <button
+                type="button"
+                onClick={handleViewOnMap}
+                className="h-10 px-5 rounded-2xl font-bold text-xs flex items-center gap-2 cursor-pointer transition-all"
+                style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+              >
+                <Map className="w-4 h-4" />
+                View on Map
+              </button>
+            </div>
+
           </div>
         </div>
+      </div>
 
-        {/* Mobile Merchant Profile Section */}
-        <div className="space-y-2.5">
-          <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider">
-            Merchant Profile
-          </h2>
+      {/* ── Mobile action bar below hero ── */}
+      <div className="sm:hidden flex gap-2 px-4 py-3 bg-white border-b border-slate-100">
+        <button
+          type="button"
+          onClick={handleWhatsAppContact}
+          className="flex-1 h-10 rounded-2xl bg-[#056839] hover:bg-emerald-800 text-white font-extrabold text-xs flex items-center justify-center gap-2 cursor-pointer border-none transition-colors"
+        >
+          <WhatsAppIcon className="w-4 h-4" />
+          Contact Merchant
+        </button>
+        <button
+          type="button"
+          onClick={handleViewOnMap}
+          className="flex-1 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+        >
+          <Map className="w-4 h-4 text-[#056839]" />
+          Map
+        </button>
+      </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <div className="bg-white border border-slate-100 rounded-2xl p-3.5 flex items-center gap-3 shadow-2xs">
-              <img src={shopLogo} alt={shop.name} className="w-11 h-11 rounded-xl object-cover border border-slate-100 flex-shrink-0" />
-              <p className="text-[11px] text-slate-600 font-medium leading-relaxed line-clamp-3">
-                {shop.description || 'Original brands, local essentials, grooming kits, and quality products direct from Rampur.'}
-              </p>
-            </div>
+      {/* ══════════════════════════════════════════════════════
+          PAGE BODY
+      ══════════════════════════════════════════════════════ */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 pb-24 flex flex-col lg:flex-row gap-6">
 
-            <div className="bg-[#eefdf5] border border-emerald-100 rounded-2xl p-3.5 flex items-center gap-3 shadow-2xs">
-              <div className="w-10 h-10 rounded-2xl bg-[#056839] text-white flex items-center justify-center flex-shrink-0">
-                <Store className="w-5 h-5 text-white" />
-              </div>
-              <div className="leading-tight min-w-0">
-                <strong className="text-xs font-extrabold text-[#056839] block truncate">Storefront Owner</strong>
-                <span className="text-[10.5px] text-slate-500 font-medium block mt-0.5">Joined May 2023</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* ── LEFT SIDEBAR (desktop only) ── */}
+        <aside className="hidden lg:flex flex-col gap-4 w-64 flex-shrink-0">
 
-        {/* Mobile Business Details & Shop Address Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {/* Card 1: Business Details */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-3.5 space-y-2 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center gap-1.5 pb-1 border-b border-slate-100">
-              <Store className="w-4 h-4 text-[#056839]" />
-              <h3 className="text-xs font-black text-slate-900">Business Details</h3>
-            </div>
-
-            <div className="space-y-1.5 text-[10.5px]">
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400 font-medium">Timings</span>
-                <span className="text-[#056839] font-extrabold">{shop.timing || '10:00 AM - 09:00 PM'}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400 font-medium">Market Hub</span>
-                <span className="text-slate-800 font-bold truncate max-w-[140px]">{shop.market || 'Civil Lines'}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400 font-medium">Contact</span>
-                <span className="text-slate-800 font-bold truncate max-w-[140px]">{shop.phone || '+91 98765 43217'}</span>
+          {/* Merchant info */}
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 space-y-3 shadow-sm">
+            <h3 className="font-black text-slate-900 text-sm pb-2 border-b border-slate-100">Merchant Profile</h3>
+            <div className="flex items-center gap-3">
+              <img src={shopLogo} alt={shop.name} className="w-10 h-10 rounded-xl object-cover border border-slate-100" />
+              <div>
+                <div className="font-black text-slate-900 text-xs">{shop.name}</div>
+                <span className="text-[10px] text-slate-400 font-semibold">Storefront Owner</span>
               </div>
             </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed">{shop.description || 'Verified merchant storefront on Meena Bazaar.'}</p>
           </div>
 
-          {/* Card 2: Shop Address */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-3.5 space-y-2 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center gap-1.5 pb-1 border-b border-slate-100">
-              <MapPin className="w-4 h-4 text-[#056839]" />
-              <h3 className="text-xs font-black text-slate-900">Store Address</h3>
+          {/* Business details */}
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 space-y-3 shadow-sm">
+            <h3 className="font-black text-slate-900 text-sm pb-2 border-b border-slate-100">Business Details</h3>
+            <div className="flex flex-col gap-2 text-[11px]">
+              <div className="flex justify-between">
+                <span className="font-semibold text-slate-400">Timings</span>
+                <span className="font-bold text-[#056839]">{shop.timing || '10:00 AM – 09:00 PM'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold text-slate-400">Market</span>
+                <span className="font-bold text-slate-800 truncate max-w-[120px]">{shop.market || 'Civil Lines'}</span>
+              </div>
+              {shop.phone && (
+                <div className="flex justify-between">
+                  <span className="font-semibold text-slate-400">Contact</span>
+                  <span className="font-bold text-slate-800">{shop.phone}</span>
+                </div>
+              )}
+              {shop.address && (
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-semibold text-slate-400">Address</span>
+                  <span className="font-medium text-slate-600 leading-snug">{shop.address}</span>
+                </div>
+              )}
             </div>
-
-            <p className="text-[10.5px] text-slate-500 font-medium leading-relaxed line-clamp-2">
-              {shop.address || `${shop.market || 'Civil Lines'}, Rampur, Uttar Pradesh - 244901`}
-            </p>
-
             <button
               type="button"
               onClick={handleViewOnMap}
-              className="w-full py-2 rounded-xl border border-slate-200/80 bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-[10.5px] flex items-center justify-center gap-1.5 cursor-pointer transition-all mt-1"
+              className="w-full py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
             >
               <Map className="w-3.5 h-3.5 text-[#056839]" />
-              <span>View on Map</span>
+              View on Map
             </button>
           </div>
-        </div>
 
-        {/* Mobile Catalog & About Seller Tabs */}
-        <div className="space-y-3 pt-2">
+          {/* Trust badges */}
+          <div className="bg-[#f0faf5] border border-emerald-100 rounded-2xl p-4 grid grid-cols-2 gap-3">
+            {[
+              { icon: ShieldCheck, label: 'Verified', sub: 'Trusted Shop' },
+              { icon: Award,        label: 'Quality',  sub: '100% Original' },
+              { icon: Zap,          label: 'Fast',     sub: 'Quick Support' },
+              { icon: Store,        label: 'Reliable',  sub: 'Local Seller' },
+            ].map(({ icon: Icon, label, sub }) => (
+              <div key={label} className="flex flex-col items-center text-center gap-1">
+                <Icon className="w-4 h-4 text-[#056839]" />
+                <strong className="text-[10px] font-extrabold text-slate-900 leading-none">{label}</strong>
+                <span className="text-[9px] text-slate-400 font-medium">{sub}</span>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        {/* ── MAIN CONTENT ── */}
+        <div className="flex-1 min-w-0 flex flex-col gap-4">
+
+          {/* Mobile quick-info cards */}
+          <div className="lg:hidden grid grid-cols-2 gap-2.5">
+            <div className="bg-white border border-slate-100 rounded-2xl p-3.5 space-y-1.5 shadow-sm">
+              <div className="flex items-center gap-1.5 text-xs font-black text-slate-900">
+                <Store className="w-3.5 h-3.5 text-[#056839]" />
+                Business
+              </div>
+              <div className="text-[10.5px] space-y-1 text-slate-600">
+                <div className="flex justify-between"><span className="text-slate-400">Hours</span><span className="font-bold text-[#056839]">{shop.timing || '10AM-9PM'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Market</span><span className="font-bold truncate max-w-[100px]">{shop.market || 'Rampur'}</span></div>
+                {shop.phone && <div className="flex justify-between"><span className="text-slate-400">Phone</span><span className="font-bold">{shop.phone}</span></div>}
+              </div>
+            </div>
+            <div className="bg-white border border-slate-100 rounded-2xl p-3.5 space-y-1.5 shadow-sm">
+              <div className="flex items-center gap-1.5 text-xs font-black text-slate-900">
+                <MapPin className="w-3.5 h-3.5 text-[#056839]" />
+                Address
+              </div>
+              <p className="text-[10.5px] text-slate-500 leading-relaxed line-clamp-3">
+                {shop.address || `${shop.market || 'Civil Lines'}, Rampur, UP 244901`}
+              </p>
+              <button type="button" onClick={handleViewOnMap} className="flex items-center gap-1 text-[10.5px] text-[#056839] font-bold cursor-pointer">
+                <Map className="w-3 h-3" /> View on Map
+              </button>
+            </div>
+          </div>
+
+          {/* Catalog / About tabs */}
           <div className="flex border-b border-slate-100 gap-6">
-            <button
-              type="button"
-              onClick={() => setActiveTab('catalog')}
-              className={`pb-2.5 font-black text-xs transition-all cursor-pointer border-b-2 bg-transparent ${activeTab === 'catalog' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
+            {[
+              { key: 'catalog', label: `Catalog (${shopProducts.length})` },
+              { key: 'about',   label: 'About Seller' },
+            ].map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setActiveTab(key)}
+                className={`pb-2.5 font-black text-xs transition-all cursor-pointer border-b-2 bg-transparent whitespace-nowrap ${
+                  activeTab === key
+                    ? 'border-[#056839] text-[#056839]'
+                    : 'border-transparent text-slate-400 hover:text-slate-600'
                 }`}
-            >
-              Catalog ({shopProducts.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('about')}
-              className={`pb-2.5 font-black text-xs transition-all cursor-pointer border-b-2 bg-transparent ${activeTab === 'about' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
-                }`}
-            >
-              About Seller
-            </button>
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
+          {/* ── CATALOG TAB ── */}
           {activeTab === 'catalog' && (
             <div className="space-y-3">
-              {/* Search in Shop + View Switcher */}
+              {/* Search + view toggle */}
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -376,64 +505,58 @@ export default function ShopDetails() {
                     className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs outline-none focus:border-[#056839]"
                   />
                 </div>
-
                 <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/60">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('grid')}
-                    className={`p-1 rounded-lg text-xs transition-all cursor-pointer ${viewMode === 'grid' ? 'bg-white text-[#056839] shadow-2xs' : 'text-slate-500'
-                      }`}
-                  >
-                    <LayoutGrid className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('list')}
-                    className={`p-1 rounded-lg text-xs transition-all cursor-pointer ${viewMode === 'list' ? 'bg-white text-[#056839] shadow-2xs' : 'text-slate-500'
-                      }`}
-                  >
-                    <List className="w-3.5 h-3.5" />
-                  </button>
+                  {[
+                    { mode: 'grid', Icon: LayoutGrid },
+                    { mode: 'list', Icon: List },
+                  ].map(({ mode, Icon }) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setViewMode(mode)}
+                      className={`p-1.5 rounded-lg text-xs transition-all cursor-pointer ${viewMode === mode ? 'bg-white text-[#056839] shadow-sm' : 'text-slate-400'}`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Dynamic Category Chips */}
+              {/* Category chips */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                 {rawCategories.map((cat) => (
                   <button
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${selectedCategory === cat
-                      ? 'bg-[#056839] text-white shadow-2xs'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
+                    className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+                      selectedCategory === cat
+                        ? 'bg-[#056839] text-white shadow-sm'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
                   >
                     {cat === 'all' ? 'All Products' : cat}
                   </button>
                 ))}
               </div>
 
-              {/* Products Display */}
+              {/* Products */}
               {filteredProducts.length === 0 ? (
-                <div className="bg-white border border-slate-100 rounded-2xl p-8 text-center space-y-2">
+                <div className="bg-white border border-slate-100 rounded-2xl p-10 text-center space-y-2">
                   <PackageOpen className="w-8 h-8 text-slate-300 mx-auto" />
                   <h4 className="text-xs font-bold text-slate-800">No products found</h4>
-                  <p className="text-[11px] text-slate-400">Try searching for another product name or category.</p>
+                  <p className="text-[11px] text-slate-400">Try searching for another product or category.</p>
                 </div>
               ) : viewMode === 'grid' ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-2.5">
                   {filteredProducts.map((prod) => (
-                    <div key={prod.id} className="h-full">
-                      <ProductCard product={prod} />
-                    </div>
+                    <ProductCard key={prod.id} product={prod} />
                   ))}
                 </div>
               ) : (
-                /* List View */
                 <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden divide-y divide-slate-100">
                   {filteredProducts.map((prod) => {
-                    const img = prod.images && prod.images.length > 0 ? prod.images[0] : prod.image;
+                    const img = prod.images?.[0] || prod.image;
                     return (
                       <div key={prod.id} className="p-3 flex items-center justify-between gap-3 hover:bg-slate-50/80 transition-colors">
                         <Link to={`/product/${prod.id}`} className="flex items-center gap-3 min-w-0 flex-1">
@@ -445,8 +568,7 @@ export default function ShopDetails() {
                             <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">{prod.brand || shop.name}</span>
                           </div>
                         </Link>
-
-                        <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="flex items-center gap-2.5 flex-shrink-0">
                           <div className="text-right">
                             <span className="font-black text-xs text-slate-900 block">₹{prod.price?.toLocaleString('en-IN')}</span>
                             {prod.originalPrice > prod.price && (
@@ -456,12 +578,9 @@ export default function ShopDetails() {
                           <button
                             type="button"
                             onClick={() => openWhatsApp(prod.id)}
-                            className="p-2 bg-[#056839] hover:bg-emerald-800 text-white font-bold text-xs rounded-xl flex items-center justify-center cursor-pointer border-none"
-                            title="Order on WhatsApp"
+                            className="p-2 bg-[#056839] hover:bg-emerald-800 text-white rounded-xl flex items-center justify-center cursor-pointer border-none transition-colors"
                           >
-                            <svg className="w-4 h-4 fill-current text-white" viewBox="0 0 24 24">
-                              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
-                            </svg>
+                            <WhatsAppIcon className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -472,215 +591,47 @@ export default function ShopDetails() {
             </div>
           )}
 
+          {/* ── ABOUT TAB ── */}
           {activeTab === 'about' && (
-            <div className="bg-white border border-slate-100 rounded-2xl p-4 text-xs space-y-3 leading-relaxed">
+            <div className="bg-white border border-slate-100 rounded-2xl p-5 space-y-4 text-xs leading-relaxed">
               <div>
-                <h4 className="font-bold text-slate-900 mb-1">Store Description</h4>
+                <h4 className="font-black text-slate-900 mb-1.5">Store Description</h4>
                 <p className="text-slate-500 font-medium">
-                  {shop.description || 'Official merchant storefront on Digital Meena Bazaar. Direct WhatsApp ordering.'}
+                  {shop.description || 'Official merchant storefront on Digital Meena Bazaar. Direct WhatsApp ordering available.'}
                 </p>
               </div>
-
               <div className="border-t border-slate-100 pt-3">
-                <h4 className="font-bold text-slate-900 mb-1">Store Policies</h4>
+                <h4 className="font-black text-slate-900 mb-1.5">Store Policies</h4>
                 <ul className="space-y-1.5 text-slate-500 font-medium">
-                  <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#056839]" /> Direct WhatsApp communication</li>
-                  <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#056839]" /> In-store pickup &amp; local Rampur delivery</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#056839] flex-shrink-0" /> Direct WhatsApp communication</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#056839] flex-shrink-0" /> In-store pickup & local Rampur delivery</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#056839] flex-shrink-0" /> Quality products, trusted merchant</li>
                 </ul>
+              </div>
+
+              {/* Mobile trust badges in about tab */}
+              <div className="lg:hidden border-t border-slate-100 pt-3">
+                <h4 className="font-black text-slate-900 mb-3">Why Shop Here</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { icon: ShieldCheck, label: 'Verified Shop',   sub: 'Trusted & Verified' },
+                    { icon: Award,        label: 'Quality Products', sub: '100% Original' },
+                    { icon: Zap,          label: 'Fast Response',   sub: 'Quick Support' },
+                    { icon: Store,        label: 'Safe Shopping',   sub: 'Reliable Merchant' },
+                  ].map(({ icon: Icon, label, sub }) => (
+                    <div key={label} className="bg-[#f0faf5] border border-emerald-100 rounded-xl p-3 flex flex-col items-center text-center gap-1">
+                      <Icon className="w-4 h-4 text-[#056839]" />
+                      <strong className="text-[10px] font-extrabold text-slate-900 leading-none">{label}</strong>
+                      <span className="text-[9px] text-slate-400 font-medium">{sub}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
-        </div>
 
+        </div>
       </div>
-
-
-      {/* ────────────────────────────────────────────────────────── */}
-      {/* 2. DESKTOP VIEW (Visible on md: breakpoints & above) */}
-      {/* ────────────────────────────────────────────────────────── */}
-      <div className="hidden md:flex w-full py-6 flex-col gap-6 animate-fade-in max-w-7xl mx-auto">
-
-        {/* Desktop Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
-          <Link to="/" className="hover:text-[#056839] transition-colors">Home</Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <Link to="/shops" className="hover:text-[#056839] transition-colors">Shops</Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-800 font-bold">{shop.name}</span>
-        </div>
-
-        {/* Desktop Banner Image */}
-        <div
-          onClick={() => openImageModal(shopBanner, `${shop.name} Storefront Cover`)}
-          className="h-56 md:h-72 w-full rounded-3xl bg-slate-900 overflow-hidden relative border border-slate-200 cursor-zoom-in group shadow-xs"
-        >
-          <img src={shopBanner} alt={`${shop.name} Cover`} className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-500" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
-        </div>
-
-        {/* Desktop Profile Summary Card */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 -mt-24 relative z-10 mx-6 shadow-xs">
-          <div className="flex flex-row items-end justify-between gap-5">
-            <div className="flex items-end gap-5 min-w-0 flex-1">
-              <div
-                onClick={() => openImageModal(shopLogo, `${shop.name} Logo`)}
-                className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white border border-slate-200 overflow-hidden flex-shrink-0 cursor-zoom-in shadow-2xs"
-              >
-                <img src={shopLogo} alt={shop.name} className="w-full h-full object-cover" />
-              </div>
-
-              <div className="flex flex-col gap-1 min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <h1 className="font-display text-2xl md:text-3xl font-black text-slate-900 leading-none tracking-tight truncate">{shop.name}</h1>
-                  {shop.verified !== false && <CheckCircle2 className="w-5 h-5 text-[#056839] fill-[#056839]/10 flex-shrink-0" />}
-                </div>
-                <span className="text-[11px] font-extrabold text-[#056839] uppercase tracking-wider font-sans">{shop.category || shop.categoryName || 'GENERAL STORE'}</span>
-
-                <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold mt-1 tabular-nums min-w-0 max-w-full flex-wrap">
-                  <span className="flex items-center gap-1 flex-shrink-0"><Star className="w-4 h-4 text-amber-500 fill-amber-500" /> {shop.rating || '4.5'} ★</span>
-                  <span className="flex-shrink-0">&bull;</span>
-                  <span className="flex items-center gap-1 min-w-0 flex-1 overflow-hidden"><MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" /> <span className="truncate">{shop.market || 'Rampur'}</span></span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-2 flex-shrink-0">
-              <button
-                type="button"
-                onClick={handleWhatsAppContact}
-                className="px-5 py-3 rounded-xl bg-[#056839] hover:bg-emerald-800 text-white font-extrabold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border-none shadow-xs"
-              >
-                <svg className="w-4.5 h-4.5 fill-current text-white" viewBox="0 0 24 24">
-                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
-                </svg>
-                <span>Contact Merchant</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleShareShop}
-                className="px-4 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-2 cursor-pointer"
-              >
-                <Share2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Desktop Main Grid */}
-        <div className="grid grid-cols-4 gap-8 mt-2">
-
-          {/* Desktop Left Sidebar */}
-          <aside className="flex flex-col gap-6">
-            <div className="bg-white border border-slate-100 rounded-2xl p-5 flex flex-col gap-3 shadow-2xs">
-              <h3 className="font-bold text-slate-900 text-sm pb-2 border-b border-slate-100">Merchant Profile</h3>
-              <div className="flex items-center gap-3">
-                <img src={shopLogo} alt={shop.name} className="w-10 h-10 rounded-xl object-cover border border-slate-100" />
-                <div>
-                  <div className="font-black text-slate-900 text-xs">{shop.name}</div>
-                  <span className="text-[10px] text-slate-400 font-semibold">Storefront Owner</span>
-                </div>
-              </div>
-              <p className="text-[11px] text-slate-500 leading-relaxed font-normal">{shop.description || 'Verified merchant storefront.'}</p>
-            </div>
-
-            <div className="bg-white border border-slate-100 rounded-2xl p-5 flex flex-col gap-3 shadow-2xs">
-              <h3 className="font-bold text-slate-900 text-sm pb-2 border-b border-slate-100">Business Details</h3>
-              <div className="flex flex-col gap-2 text-[11px]">
-                <div className="flex justify-between">
-                  <span className="font-semibold text-slate-400">Timings:</span>
-                  <span className="font-bold text-[#056839]">{shop.timing || '10:00 AM – 09:00 PM'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold text-slate-400">Market Hub:</span>
-                  <span className="font-bold text-slate-800">{shop.market || 'Civil Lines'}</span>
-                </div>
-                {shop.phone && (
-                  <div className="flex justify-between">
-                    <span className="font-semibold text-slate-400">Contact:</span>
-                    <span className="font-bold text-slate-800">{shop.phone}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </aside>
-
-          {/* Desktop Right Catalog Section */}
-          <div className="col-span-3 flex flex-col gap-6">
-            <div className="flex border-b border-slate-100 gap-6">
-              <button
-                type="button"
-                onClick={() => setActiveTab('catalog')}
-                className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer border-none bg-transparent ${activeTab === 'catalog' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
-                  }`}
-              >
-                Catalog ({shopProducts.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('about')}
-                className={`pb-3 font-bold text-xs border-b-2 transition-all cursor-pointer border-none bg-transparent ${activeTab === 'about' ? 'border-[#056839] text-[#056839]' : 'border-transparent text-slate-400 hover:text-slate-600'
-                  }`}
-              >
-                About Seller
-              </button>
-            </div>
-
-            {activeTab === 'catalog' && (
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="relative flex-1 max-w-md">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      placeholder="Search inside this store..."
-                      value={inShopSearch}
-                      onChange={(e) => setInShopSearch(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 border border-slate-200/80 rounded-xl text-xs outline-none focus:border-[#056839] bg-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {rawCategories.map((cat) => (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${selectedCategory === cat ? 'bg-[#056839] border-[#056839] text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                        }`}
-                    >
-                      {cat === 'all' ? 'All Catalog Items' : cat}
-                    </button>
-                  ))}
-                </div>
-
-                {filteredProducts.length === 0 ? (
-                  <div className="text-center py-16 bg-white border border-slate-100 rounded-2xl space-y-2">
-                    <PackageOpen className="w-10 h-10 text-slate-300 mx-auto" />
-                    <h4 className="font-bold text-slate-800 text-xs">No products found</h4>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-3 gap-4">
-                    {filteredProducts.map((prod) => (
-                      <ProductCard key={prod.id} product={prod} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'about' && (
-              <div className="bg-white border border-slate-100 rounded-2xl p-6 space-y-4 text-xs text-slate-500">
-                <h3 className="font-black text-slate-900 text-sm">Store Description</h3>
-                <p>{shop.description || 'Official merchant storefront.'}</p>
-              </div>
-            )}
-          </div>
-
-        </div>
-
-      </div>
-
     </div>
   );
 }

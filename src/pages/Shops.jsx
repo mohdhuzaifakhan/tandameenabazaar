@@ -87,17 +87,18 @@ export default function Shops() {
 
   return (
     <div className="w-full min-h-screen bg-[#f8faf9] pb-24 font-sans text-slate-800">
-      <div className="max-w-4xl mx-auto px-2 sm:px-4 space-y-4 pt-2 sm:pt-4">
 
-        {/* --- 1. HORIZONTALLY SCROLLABLE CATEGORIES ROW (REUSABLE COMPONENT) --- */}
-        <CategoryFilterBar
-          selectedCategory={selectedCategory}
-          onSelectCategory={(catName) => {
-            const val = catName === 'all' ? '' : catName;
-            setSelectedCategory(val);
-            updateFilters('category', val);
-          }}
-        />
+      {/* --- 1. STICKY SCROLLABLE CATEGORIES BAR (spans full width for sticky to work) --- */}
+      <CategoryFilterBar
+        selectedCategory={selectedCategory}
+        onSelectCategory={(catName) => {
+          const val = catName === 'all' ? '' : catName;
+          setSelectedCategory(val);
+          updateFilters('category', val);
+        }}
+      />
+
+      <div className="max-w-4xl mx-auto px-2 sm:px-4 space-y-4 pt-2 sm:pt-4">
 
         {/* --- 4. SHOPS DIRECTORY GRID --- */}
         {filteredShops.length > 0 ? (
