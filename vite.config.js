@@ -22,7 +22,7 @@ export default defineConfig({
         short_name: 'MeenaBazaar',
         description: 'Digital marketplace connecting local city shops with customers via WhatsApp.',
         theme_color: '#056839',
-        background_color: '#ffffff',
+        background_color: '#f8faf9',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',

@@ -1,4 +1,5 @@
 import React from 'react';
+import { getCategoryAsset } from '../assets/categories';
 
 export default function ShopsFilterModal({
   isOpen,
@@ -181,7 +182,17 @@ export default function ShopsFilterModal({
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <i className={`fa-solid ${cat.icon || 'fa-tag'} text-xs flex-shrink-0 ${isSelected ? 'text-[#056839]' : 'text-slate-400'}`}></i>
+                      <div className="w-5 h-5 rounded-full overflow-hidden shrink-0 border border-slate-200 bg-white">
+                        <img
+                          src={cat.image && cat.image.trim() !== '' ? cat.image : getCategoryAsset(cat)}
+                          alt={cat.name}
+                          className="w-full h-full object-cover rounded-full"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = getCategoryAsset(cat);
+                          }}
+                        />
+                      </div>
                       <span className={`text-xs font-extrabold truncate ${isSelected ? 'text-[#056839]' : 'text-slate-700'}`}>
                         {cat.name}
                       </span>

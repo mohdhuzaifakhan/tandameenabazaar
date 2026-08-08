@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="grad-furniture" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#fbbf24" />
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="50" fill="url(#grad-furniture)" />
+  <g fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M26 44 C26 38 30 34 36 34 H64 C70 34 74 38 74 44 V58 H26 Z" fill="#ffffff" fill-opacity="0.15"/>
+    <rect x="20" y="56" width="60" height="14" rx="4" fill="#ffffff" fill-opacity="0.25"/>
+    <line x1="26" y1="70" x2="24" y2="80" stroke-width="5"/>
+    <line x1="74" y1="70" x2="76" y2="80" stroke-width="5"/>
+  </g>
+</svg>

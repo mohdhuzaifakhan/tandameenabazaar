@@ -8,16 +8,28 @@ import { DEFAULT_COVER_BANNER, DEFAULT_PRODUCT_IMAGE, DEFAULT_STORE_LOGO } from 
 const BazaarContext = createContext();
 
 const DEFAULT_CATEGORIES = [
-  { id: "electronics", name: "Electronics", icon: "fa-laptop", description: "Mobile phones, laptops, and gadgets" },
-  { id: "fashion", name: "Fashion", icon: "fa-shirt", description: "Apparel, sarees, suits, and garments" },
-  { id: "groceries", name: "Groceries", icon: "fa-basket-shopping", description: "Daily essentials, spices, and provisions" },
-  { id: "footwear", name: "Footwear", icon: "fa-shoe-prints", description: "Shoes, sandals, and traditional footwear" },
-  { id: "cosmetics", name: "Cosmetics", icon: "fa-spray-can-sparkles", description: "Beauty products, perfumes, and care" },
-  { id: "furniture", name: "Furniture", icon: "fa-couch", description: "Home decor, tables, and wooden furniture" },
-  { id: "mobile-acc", name: "Mobile Accessories", icon: "fa-mobile-screen-button", description: "Cases, chargers, and earphones" },
-  { id: "jewellery", name: "Jewellery", icon: "fa-gem", description: "Gold, silver, and artificial jewellery" },
-  { id: "books", name: "Books & Stationery", icon: "fa-book", description: "Educational books, notebooks, and supplies" }
+  { id: "fashion", name: "Fashion & Suits", icon: "fa-shirt", description: "Apparel, sarees, suits, bridal wear, and garments" },
+  { id: "electronics", name: "Electronics", icon: "fa-laptop", description: "Mobile phones, laptops, TVs, and gadgets" },
+  { id: "mobile-acc", name: "Mobile & Accessories", icon: "fa-mobile-screen-button", description: "Cases, chargers, earphones, and accessories" },
+  { id: "groceries", name: "Groceries & Spices", icon: "fa-basket-shopping", description: "Daily essentials, spices, dry fruits, and provisions" },
+  { id: "footwear", name: "Footwear & Shoes", icon: "fa-shoe-prints", description: "Shoes, sandals, heels, and traditional footwear" },
+  { id: "cosmetics", name: "Cosmetics & Beauty", icon: "fa-spray-can-sparkles", description: "Beauty products, perfumes, makeup, and care" },
+  { id: "furniture", name: "Home & Furniture", icon: "fa-couch", description: "Home decor, brassware, tables, and wooden furniture" },
+  { id: "jewellery", name: "Jewellery & Watches", icon: "fa-gem", description: "Gold, silver, artificial jewellery, and watches" },
+  { id: "books", name: "Books & Stationery", icon: "fa-book", description: "Educational books, notebooks, and office supplies" },
+  { id: "toys", name: "Toys & Baby Care", icon: "fa-gamepad", description: "Toys, games, strollers, and baby products" },
+  { id: "sports", name: "Sports & Fitness", icon: "fa-volleyball", description: "Sports gear, gym equipment, and activewear" },
+  { id: "sweets", name: "Sweets & Bakery", icon: "fa-cookie", description: "Mithai, traditional Rampur delicacies, and bakery" },
+  { id: "health", name: "Health & Wellness", icon: "fa-briefcase-medical", description: "Pharmacy items, supplements, and Ayurvedic products" },
+  { id: "automotive", name: "Automotive & Hardware", icon: "fa-car", description: "Vehicle accessories, spare parts, and tools" }
 ];
+
+const getMergedCategories = (saved) => {
+  if (!Array.isArray(saved) || saved.length === 0) return DEFAULT_CATEGORIES;
+  const existingIds = new Set(saved.map(c => c.id || c.name?.toLowerCase()));
+  const missingDefaults = DEFAULT_CATEGORIES.filter(def => !existingIds.has(def.id));
+  return [...saved, ...missingDefaults];
+};
 
 const DEFAULT_MARKETS = [
   { id: "gandhi-market", name: "Gandhi Market", city: "Rampur", area: "Center City", description: "Major retail hub for clothing, electronics, and daily essentials" },
@@ -33,9 +45,9 @@ const DEFAULT_BANNERS = [
     type: 'special_offer',
     tag: 'SPECIAL OFFER',
     title: 'Smartwatch Series 9',
-    subtitle: 'Advanced. Stylish. Connected.',
+    subtitle: 'Advanced performance, vibrant OLED display, and all-day health tracking.',
     discount: '20% OFF',
-    image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&q=80',
+    image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=1200&q=85',
     bgColor: 'bg-[#eaf5ef]',
     borderColor: 'border-emerald-100/90',
     tagColor: 'text-[#056839]',
@@ -49,9 +61,9 @@ const DEFAULT_BANNERS = [
     type: 'special_offer',
     tag: 'MEGA DEAL',
     title: 'Wireless Headphones Pro',
-    subtitle: 'Noise Cancelling. Pure Sound.',
+    subtitle: 'Active noise cancellation, studio acoustic acoustics, and 30hr battery.',
     discount: '30% OFF',
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80',
+    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200&q=85',
     bgColor: 'bg-[#eef2ff]',
     borderColor: 'border-indigo-100',
     tagColor: 'text-indigo-700',
@@ -64,10 +76,10 @@ const DEFAULT_BANNERS = [
     id: 'banner-3',
     type: 'new_arrival',
     tag: 'NEW ARRIVAL',
-    title: 'Summer Collection 2025',
-    subtitle: 'Explore the latest trends',
+    title: 'Ethnic & Festive Collection',
+    subtitle: 'Explore authentic designer wear, Zardozi dupattas, and bridal fashion.',
     discount: '25% OFF',
-    image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&q=80',
+    image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&q=85',
     bgColor: 'bg-[#f4efe8]',
     borderColor: 'border-amber-200/60',
     tagColor: 'text-amber-800',
@@ -105,7 +117,7 @@ export const BazaarProvider = ({ children }) => {
   const [shops, setShops] = useState(() => safeGetItem(STORAGE_KEYS.SHOPS, BAZAAR_DATA.shops || []));
 
   // Dynamic Categories State
-  const [categories, setCategories] = useState(() => safeGetItem(STORAGE_KEYS.CATEGORIES, DEFAULT_CATEGORIES));
+  const [categories, setCategories] = useState(() => getMergedCategories(safeGetItem(STORAGE_KEYS.CATEGORIES, DEFAULT_CATEGORIES)));
 
   // Dynamic Markets / Locations State
   const [markets, setMarkets] = useState(() => safeGetItem(STORAGE_KEYS.MARKETS, DEFAULT_MARKETS));
@@ -156,7 +168,7 @@ export const BazaarProvider = ({ children }) => {
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(c => !c.deleted);
       if (loadedCats.length > 0) {
-        setCategories(loadedCats);
+        setCategories(getMergedCategories(loadedCats));
       } else {
         // Seed default categories if collection is empty
         DEFAULT_CATEGORIES.forEach(cat => {

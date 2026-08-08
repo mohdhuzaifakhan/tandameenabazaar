@@ -3,11 +3,18 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Meena Bazaar - Local Shops Marketplace in Rampur</title>
   <meta name="description"
     content="Discover products from local shops in Rampur and order directly via WhatsApp. Fast, simple, and local marketplace.">
   <meta name="theme-color" content="#056839">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Meena Bazaar">
+
+  <!-- Favicons & App Icons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/shopping-bag--v1.png">
 
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,8 +23,22 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body>
-  <div id="root"></div>
+<body style="margin:0; background-color:#f8faf9; font-family:'Outfit', sans-serif;">
+  <div id="root">
+    <!-- Instant Fallback HTML/CSS Splash Screen before React mounts -->
+    <div style="position:fixed; inset:0; z-index:9999; background:linear-gradient(135deg, #011c14, #056839, #022c22); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; color:#ffffff; padding:24px;">
+      <div style="width:96px; height:96px; margin:0 auto 20px auto; border-radius:50%; background:rgba(255,255,255,0.12); border:2px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      </div>
+      <div style="font-size:12px; font-weight:800; letter-spacing:2px; color:#fcd34d; text-transform:uppercase; margin-bottom:6px;">WELCOME TO</div>
+      <h1 style="font-size:32px; font-weight:900; margin:0 0 8px 0; color:#ffffff;">Meena Bazaar</h1>
+      <p style="font-size:13px; font-weight:500; color:#d1fae5; margin:0 0 24px 0; max-width:280px;">Discover Local Shops & Explore Products</p>
+      <div style="width:180px; height:6px; background:rgba(0,0,0,0.4); border-radius:10px; overflow:hidden; margin:0 auto 12px auto; border:1px solid rgba(255,255,255,0.2);">
+        <div style="width:60%; height:100%; background:linear-gradient(90deg, #34d399, #fcd34d); border-radius:10px;"></div>
+      </div>
+      <span style="font-size:11px; font-weight:700; color:#a7f3d0;">Loading Meena Bazaar...</span>
+    </div>
+  </div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 

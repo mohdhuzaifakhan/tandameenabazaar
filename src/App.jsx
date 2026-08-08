@@ -3,6 +3,7 @@ import { BrowserRouter, Outlet, Route, Routes, useLocation } from 'react-router-
 import Footer from './components/Footer';
 import Header from './components/Header';
 import MobileDrawer from './components/MobileDrawer';
+import SplashScreen from './components/SplashScreen';
 import { AuthProvider } from './context/AuthContext';
 import { BazaarProvider } from './context/BazaarContext';
 import { ImageModalProvider } from './context/ImageModalContext';
@@ -55,10 +56,13 @@ function PublicLayout() {
 }
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
   return (
     <AuthProvider>
       <BazaarProvider>
         <ImageModalProvider>
+          {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
           <BrowserRouter>
             <ScrollToTop />
             <Routes>

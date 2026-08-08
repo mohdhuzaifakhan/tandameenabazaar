@@ -5,16 +5,20 @@ export const BAZAAR_DATA = {
   currentCity: "Rampur",
 
   categories: [
-    { id: "electronics", name: "Electronics", icon: "fa-laptop", image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=300" },
-    { id: "fashion", name: "Fashion", icon: "fa-shirt", image: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=300" },
-    { id: "groceries", name: "Groceries", icon: "fa-basket-shopping", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=300" },
-    { id: "footwear", name: "Footwear", icon: "fa-shoe-prints", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300" },
-    { id: "cosmetics", name: "Cosmetics", icon: "fa-spray-can-sparkles", image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=300" },
-    { id: "furniture", name: "Furniture", icon: "fa-couch", image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300" },
-    { id: "mobile-acc", name: "Mobile Accessories", icon: "fa-mobile-screen-button", image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=300" },
-    { id: "jewellery", name: "Jewellery", icon: "fa-gem", image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300" },
-    { id: "books", name: "Books", icon: "fa-book", image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=300" },
-    { id: "more", name: "More", icon: "fa-ellipsis", image: "" }
+    { id: "fashion", name: "Fashion & Suits", icon: "fa-shirt", image: "" },
+    { id: "electronics", name: "Electronics", icon: "fa-laptop", image: "" },
+    { id: "mobile-acc", name: "Mobile & Accessories", icon: "fa-mobile-screen-button", image: "" },
+    { id: "groceries", name: "Groceries & Spices", icon: "fa-basket-shopping", image: "" },
+    { id: "footwear", name: "Footwear & Shoes", icon: "fa-shoe-prints", image: "" },
+    { id: "cosmetics", name: "Cosmetics & Beauty", icon: "fa-spray-can-sparkles", image: "" },
+    { id: "furniture", name: "Home & Furniture", icon: "fa-couch", image: "" },
+    { id: "jewellery", name: "Jewellery & Watches", icon: "fa-gem", image: "" },
+    { id: "books", name: "Books & Stationery", icon: "fa-book", image: "" },
+    { id: "toys", name: "Toys & Baby Care", icon: "fa-gamepad", image: "" },
+    { id: "sports", name: "Sports & Fitness", icon: "fa-volleyball", image: "" },
+    { id: "sweets", name: "Sweets & Bakery", icon: "fa-cookie", image: "" },
+    { id: "health", name: "Health & Wellness", icon: "fa-briefcase-medical", image: "" },
+    { id: "automotive", name: "Automotive & Hardware", icon: "fa-car", image: "" }
   ],
 
   markets: [

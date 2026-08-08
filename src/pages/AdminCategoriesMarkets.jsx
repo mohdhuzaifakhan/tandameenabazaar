@@ -2,6 +2,7 @@ import { useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { DEFAULT_CATEGORY_ICONS as ICON_OPTIONS } from '../constants/appConstants';
 import { useBazaar } from '../context/BazaarContext';
+import { getCategoryAsset } from '../assets/categories';
 
 export default function AdminCategoriesMarkets() {
   const {
@@ -201,8 +202,16 @@ export default function AdminCategoriesMarkets() {
                 <div key={cat.id} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-2xs hover:border-emerald-300 transition-all flex flex-col justify-between gap-3 group">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-xl bg-emerald-50 text-[#056839] flex items-center justify-center text-lg font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
-                        <i className={`fa-solid ${cat.icon || 'fa-shapes'}`}></i>
+                      <div className="w-12 h-12 rounded-full p-0.5 border-2 border-emerald-500/30 bg-white overflow-hidden shrink-0 group-hover:scale-110 transition-transform shadow-xs">
+                        <img
+                          src={cat.image && cat.image.trim() !== '' ? cat.image : getCategoryAsset(cat)}
+                          alt={cat.name}
+                          className="w-full h-full object-cover rounded-full"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = getCategoryAsset(cat);
+                          }}
+                        />
                       </div>
                       <div className="min-w-0">
                         <h4 className="font-extrabold text-sm text-slate-900 truncate">{cat.name}</h4>
