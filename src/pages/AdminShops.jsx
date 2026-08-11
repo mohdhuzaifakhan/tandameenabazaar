@@ -5,7 +5,7 @@ import { useBazaar } from '../context/BazaarContext';
 import { DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 
 export default function AdminShops() {
-  const { shops, products, toggleShopVerification } = useBazaar();
+  const { shops, products, toggleShopVerification, deleteShop } = useBazaar();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'verified' | 'pending'
   const [toastMessage, setToastMessage] = useState(null);
@@ -15,8 +15,10 @@ export default function AdminShops() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // Filtered Shops
-  const filteredShops = shops.filter(shop => {
+  // Filtered Non-Deleted Shops
+  const activeShops = shops.filter(s => !s.deleted);
+
+  const filteredShops = activeShops.filter(shop => {
     const name = shop.name || '';
     const market = shop.market || '';
     const category = shop.category || shop.categoryName || '';
@@ -36,6 +38,13 @@ export default function AdminShops() {
     toggleShopVerification(shop.id);
     const newStatus = !shop.verified ? 'Verified' : 'Pending Verification';
     showToast(`Store "${shop.name}" status changed to ${newStatus}.`);
+  };
+
+  const handleDeleteShop = async (shop) => {
+    if (window.confirm(`Are you sure you want to permanently delete store "${shop.name}" and all its listed products? This action cannot be undone.`)) {
+      await deleteShop(shop.id);
+      showToast(`Store "${shop.name}" deleted permanently.`);
+    }
   };
 
   return (
@@ -120,11 +129,11 @@ export default function AdminShops() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 pt-2.5 border-t border-slate-100 mt-1">
+                  <div className="grid grid-cols-3 gap-1.5 pt-2.5 border-t border-slate-100 mt-1">
                     <button
                       onClick={() => handleToggleVerification(shop)}
                       className={`py-2 rounded-xl border text-[11px] font-extrabold cursor-pointer transition-colors text-center whitespace-nowrap ${shop.verified
-                        ? 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
+                        ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
                         : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                         }`}
                     >
@@ -136,8 +145,14 @@ export default function AdminShops() {
                       className="py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] transition-colors flex items-center justify-center gap-1 text-center whitespace-nowrap shadow-2xs"
                     >
                       <span>Audit Store</span>
-                      <i className="fa-solid fa-chevron-right text-[8px]"></i>
                     </Link>
+
+                    <button
+                      onClick={() => handleDeleteShop(shop)}
+                      className="py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[11px] transition-colors text-center whitespace-nowrap cursor-pointer shadow-2xs"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               );
@@ -155,7 +170,7 @@ export default function AdminShops() {
                 <th className="py-4 px-4 min-w-[120px]">Category</th>
                 <th className="py-4 px-4 min-w-[110px]">Listed Products</th>
                 <th className="py-4 px-4 min-w-[140px]">Verification</th>
-                <th className="py-4 px-4 text-right min-w-[200px]">Action Controls</th>
+                <th className="py-4 px-4 text-right min-w-[240px]">Action Controls</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -196,11 +211,11 @@ export default function AdminShops() {
                         </span>
                       </td>
                       <td className="py-4 px-4 text-right">
-                        <div className="flex gap-2 justify-end items-center">
+                        <div className="flex gap-1.5 justify-end items-center">
                           <button
                             onClick={() => handleToggleVerification(shop)}
                             className={`px-3 py-1.5 rounded-xl border text-[11px] font-extrabold cursor-pointer transition-all whitespace-nowrap ${shop.verified
-                              ? 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
+                              ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
                               : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                               }`}
                             title={shop.verified ? 'Unverify and hide Shop from public buyers' : 'Verify and publish Shop to public buyers'}
@@ -215,6 +230,14 @@ export default function AdminShops() {
                             <span>Audit Store</span>
                             <i className="fa-solid fa-chevron-right text-[8px]"></i>
                           </Link>
+
+                          <button
+                            onClick={() => handleDeleteShop(shop)}
+                            className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[11px] transition-all cursor-pointer whitespace-nowrap shadow-2xs"
+                            title="Permanently delete store and all its products"
+                          >
+                            Delete
+                          </button>
                         </div>
                       </td>
                     </tr>

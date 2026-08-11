@@ -20,6 +20,7 @@ export const STORAGE_KEYS = {
   AUTH_USER: 'meena_bazaar_auth_user_v3',
   CITY: 'meena_bazaar_city_v3',
   BANNERS: 'meena_bazaar_banners_v3',
+  FOLLOWED_SHOPS: 'meena_bazaar_followed_shops_v3',
   ANALYTICS_VIEWS: 'meena_bazaar_analytics_v1',
 };
 
@@ -74,3 +75,21 @@ export const UI_LABELS = {
   IN_STOCK: 'In Stock',
   WHATSAPP_CONNECT: 'WhatsApp Connect',
 };
+
+
+export const DEFAULT_CATEGORIES = [
+  { id: "fashion", name: "Fashion & Suits", icon: "fa-shirt", description: "Apparel, sarees, suits, bridal wear, and garments" },
+  { id: "electronics", name: "Electronics", icon: "fa-laptop", description: "Mobile phones, laptops, TVs, and gadgets" },
+  { id: "mobile-acc", name: "Mobile & Accessories", icon: "fa-mobile-screen-button", description: "Cases, chargers, earphones, and accessories" },
+  { id: "groceries", name: "Groceries & Spices", icon: "fa-basket-shopping", description: "Daily essentials, spices, dry fruits, and provisions" },
+  { id: "footwear", name: "Footwear & Shoes", icon: "fa-shoe-prints", description: "Shoes, sandals, heels, and traditional footwear" },
+  { id: "cosmetics", name: "Cosmetics & Beauty", icon: "fa-spray-can-sparkles", description: "Beauty products, perfumes, makeup, and care" },
+  { id: "furniture", name: "Home & Furniture", icon: "fa-couch", description: "Home decor, brassware, tables, and wooden furniture" },
+  { id: "jewellery", name: "Jewellery & Watches", icon: "fa-gem", description: "Gold, silver, artificial jewellery, and watches" },
+  { id: "books", name: "Books & Stationery", icon: "fa-book", description: "Educational books, notebooks, and office supplies" },
+  { id: "toys", name: "Toys & Baby Care", icon: "fa-gamepad", description: "Toys, games, strollers, and baby products" },
+  { id: "sports", name: "Sports & Fitness", icon: "fa-volleyball", description: "Sports gear, gym equipment, and activewear" },
+  { id: "sweets", name: "Sweets & Bakery", icon: "fa-cookie", description: "Mithai, traditional Rampur delicacies, and bakery" },
+  { id: "health", name: "Health & Wellness", icon: "fa-briefcase-medical", description: "Pharmacy items, supplements, and Ayurvedic products" },
+  { id: "automotive", name: "Automotive & Hardware", icon: "fa-car", description: "Vehicle accessories, spare parts, and tools" }
+];

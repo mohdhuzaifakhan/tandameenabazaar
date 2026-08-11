@@ -8,7 +8,7 @@ import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../utils/defaultAssets
 export default function AdminShopDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { shops, products, toggleShopVerification, deleteProduct } = useBazaar();
+  const { shops, products, toggleShopVerification, deleteProduct, deleteShop } = useBazaar();
   const { openImageModal } = useImageModal();
 
   const [toastMessage, setToastMessage] = useState(null);
@@ -41,6 +41,13 @@ export default function AdminShopDetails() {
     toggleShopVerification(shop.id);
     const newStatus = !shop.verified ? 'Verified' : 'Pending Verification';
     showToast(`Store "${shop.name}" status changed to ${newStatus}.`);
+  };
+
+  const handleDeleteStore = async () => {
+    if (window.confirm(`Are you sure you want to permanently delete store "${shop.name}" and all its listed products? This action cannot be undone.`)) {
+      await deleteShop(shop.id);
+      navigate('/dashboard/admin/shops');
+    }
   };
 
   const confirmDeleteProduct = () => {
@@ -110,7 +117,7 @@ export default function AdminShopDetails() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3 w-full md:w-auto mt-1 sm:mt-0">
+            <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:gap-3 w-full md:w-auto mt-1 sm:mt-0">
               <button
                 onClick={handleToggleVerify}
                 className={`px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer whitespace-nowrap text-center flex items-center justify-center gap-1.5 ${shop.verified
@@ -119,7 +126,7 @@ export default function AdminShopDetails() {
                   }`}
               >
                 <i className={`fa-solid ${shop.verified ? 'fa-ban' : 'fa-check-circle'} text-xs`}></i>
-                <span>{shop.verified ? 'Suspend Verification' : 'Approve & Verify'}</span>
+                <span>{shop.verified ? 'Suspend' : 'Verify'}</span>
               </button>
 
               <Link
@@ -127,8 +134,15 @@ export default function AdminShopDetails() {
                 target="_blank"
                 className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition-all border border-slate-700 flex items-center justify-center gap-1.5 whitespace-nowrap text-center"
               >
-                <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i> <span>View Live Storefront</span>
+                <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i> <span>Live View</span>
               </Link>
+
+              <button
+                onClick={handleDeleteStore}
+                className="px-3.5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap text-center cursor-pointer shadow-xs"
+              >
+                <i className="fa-solid fa-trash-can text-xs"></i> <span>Delete Store</span>
+              </button>
             </div>
           </div>
         </div>

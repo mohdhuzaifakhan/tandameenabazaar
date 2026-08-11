@@ -20,12 +20,14 @@ import {
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
+import ShopCard from '../components/ShopCard';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
+import { matchProductSearch } from '../utils/searchUtils';
 
 export default function CustomerDashboard() {
   const { userProfile, logout } = useAuth();
-  const { products, savedProductIds, currentCity, setCurrentCity, cities, shops, markets, categories } = useBazaar();
+  const { products, savedProductIds, followedShopIds, toggleFollowShop, currentCity, setCurrentCity, cities, shops, markets, categories } = useBazaar();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('saved'); // 'saved' | 'shops' | 'markets' | 'account'
@@ -35,11 +37,12 @@ export default function CustomerDashboard() {
   // Filter saved products
   const savedProducts = products.filter(p => savedProductIds.includes(p.id));
 
+  // Filter followed shops
+  const followedShops = shops.filter(s => followedShopIds.includes(s.id) && !s.deleted);
+
   // Filter saved products by category and search
   const filteredSavedProducts = savedProducts.filter(p => {
-    const matchesSearch = !searchQuery.trim() ||
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.shopName && p.shopName.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch = matchProductSearch(p, searchQuery);
 
     const matchesCategory = selectedCategory === 'all' ||
       (p.category && p.category.toLowerCase() === selectedCategory.toLowerCase());
@@ -50,8 +53,31 @@ export default function CustomerDashboard() {
   // Filter shops by current city
   const cityShops = shops.filter(s => currentCity === 'All Cities' || s.city === currentCity);
 
-  // Filter markets by current city
-  const cityMarkets = markets.filter(m => currentCity === 'All Cities' || m.city === currentCity);
+  // Safely normalize markets data to ensure proper object structure
+  const normalizedMarkets = (markets || []).map((m, idx) => {
+    if (typeof m === 'string') {
+      return {
+        id: m.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        name: m,
+        city: 'Rampur',
+        area: 'Main City Area',
+        description: 'Major commercial market and retail hub in Rampur.'
+      };
+    }
+    return {
+      id: m.id || (m.name ? m.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') : `mkt-${idx}`),
+      name: m.name || m.id || 'Local Market',
+      city: m.city || 'Rampur',
+      area: m.area || m.city || 'Main City Area',
+      description: m.description || `Famous local market area serving shoppers in ${m.city || 'Rampur'}.`
+    };
+  });
+
+  // Filter markets by current city (case-insensitive)
+  const cityMarkets = normalizedMarkets.filter(m =>
+    currentCity === 'All Cities' ||
+    (m.city && m.city.toLowerCase() === currentCity.toLowerCase())
+  );
 
   const handleLogout = async () => {
     await logout();
@@ -181,7 +207,7 @@ export default function CustomerDashboard() {
               <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
                 <Store className="w-4 h-4 text-[#056839]" />
               </div>
-              <div className="text-xl font-black text-slate-900">{cityShops.length}</div>
+              <div className="text-xl font-black text-slate-900">{followedShops.length}</div>
               <div className="text-[11px] font-bold text-slate-600">Following Shops</div>
               <div className="text-[10.5px] font-extrabold text-[#056839] flex items-center gap-0.5 pt-0.5">
                 <span>View all</span>
@@ -236,7 +262,7 @@ export default function CustomerDashboard() {
             <span>Saved Items ({savedProducts.length})</span>
           </button>
 
-          {/* Tab 2: Shops */}
+          {/* Tab 2: Following Shops */}
           <button
             onClick={() => setActiveTab('shops')}
             className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${activeTab === 'shops'
@@ -245,7 +271,7 @@ export default function CustomerDashboard() {
               }`}
           >
             <Store className="w-4 h-4" />
-            <span>Shops ({cityShops.length})</span>
+            <span>Following Shops ({followedShops.length})</span>
           </button>
 
           {/* Tab 3: Markets */}
@@ -359,82 +385,99 @@ export default function CustomerDashboard() {
           </div>
         )}
 
-        {/* TAB 2: SHOPS */}
+        {/* TAB 2: FOLLOWING SHOPS */}
         {activeTab === 'shops' && (
           <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {cityShops.map(shop => (
-                <div key={shop.id} className="bg-white rounded-2xl border border-slate-200/80 p-4 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={shop.image}
-                      alt={shop.name}
-                      className="w-12 h-12 rounded-xl object-cover border border-slate-100 shrink-0"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-extrabold text-sm text-slate-900 truncate">{shop.name}</h3>
-                      <p className="text-xs text-slate-500 font-medium flex items-center gap-1 truncate mt-0.5">
-                        <MapPin className="w-3.5 h-3.5 text-[#056839] shrink-0" />
-                        <span>{shop.market || shop.city}</span>
-                      </p>
-                    </div>
-                  </div>
+            {followedShops.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-4">
+                {followedShops.map(shop => (
+                  <ShopCard key={shop.id} shop={shop} />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-12 text-center space-y-4">
+                <div className="relative w-20 h-20 rounded-full bg-[#f4fbf7] text-[#056839] flex items-center justify-center mx-auto border border-emerald-100">
+                  <Store className="w-10 h-10 text-[#056839] stroke-[2]" />
+                  <Sparkles className="w-4 h-4 text-emerald-400 absolute top-2 right-2" />
+                  <Sparkles className="w-3 h-3 text-emerald-400 absolute bottom-3 left-2" />
+                </div>
 
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                    <span>Category: {shop.category || 'Local Shop'}</span>
-                    <span className="text-[#056839] font-extrabold bg-emerald-50 px-2 py-0.5 rounded text-[10px] border border-emerald-200">
-                      Verified
-                    </span>
-                  </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900">Not Following Any Shops Yet</h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto font-medium mt-1">
+                    Explore stores in {currentCity === 'All Cities' ? 'Rampur' : currentCity} and follow your favorite local shops to quickly access them here!
+                  </p>
+                </div>
 
+                <div>
                   <Link
-                    to={`/shop/${shop.id}`}
-                    className="block w-full py-2 rounded-xl bg-[#056839] hover:bg-emerald-800 text-white font-extrabold text-xs text-center transition-colors"
+                    to="/shops"
+                    className="px-6 py-3 rounded-2xl bg-[#056839] hover:bg-emerald-800 text-white font-extrabold text-xs inline-flex items-center gap-2 transition-all cursor-pointer"
                   >
-                    Visit Shop
+                    <Compass className="w-4 h-4" /> Discover Shops Directory
                   </Link>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* TAB 3: MARKETS */}
         {activeTab === 'markets' && (
           <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {cityMarkets.map(market => (
-                <div key={market.id} className="bg-white rounded-2xl border border-slate-200/80 p-5 space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <span className="text-[10px] font-black text-[#056839] uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                        {market.city}
-                      </span>
-                      <h3 className="font-black text-base text-slate-900 mt-1">{market.name}</h3>
-                      <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-0.5">
-                        <MapPin className="w-3.5 h-3.5 text-[#056839]" /> {market.area || market.city}
-                      </p>
+            {cityMarkets.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {cityMarkets.map(market => (
+                  <div key={market.id} className="bg-white rounded-2xl border border-slate-200/80 p-5 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="text-[10px] font-black text-[#056839] uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          {market.city}
+                        </span>
+                        <h3 className="font-black text-base text-slate-900 mt-1">{market.name}</h3>
+                        <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-0.5">
+                          <MapPin className="w-3.5 h-3.5 text-[#056839]" /> {market.area || market.city}
+                        </p>
+                      </div>
+
+                      <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#056839] flex items-center justify-center font-bold shrink-0">
+                        <Building className="w-5 h-5" />
+                      </div>
                     </div>
 
-                    <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#056839] flex items-center justify-center font-bold shrink-0">
-                      <Building className="w-5 h-5" />
-                    </div>
+                    <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                      {market.description}
+                    </p>
+
+                    <Link
+                      to={`/shops?market=${encodeURIComponent(market.name)}`}
+                      className="text-xs font-extrabold text-[#056839] hover:underline flex items-center gap-1 pt-1"
+                    >
+                      <span>Explore Market Shops</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
                   </div>
-
-                  <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                    {market.description}
-                  </p>
-
-                  <Link
-                    to={`/shops?market=${encodeURIComponent(market.name)}`}
-                    className="text-xs font-extrabold text-[#056839] hover:underline flex items-center gap-1 pt-1"
-                  >
-                    <span>Explore Market Shops</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-12 text-center space-y-3">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-[#056839] flex items-center justify-center mx-auto border border-emerald-100">
+                  <Building className="w-7 h-7 stroke-[1.8]" />
                 </div>
-              ))}
-            </div>
+                <h3 className="text-base font-black text-slate-900">No Markets Listed in {currentCity}</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto font-medium">
+                  Switch your city filter to "All Cities" or "Rampur" to explore nearby bazaar markets.
+                </p>
+                <div className="pt-1">
+                  <button
+                    onClick={() => setCurrentCity('All Cities')}
+                    className="px-5 py-2.5 rounded-xl bg-[#056839] text-white text-xs font-extrabold cursor-pointer"
+                  >
+                    View All Cities Markets
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

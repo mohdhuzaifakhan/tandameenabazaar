@@ -1,10 +1,11 @@
 import { Home, LayoutGrid, Search, User } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 
 export default function BottomNav({ onOpenSearch }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { savedProductIds } = useBazaar();
   const { userProfile, currentUser } = useAuth();
 
@@ -21,6 +22,14 @@ export default function BottomNav({ onOpenSearch }) {
   const isProfileActive =
     location.pathname === '/login' || location.pathname.startsWith('/dashboard');
 
+  const handleSearchClick = () => {
+    if (typeof onOpenSearch === 'function') {
+      onOpenSearch();
+    } else {
+      navigate('/categories');
+    }
+  };
+
   const navItems = [
     {
       id: 'home',
@@ -34,8 +43,8 @@ export default function BottomNav({ onOpenSearch }) {
       label: 'Search',
       icon: Search,
       path: '/categories',
-      onClick: onOpenSearch,
-      active: location.pathname === '/search',
+      onClick: handleSearchClick,
+      active: location.pathname === '/categories' && location.search.includes('search'),
     },
     {
       id: 'categories',

@@ -3,10 +3,11 @@ import { useBazaar } from '../context/BazaarContext';
 import { DEFAULT_PRODUCT_IMAGE } from '../utils/defaultAssets';
 
 export default function ShopProductCard({ product }) {
-  if (!product) return null;
-
   const { isProductSaved, toggleSaveProduct, openWhatsApp } = useBazaar();
   const navigate = useNavigate();
+
+  if (!product) return null;
+
   const saved = isProductSaved(product.id);
   const hasDiscount = product.originalPrice && product.originalPrice > product.price;
   const discountPercent = hasDiscount ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;

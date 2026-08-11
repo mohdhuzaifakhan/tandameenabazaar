@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CategoryFilterBar from '../components/CategoryFilterBar';
 import ProductCard from '../components/ProductCard';
+import PaginatedProductGrid from '../components/PaginatedProductGrid';
 import { useBazaar } from '../context/BazaarContext';
 
 export default function Home() {
@@ -148,9 +149,9 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // Only products from verified shops or published products
-  const verifiedShopIds = new Set(shops.filter(s => s.verified !== false).map(s => s.id));
-  const publicProducts = products.filter(p => verifiedShopIds.has(p.shopId) || !p.shopId);
+  // Only products from verified non-deleted shops or published products
+  const verifiedShopIds = new Set(shops.filter(s => s.verified !== false && !s.deleted).map(s => s.id));
+  const publicProducts = products.filter(p => !p.deleted && (verifiedShopIds.has(p.shopId) || !p.shopId));
 
   // Filter products by selected category
   const filteredProducts = publicProducts.filter(p => {
@@ -471,6 +472,30 @@ export default function Home() {
               <ProductCard key={prod.id} product={prod} />
             ))}
           </div>
+        </div>
+
+        {/* --- 9. ENDLESS EXPLORE ALL PRODUCTS FEED (SOCIAL MEDIA STYLE INFINITE SCROLL) --- */}
+        <div className="space-y-4 pt-4 border-t border-slate-200/60">
+          <div className="flex items-center justify-between px-1">
+            <div>
+              <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                {selectedCategory === 'all' ? 'Explore All Products' : 'Products in Selected Category'}
+              </h3>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Scroll to discover more items from verified local stores
+              </p>
+            </div>
+            <span className="text-xs font-extrabold text-[#056839] bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/80">
+              {filteredProducts.length} Available
+            </span>
+          </div>
+
+          <PaginatedProductGrid
+            products={filteredProducts}
+            initialCount={8}
+            pageSize={8}
+            endMessageText="You've reached the end of all available products on Home!"
+          />
         </div>
 
       </div>

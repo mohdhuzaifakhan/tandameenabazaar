@@ -19,10 +19,12 @@ import {
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
+import PaginatedProductGrid from '../components/PaginatedProductGrid';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 import { useImageModal } from '../context/ImageModalContext';
 import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
+import { matchProductSearch } from '../utils/searchUtils';
 import { trackView } from '../utils/trackView';
 
 // WhatsApp SVG icon — reusable
@@ -35,7 +37,7 @@ const WhatsAppIcon = ({ className = 'w-4 h-4' }) => (
 export default function ShopDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { shops, products, openWhatsApp } = useBazaar();
+  const { shops, products, openWhatsApp, isShopFollowed, toggleFollowShop } = useBazaar();
   const { userProfile } = useAuth();
   const { openImageModal } = useImageModal();
 
@@ -50,6 +52,7 @@ export default function ShopDetails() {
   // Find shop (must be before tracking effect)
   const currentShopId = id || shops[0]?.id || 'sharma-mobiles';
   const shop = shops.find((s) => s.id === currentShopId) || shops[0];
+  const isFollowed = shop && isShopFollowed ? isShopFollowed(shop.id) : false;
 
   // Track shop visit (session-debounced)
   useEffect(() => {
@@ -107,9 +110,7 @@ export default function ShopDetails() {
   const shopProducts = products.filter((p) => p.shopId === shop.id);
   const rawCategories = ['all', ...new Set(shopProducts.map((p) => p.categoryName || p.category))];
   const filteredProducts = shopProducts.filter((p) => {
-    const matchesSearch =
-      p.name.toLowerCase().includes(inShopSearch.toLowerCase()) ||
-      (p.brand && p.brand.toLowerCase().includes(inShopSearch.toLowerCase()));
+    const matchesSearch = matchProductSearch(p, inShopSearch);
     const matchesCategory =
       selectedCategory === 'all' || (p.categoryName || p.category) === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -324,21 +325,21 @@ export default function ShopDetails() {
             <div className="hidden sm:flex flex-col gap-2 flex-shrink-0">
               <button
                 type="button"
+                onClick={() => toggleFollowShop(shop.id)}
+                className={`h-10 px-5 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-2 cursor-pointer border-none transition-all ${isFollowed ? 'bg-emerald-100 text-[#056839]' : 'bg-white text-[#056839]'
+                  }`}
+              >
+                <Store className="w-4 h-4" />
+                <span>{isFollowed ? 'Following Store' : 'Follow Store'}</span>
+              </button>
+              <button
+                type="button"
                 onClick={handleWhatsAppContact}
-                className="h-10 px-5 rounded-2xl font-extrabold text-xs flex items-center gap-2 cursor-pointer border-none transition-all"
+                className="h-10 px-5 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-2 cursor-pointer border-none transition-all"
                 style={{ background: '#056839', color: '#fff' }}
               >
                 <WhatsAppIcon className="w-4 h-4" />
                 Contact Merchant
-              </button>
-              <button
-                type="button"
-                onClick={handleViewOnMap}
-                className="h-10 px-5 rounded-2xl font-bold text-xs flex items-center gap-2 cursor-pointer transition-all"
-                style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
-              >
-                <Map className="w-4 h-4" />
-                View on Map
               </button>
             </div>
 
@@ -548,11 +549,13 @@ export default function ShopDetails() {
                   <p className="text-[11px] text-slate-400">Try searching for another product or category.</p>
                 </div>
               ) : viewMode === 'grid' ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-2.5">
-                  {filteredProducts.map((prod) => (
-                    <ProductCard key={prod.id} product={prod} />
-                  ))}
-                </div>
+                <PaginatedProductGrid
+                  products={filteredProducts}
+                  initialCount={6}
+                  pageSize={6}
+                  gridClassName="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-2.5"
+                  endMessageText="You've reached the end of products from this store!"
+                />
               ) : (
                 <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden divide-y divide-slate-100">
                   {filteredProducts.map((prod) => {
