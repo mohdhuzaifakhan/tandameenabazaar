@@ -150,6 +150,9 @@ export const BazaarProvider = ({ children }) => {
   // User Authentication State
   const [currentUser, setCurrentUser] = useState(() => safeGetItem(STORAGE_KEYS.USER_PROFILE, { role: 'guest' }));
 
+  // Data Loading State for Skeleton Loading Indicators across the app
+  const [isDataLoading, setIsDataLoading] = useState(true);
+
   // Active City
   const [currentCity, setCurrentCity] = useState(() => safeGetItem(STORAGE_KEYS.CITY, APP_CONFIG.DEFAULT_CITY));
 
@@ -157,9 +160,28 @@ export const BazaarProvider = ({ children }) => {
     safeSetItem(STORAGE_KEYS.CITY, currentCity);
   }, [currentCity]);
 
+  // Initial loading completion timer / snapshot ready flag
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsDataLoading(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
+
   // ── REAL FIREBASE FIRESTORE SYNC (DYNAMIC REAL-TIME DATA) ──
   useEffect(() => {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured) {
+      setIsDataLoading(false);
+      return;
+    }
+
+    let loadedCount = 0;
+    const markLoaded = () => {
+      loadedCount++;
+      if (loadedCount >= 2) {
+        setIsDataLoading(false);
+      }
+    };
 
     // 1. Sync Real Shops Collection
     const shopsUnsub = onSnapshot(collection(db, FIRESTORE_COLLECTIONS.SHOPS), (snapshot) => {
@@ -167,7 +189,11 @@ export const BazaarProvider = ({ children }) => {
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(s => !s.deleted);
       setShops(loadedShops);
-    }, (err) => console.warn("Firestore shops snapshot error:", err));
+      markLoaded();
+    }, (err) => {
+      console.warn("Firestore shops snapshot error:", err);
+      markLoaded();
+    });
 
     // 2. Sync Real Products Collection
     const productsUnsub = onSnapshot(collection(db, FIRESTORE_COLLECTIONS.PRODUCTS), (snapshot) => {
@@ -175,7 +201,11 @@ export const BazaarProvider = ({ children }) => {
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(p => !p.deleted);
       setProducts(loadedProds);
-    }, (err) => console.warn("Firestore products snapshot error:", err));
+      markLoaded();
+    }, (err) => {
+      console.warn("Firestore products snapshot error:", err);
+      markLoaded();
+    });
 
     // 3. Sync Dynamic Categories Collection
     const categoriesUnsub = onSnapshot(collection(db, FIRESTORE_COLLECTIONS.CATEGORIES), (snapshot) => {
@@ -852,6 +882,8 @@ export const BazaarProvider = ({ children }) => {
       logout,
       generateWhatsAppLink,
       openWhatsApp,
+      isDataLoading,
+      setIsDataLoading,
       // Analytics
       topViewedProducts,
       topVisitedShops,
@@ -864,6 +896,7 @@ export const BazaarProvider = ({ children }) => {
 };
 
 const defaultBazaarContext = {
+  isDataLoading: false,
   products: [],
   shops: [],
   categories: [],

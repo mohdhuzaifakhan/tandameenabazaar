@@ -4,16 +4,20 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PaginatedProductGrid from '../components/PaginatedProductGrid';
+import { SavedProductsSkeleton } from '../components/Skeletons';
 import { useBazaar } from '../context/BazaarContext';
 import { matchProductSearch } from '../utils/searchUtils';
 
 export default function SavedProducts() {
-  const { savedProductIds, products, clearSavedProducts, categories } = useBazaar();
+  const { savedProductIds, products, categories, isDataLoading } = useBazaar();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const navigate = useNavigate();
+
+  if (isDataLoading) {
+    return <SavedProductsSkeleton />;
+  }
 
   const savedProducts = products.filter(p => savedProductIds.includes(p.id));
 

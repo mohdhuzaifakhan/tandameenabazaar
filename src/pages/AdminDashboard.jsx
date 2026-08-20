@@ -1,16 +1,29 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
+import { DashboardStatsSkeleton, TableSkeleton } from '../components/Skeletons';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 import { DEFAULT_PRODUCT_IMAGE, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 
 export default function AdminDashboard() {
-  const { userProfile } = useAuth();
+  const { userProfile, loading: authLoading } = useAuth();
   const {
     shops, products, toggleShopVerification, categories, markets,
-    topViewedProducts, topVisitedShops, totalProductViews, totalShopViews
+    topViewedProducts, topVisitedShops, totalProductViews, totalShopViews,
+    isDataLoading
   } = useBazaar();
+
+  if (isDataLoading || authLoading) {
+    return (
+      <DashboardLayout title="Dashboard" role="admin">
+        <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+          <DashboardStatsSkeleton count={4} />
+          <TableSkeleton rows={6} />
+        </div>
+      </DashboardLayout>
+    );
+  }
   const [approvalTab, setApprovalTab] = useState('shops'); // 'shops' | 'products'
   const [toastMessage, setToastMessage] = useState(null);
 

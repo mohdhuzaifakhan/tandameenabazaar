@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
+import { BannerSkeleton } from '../components/Skeletons';
 import {
   BANNER_TYPE_OPTIONS,
   COLOR_PALETTES,
@@ -18,12 +19,23 @@ import {
 import { useBazaar } from '../context/BazaarContext';
 
 export default function AdminBanners() {
-  const { banners, addBanner, updateBanner, deleteBanner, toggleBannerActive } = useBazaar();
+  const { banners, addBanner, updateBanner, deleteBanner, toggleBannerActive, isDataLoading } = useBazaar();
 
   const [filterType, setFilterType] = useState('all'); // 'all' | 'special_offer' | 'new_arrival'
   const [showModal, setShowModal] = useState(false);
   const [editingBanner, setEditingBanner] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
+
+  if (isDataLoading) {
+    return (
+      <DashboardLayout title="Banner Advertisements" role="admin">
+        <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+          <BannerSkeleton />
+          <BannerSkeleton />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const [formData, setFormData] = useState(INITIAL_BANNER_FORM);
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
+import { TableSkeleton } from '../components/Skeletons';
 import { DEFAULT_CATEGORY_ICONS as ICON_OPTIONS } from '../constants/appConstants';
 import { useBazaar } from '../context/BazaarContext';
 import { getCategoryAsset } from '../assets/categories';
@@ -13,11 +14,22 @@ export default function AdminCategoriesMarkets() {
     deleteCategory,
     addMarket,
     updateMarket,
-    deleteMarket
+    deleteMarket,
+    isDataLoading
   } = useBazaar();
 
   const [activeTab, setActiveTab] = useState('categories'); // 'categories' | 'markets'
   const [toastMessage, setToastMessage] = useState(null);
+
+  if (isDataLoading) {
+    return (
+      <DashboardLayout title="Categories & Markets" role="admin">
+        <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+          <TableSkeleton rows={6} />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const showToast = (text, type = 'success') => {
     setToastMessage({ text, type });

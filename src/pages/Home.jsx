@@ -6,12 +6,13 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CategoryFilterBar from '../components/CategoryFilterBar';
-import ProductCard from '../components/ProductCard';
 import PaginatedProductGrid from '../components/PaginatedProductGrid';
+import ProductCard from '../components/ProductCard';
+import { BannerSkeleton, ProductGridSkeleton } from '../components/Skeletons';
 import { useBazaar } from '../context/BazaarContext';
 
 export default function Home() {
-  const { products, shops, banners } = useBazaar();
+  const { products, shops, banners, isDataLoading } = useBazaar();
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   // Dynamic Special Offer & New Arrival Banners from Admin / Database (sorted latest first)
@@ -186,7 +187,9 @@ export default function Home() {
       <div className="max-w-4xl mx-auto px-2 sm:px-4 space-y-4 pt-2 sm:pt-4">
 
         {/* --- 4. HERO ADVERTISEMENT SLIDER BANNER (DYNAMIC MULTI-OFFER CAROUSEL) --- */}
-        {activeSpecialOffers.length > 0 && (() => {
+        {isDataLoading ? (
+          <BannerSkeleton />
+        ) : activeSpecialOffers.length > 0 && (() => {
           const activeOffer = activeSpecialOffers[currentSlideIndex] || activeSpecialOffers[0];
           if (!activeOffer) return null;
 
@@ -271,11 +274,10 @@ export default function Home() {
                       key={idx}
                       type="button"
                       onClick={() => setCurrentSlideIndex(idx)}
-                      className={`transition-all rounded-full cursor-pointer border-none ${
-                        currentSlideIndex === idx
+                      className={`transition-all rounded-full cursor-pointer border-none ${currentSlideIndex === idx
                           ? 'w-6 sm:w-8 h-2 bg-emerald-400 shadow-xs'
                           : 'w-2 h-2 bg-white/50 hover:bg-white/80'
-                      }`}
+                        }`}
                       title={`Go to offer ${idx + 1}`}
                     />
                   ))}
@@ -339,11 +341,15 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {featuredProducts.map(prod => (
-              <ProductCard key={prod.id} product={prod} />
-            ))}
-          </div>
+          {isDataLoading ? (
+            <ProductGridSkeleton count={4} gridClassName="grid grid-cols-2 sm:grid-cols-4 gap-3" />
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {featuredProducts.map(prod => (
+                <ProductCard key={prod.id} product={prod} />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* --- 7. NEW ARRIVAL PROMOTION BANNER CAROUSEL (MULTI-SLIDE DYNAMIC FROM DATABASE) --- */}
@@ -428,11 +434,10 @@ export default function Home() {
                       key={idx}
                       type="button"
                       onClick={() => setCurrentNewArrivalIndex(idx)}
-                      className={`transition-all rounded-full cursor-pointer border-none ${
-                        currentNewArrivalIndex === idx
+                      className={`transition-all rounded-full cursor-pointer border-none ${currentNewArrivalIndex === idx
                           ? 'w-6 sm:w-8 h-2 bg-amber-400 shadow-xs'
                           : 'w-2 h-2 bg-white/50 hover:bg-white/80'
-                      }`}
+                        }`}
                       title={`Go to arrival banner ${idx + 1}`}
                     />
                   ))}
@@ -485,9 +490,9 @@ export default function Home() {
                 Scroll to discover more items from verified local stores
               </p>
             </div>
-            <span className="text-xs font-extrabold text-[#056839] bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/80">
+            {/* <span className="text-xs font-extrabold text-[#056839] bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/80">
               {filteredProducts.length} Available
-            </span>
+            </span> */}
           </div>
 
           <PaginatedProductGrid

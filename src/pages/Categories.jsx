@@ -7,7 +7,7 @@ import { useBazaar } from '../context/BazaarContext';
 import { matchProductSearch } from '../utils/searchUtils';
 
 export default function Categories() {
-  const { products, shops } = useBazaar();
+  const { products, shops, isDataLoading } = useBazaar();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const initialSearch = searchParams.get('search') || '';
@@ -118,6 +118,7 @@ export default function Categories() {
           products={filteredProducts}
           initialCount={8}
           pageSize={8}
+          isLoading={isDataLoading}
           emptyState={emptyStateView}
           endMessageText="You've viewed all matching products!"
         />

@@ -3,7 +3,6 @@ import {
   Award,
   Check,
   CheckCircle2,
-  ChevronRight,
   LayoutGrid,
   List,
   Map,
@@ -18,8 +17,8 @@ import {
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import ProductCard from '../components/ProductCard';
 import PaginatedProductGrid from '../components/PaginatedProductGrid';
+import { ShopDetailsSkeleton } from '../components/Skeletons';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 import { useImageModal } from '../context/ImageModalContext';
@@ -37,7 +36,7 @@ const WhatsAppIcon = ({ className = 'w-4 h-4' }) => (
 export default function ShopDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { shops, products, openWhatsApp, isShopFollowed, toggleFollowShop } = useBazaar();
+  const { shops, products, openWhatsApp, isShopFollowed, toggleFollowShop, isDataLoading } = useBazaar();
   const { userProfile } = useAuth();
   const { openImageModal } = useImageModal();
 
@@ -51,7 +50,7 @@ export default function ShopDetails() {
 
   // Find shop (must be before tracking effect)
   const currentShopId = id || shops[0]?.id || 'sharma-mobiles';
-  const shop = shops.find((s) => s.id === currentShopId) || shops[0];
+  const shop = shops.find((s) => s.id === currentShopId);
   const isFollowed = shop && isShopFollowed ? isShopFollowed(shop.id) : false;
 
   // Track shop visit (session-debounced)
@@ -71,7 +70,11 @@ export default function ShopDetails() {
     return () => observer.disconnect();
   }, [shop?.id]);
 
-  // ── Error states ──
+  // ── Error / Loading states ──
+  if (isDataLoading) {
+    return <ShopDetailsSkeleton />;
+  }
+
   if (!shop) {
     return (
       <div className="w-full py-16 text-center text-slate-400 space-y-4">

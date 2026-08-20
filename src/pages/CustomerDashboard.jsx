@@ -21,18 +21,28 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import ShopCard from '../components/ShopCard';
+import { DashboardStatsSkeleton } from '../components/Skeletons';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 import { matchProductSearch } from '../utils/searchUtils';
 
 export default function CustomerDashboard() {
-  const { userProfile, logout } = useAuth();
-  const { products, savedProductIds, followedShopIds, toggleFollowShop, currentCity, setCurrentCity, cities, shops, markets, categories } = useBazaar();
+  const { userProfile, logout, loading: authLoading } = useAuth();
+  const { products, savedProductIds, followedShopIds, toggleFollowShop, currentCity, setCurrentCity, cities, shops, markets, categories, isDataLoading } = useBazaar();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('saved'); // 'saved' | 'shops' | 'markets' | 'account'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  if (isDataLoading || authLoading) {
+    return (
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-6 space-y-6">
+        <div className="h-20 bg-slate-200 rounded-3xl animate-pulse" />
+        <DashboardStatsSkeleton count={3} />
+      </div>
+    );
+  }
 
   // Filter saved products
   const savedProducts = products.filter(p => savedProductIds.includes(p.id));

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
+import { ShopDetailsSkeleton } from '../components/Skeletons';
 import { useBazaar } from '../context/BazaarContext';
 import { useImageModal } from '../context/ImageModalContext';
 import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
@@ -8,7 +9,7 @@ import { DEFAULT_COVER_BANNER, DEFAULT_STORE_LOGO } from '../utils/defaultAssets
 export default function AdminShopDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { shops, products, toggleShopVerification, deleteProduct, deleteShop } = useBazaar();
+  const { shops, products, toggleShopVerification, deleteProduct, deleteShop, isDataLoading } = useBazaar();
   const { openImageModal } = useImageModal();
 
   const [toastMessage, setToastMessage] = useState(null);
@@ -22,6 +23,14 @@ export default function AdminShopDetails() {
   const shop = shops.find(s => s.id === id);
   const shopProducts = products.filter(p => p.shopId === shop?.id);
   const totalCatalogValue = shopProducts.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+
+  if (isDataLoading) {
+    return (
+      <DashboardLayout title="Store Audit" role="admin">
+        <ShopDetailsSkeleton />
+      </DashboardLayout>
+    );
+  }
 
   if (!shop) {
     return (

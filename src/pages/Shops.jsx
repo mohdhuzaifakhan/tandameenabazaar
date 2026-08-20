@@ -1,24 +1,17 @@
-import {
-  MapPin,
-  MessageCircle,
-  RotateCcw,
-  Star,
-  Store
-} from 'lucide-react';
+import { RotateCcw, Store } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import CategoryFilterBar from '../components/CategoryFilterBar';
 import ShopCard from '../components/ShopCard';
 import ShopsFilterModal from '../components/ShopsFilterModal';
+import { ShopGridSkeleton } from '../components/Skeletons';
 import { useBazaar } from '../context/BazaarContext';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
-import { DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 import { matchShopSearch } from '../utils/searchUtils';
 
 export default function Shops() {
-  const { shops, categories, markets, cities, currentCity, setCurrentCity } = useBazaar();
+  const { shops, categories, markets, cities, currentCity, setCurrentCity, isDataLoading } = useBazaar();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   // Search input and filter states
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
@@ -109,7 +102,9 @@ export default function Shops() {
       <div className="max-w-4xl mx-auto px-2 sm:px-4 space-y-4 pt-2 sm:pt-4">
 
         {/* --- 4. SHOPS DIRECTORY GRID WITH INFINITE SCROLL --- */}
-        {filteredShops.length > 0 ? (
+        {isDataLoading ? (
+          <ShopGridSkeleton count={6} />
+        ) : filteredShops.length > 0 ? (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
               {displayedShops.map(shop => (

@@ -1,27 +1,9 @@
 import { Sparkles, CheckCircle2 } from 'lucide-react';
 import ProductCard from './ProductCard';
+import { ProductCardSkeleton, ProductGridSkeleton } from './Skeletons';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 
-/**
- * Product Card Skeleton component for ultra-smooth social media loading experience
- */
-export function ProductCardSkeleton() {
-  return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 p-2.5 sm:p-3 space-y-3 animate-pulse">
-      <div className="aspect-square w-full rounded-xl bg-slate-100/90 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" />
-      </div>
-      <div className="space-y-2">
-        <div className="h-3.5 bg-slate-200/80 rounded-md w-3/4" />
-        <div className="h-3 bg-slate-100 rounded-md w-1/2" />
-        <div className="flex items-center justify-between pt-1">
-          <div className="h-4 bg-emerald-100/80 rounded-md w-1/3" />
-          <div className="h-7 w-7 rounded-xl bg-slate-100" />
-        </div>
-      </div>
-    </div>
-  );
-}
+export { ProductCardSkeleton };
 
 /**
  * Reusable Paginated Product Grid Component
@@ -35,12 +17,17 @@ export default function PaginatedProductGrid({
   emptyState = null,
   showEndMessage = true,
   endMessageText = "You've explored all products in this collection!",
+  isLoading = false,
 }) {
   const { displayedItems, hasMore, isLoadingMore, sentinelRef, totalCount } = useInfiniteScroll({
     items: products,
     initialCount,
     pageSize,
   });
+
+  if (isLoading) {
+    return <ProductGridSkeleton count={initialCount} gridClassName={gridClassName} />;
+  }
 
   if (totalCount === 0) {
     return emptyState;

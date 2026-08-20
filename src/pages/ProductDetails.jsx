@@ -19,6 +19,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
+import { ProductDetailsSkeleton } from '../components/Skeletons';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 import { useImageModal } from '../context/ImageModalContext';
@@ -27,12 +28,12 @@ import { trackView } from '../utils/trackView';
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, shops, isProductSaved, toggleSaveProduct, openWhatsApp } = useBazaar();
+  const { products, shops, isProductSaved, toggleSaveProduct, openWhatsApp, isDataLoading } = useBazaar();
   const { userProfile } = useAuth();
   const { openImageModal } = useImageModal();
 
   const currentProductId = id || products[0]?.id || 'samsung-m16-5g';
-  const product = products.find((p) => p.id === currentProductId) || products[0];
+  const product = products.find((p) => p.id === currentProductId);
   const shop = shops.find((s) => s.id === product?.shopId) || shops[0];
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -52,6 +53,10 @@ export default function ProductDetails() {
       trackView('product', product.id);
     }
   }, [id, product?.id]);
+
+  if (isDataLoading) {
+    return <ProductDetailsSkeleton />;
+  }
 
   if (!product) {
     return (

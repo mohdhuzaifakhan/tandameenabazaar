@@ -1,14 +1,25 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
+import { TableSkeleton } from '../components/Skeletons';
 import { useBazaar } from '../context/BazaarContext';
 import { DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 
 export default function AdminShops() {
-  const { shops, products, toggleShopVerification, deleteShop } = useBazaar();
+  const { shops, products, toggleShopVerification, deleteShop, isDataLoading } = useBazaar();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'verified' | 'pending'
   const [toastMessage, setToastMessage] = useState(null);
+
+  if (isDataLoading) {
+    return (
+      <DashboardLayout title="Shops Directory" role="admin">
+        <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+          <TableSkeleton rows={6} />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const showToast = (text, type = 'success') => {
     setToastMessage({ text, type });

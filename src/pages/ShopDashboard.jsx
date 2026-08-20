@@ -12,12 +12,13 @@ import ShopOverviewTab from '../components/dashboard/ShopOverviewTab';
 import ShopProductsTab from '../components/dashboard/ShopProductsTab';
 import ShopQRCodeTab from '../components/dashboard/ShopQRCodeTab';
 import ShopSettingsTab from '../components/dashboard/ShopSettingsTab';
+import { DashboardStatsSkeleton, TableSkeleton } from '../components/Skeletons';
 import { useAuth } from '../context/AuthContext';
 import { useBazaar } from '../context/BazaarContext';
 import { DEFAULT_COVER_BANNER, DEFAULT_PRODUCT_IMAGE, DEFAULT_STORE_LOGO } from '../utils/defaultAssets';
 
 export default function ShopDashboard() {
-  const { userProfile } = useAuth();
+  const { userProfile, loading: authLoading } = useAuth();
   const {
     shops,
     products,
@@ -28,8 +29,11 @@ export default function ShopDashboard() {
     deleteProduct,
     categories,
     markets,
-    cities
+    cities,
+    isDataLoading
   } = useBazaar();
+
+
 
   const [toastMessage, setToastMessage] = useState(null); // { type: 'success'|'error', text: '' }
 
@@ -207,6 +211,18 @@ export default function ShopDashboard() {
     stockStatus: 'In Stock', status: 'Active',
     isDealOfDay: false
   });
+
+  if (isDataLoading || authLoading) {
+    return (
+      <DashboardLayout activeItem="dashboard">
+        <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+          <div className="h-28 bg-slate-200 rounded-3xl animate-pulse" />
+          <DashboardStatsSkeleton count={3} />
+          <TableSkeleton rows={5} />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const openAddModal = () => {
     setModalMode('add');
